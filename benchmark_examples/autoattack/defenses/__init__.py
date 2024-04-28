@@ -1,4 +1,4 @@
-# Copyright 2023 Ant Group Co., Ltd.
+# Copyright 2024 Ant Group Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .exploit import ExploitAttackCase as exploit
-from .fia import FiaAttackCase as fia
-from .fsha import FshaAttackCase as fsha
-from .grad_lia import GradLiaAttackCase as grad_lia
-from .lia import LiaAttackCase as lia
-from .norm import NormAttackCase as norm
-from .replace import ReplaceAttackCase as replace
-from .replay import ReplayAttackCase as replay
+from .de_identification import DeIdentification as de_identification
+from .fed_pass import FedPass as fed_pass
+from .grad_avg import GradientAverageCase as grad_avg
+from .mid import Mid as mid
+from .mixup import Mixup as mixup
 
-__all__ = ['exploit', 'fia', 'lia', 'norm', 'replace', 'replay', 'grad_lia', 'fsha']
+__all__ = ['grad_avg', 'mixup', 'de_identification', 'mid', 'fed_pass']

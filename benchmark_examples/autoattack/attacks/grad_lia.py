@@ -1,4 +1,4 @@
-# Copyright 2023 Ant Group Co., Ltd.
+# Copyright 2024 Ant Group Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,31 +14,32 @@
 
 from typing import Dict
 
-from benchmark_examples.autoattack.applications.base import (
-    ApplicationBase,
-    ClassficationType,
-)
+from benchmark_examples.autoattack.applications.base import ApplicationBase, ModelType
 from benchmark_examples.autoattack.attacks.base import AttackBase, AttackType
-from secretflow import reveal
 from secretflow.ml.nn.callbacks.attack import AttackCallback
-from secretflow.ml.nn.sl.attacks.norm_torch import NormAttack
+from secretflow.ml.nn.sl.attacks.grad_lia_attack_torch import (
+    GradientClusterLabelInferenceAttack,
+)
 
 
-class NormAttackCase(AttackBase):
+class GradLiaAttackCase(AttackBase):
+    def __init__(self, alice=None, bob=None):
+        super().__init__(alice, bob)
 
     def __str__(self):
-        return 'norm'
+        return 'grad_lia'
 
     def build_attack_callback(self, app: ApplicationBase) -> AttackCallback:
-        label = reveal(app.get_train_label().partitions[app.device_y].data)
-        return NormAttack(app.device_f, label)
+        num_classes = app.num_classes
+        return GradientClusterLabelInferenceAttack(
+            attack_party=app.device_f, label_party=app.device_y, num_classes=num_classes
+        )
 
     def attack_type(self) -> AttackType:
         return AttackType.LABLE_INFERENSE
 
     def tune_metrics(self) -> Dict[str, str]:
-        return {'auc': 'max'}
+        return {'val_acc_0': 'max'}
 
     def check_app_valid(self, app: ApplicationBase) -> bool:
-        # TODO: support multiclass
-        return app.classfication_type() in [ClassficationType.BINARY]
+        return app.model_type() != ModelType.DEEPFM

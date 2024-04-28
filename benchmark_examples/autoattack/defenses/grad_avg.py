@@ -1,4 +1,4 @@
-# Copyright 2023 Ant Group Co., Ltd.
+# Copyright 2024 Ant Group Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,31 +14,32 @@
 
 from typing import Dict
 
+from benchmark_examples.autoattack import global_config
 from benchmark_examples.autoattack.applications.base import (
     ApplicationBase,
     ClassficationType,
 )
 from benchmark_examples.autoattack.attacks.base import AttackBase, AttackType
-from secretflow import reveal
-from secretflow.ml.nn.callbacks.attack import AttackCallback
-from secretflow.ml.nn.sl.attacks.norm_torch import NormAttack
+from benchmark_examples.autoattack.defenses.base import DefenseBase
+from secretflow.ml.nn.callbacks.callback import Callback
+from secretflow.ml.nn.sl.defenses.gradient_average import GradientAverage
 
 
-class NormAttackCase(AttackBase):
+class GradientAverageCase(DefenseBase):
 
     def __str__(self):
-        return 'norm'
+        return "grad_avg"
 
-    def build_attack_callback(self, app: ApplicationBase) -> AttackCallback:
-        label = reveal(app.get_train_label().partitions[app.device_y].data)
-        return NormAttack(app.device_f, label)
+    def build_defense_callback(self, app: ApplicationBase) -> Callback | None:
+        return GradientAverage(
+            backend='torch', exec_device='cuda' if global_config.is_use_gpu() else 'cpu'
+        )
 
-    def attack_type(self) -> AttackType:
-        return AttackType.LABLE_INFERENSE
+    def check_attack_valid(self, attack: AttackBase) -> bool:
+        return attack.attack_type() == AttackType.LABLE_INFERENSE
 
     def tune_metrics(self) -> Dict[str, str]:
-        return {'auc': 'max'}
+        return {}
 
     def check_app_valid(self, app: ApplicationBase) -> bool:
-        # TODO: support multiclass
-        return app.classfication_type() in [ClassficationType.BINARY]
+        return app.classfication_type() == ClassficationType.BINARY

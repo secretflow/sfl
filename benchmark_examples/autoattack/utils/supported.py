@@ -1,4 +1,4 @@
-# Copyright 2023 Ant Group Co., Ltd.
+# Copyright 2024 Ant Group Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .exploit import ExploitAttackCase as exploit
-from .fia import FiaAttackCase as fia
-from .fsha import FshaAttackCase as fsha
-from .grad_lia import GradLiaAttackCase as grad_lia
-from .lia import LiaAttackCase as lia
-from .norm import NormAttackCase as norm
-from .replace import ReplaceAttackCase as replace
-from .replay import ReplayAttackCase as replay
+from benchmark_examples.autoattack.benchmark import Benchmark
 
-__all__ = ['exploit', 'fia', 'lia', 'norm', 'replace', 'replay', 'grad_lia', 'fsha']
+
+def get_supported_scenes():
+    """Get the table of supported scenes."""
+    check_supported = Benchmark(
+        enable_tune=False, enable_log=False, objective=lambda *args, **kwargs: None
+    )
+    check_supported.run()
+    return check_supported.experiments.to_markdown()
+
+
+if __name__ == '__main__':
+    """Run this script to print the supported applications/attacks/defenses"""
+    print(get_supported_scenes())
