@@ -15,6 +15,8 @@
 import logging
 import tempfile
 
+import pytest
+
 from secretflow import reveal
 from secretflow_fl import tune
 from secretflow_fl.ml.nn import SLModel
@@ -22,7 +24,7 @@ from secretflow_fl.ml.nn.callbacks.tune.automl import AutoMLCallback
 from secretflow_fl.security.privacy import DPStrategy, LabelDP
 from secretflow_fl.security.privacy.mechanism.tensorflow import GaussianEmbeddingDP
 from secretflow_fl.utils.simulation.datasets_fl import load_mnist
-from tests.ml.nn.sl.model_def import create_base_model, create_fuse_model
+from tests.fl.ml.nn.sl.model_def import create_base_model, create_fuse_model
 
 _temp_dir = tempfile.mkdtemp()
 
@@ -115,15 +117,15 @@ def train(config, *, alice, bob):
     return {"accuracy": history["val_accuracy"][-1]}
 
 
-def test_automl(sf_tune_simulation_setup_devices):
+@pytest.mark.parametrize(
+    "sf_simulation_setup_devices", [{"is_tune": True}], indirect=True
+)
+def test_automl(sf_simulation_setup_devices):
+    devices = sf_simulation_setup_devices
     search_space = {
         "train_batch_size": tune.grid_search([32, 512]),
     }
-    trainable = tune.with_parameters(
-        train,
-        alice=sf_tune_simulation_setup_devices.alice,
-        bob=sf_tune_simulation_setup_devices.bob,
-    )
+    trainable = tune.with_parameters(train, alice=devices.alice, bob=devices.bob)
     tuner = tune.Tuner(
         trainable,
         param_space=search_space,

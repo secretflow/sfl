@@ -14,19 +14,23 @@
 
 import logging
 
+import pytest
+
 from secretflow_fl import tune
-from tests.ml.nn.sl.attack.test_torch_fia import do_test_sl_and_fia
+from tests.fl.ml.nn.sl.attack.test_torch_fia import do_test_sl_and_fia
 
 
-def test_attack_torch_fia(sf_tune_simulation_setup_devices):
+@pytest.mark.parametrize(
+    "sf_simulation_setup_devices", [{"is_tune": True}], indirect=True
+)
+def test_attack_torch_fia(sf_simulation_setup_devices):
+    devices = sf_simulation_setup_devices
     search_space = {
         'attack_epochs': tune.search.choice([20, 60, 120]),
         'optim_lr': tune.search.loguniform(1e-5, 1e-1),
     }
     trainable = tune.with_parameters(
-        do_test_sl_and_fia,
-        alice=sf_tune_simulation_setup_devices.alice,
-        bob=sf_tune_simulation_setup_devices.bob,
+        do_test_sl_and_fia, alice=devices.alice, bob=devices.bob
     )
     tuner = tune.Tuner(
         trainable,
