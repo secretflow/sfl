@@ -18,9 +18,9 @@ from typing import Tuple
 import numpy as np
 import torch
 
-from secretflow_fl.ml.nn.core.torch import BuilderType
-from secretflow_fl.ml.nn.fl.backend.torch.fl_base import BaseTorchModel
-from secretflow_fl.ml.nn.fl.strategy_dispatcher import register_strategy
+from sfl.ml.nn.core.torch import BuilderType
+from sfl.ml.nn.fl.backend.torch.fl_base import BaseTorchModel
+from sfl.ml.nn.fl.strategy_dispatcher import register_strategy
 
 
 # the client strategy in FedSMP
@@ -141,7 +141,7 @@ class FedSMP(BaseTorchModel):
             self.set_weights(weights)
 
 
-@register_strategy(strategy_name='fed_smp', backend='torch')
+@register_strategy(strategy_name="fed_smp", backend="torch")
 class PYUFedSMP(FedSMP):
     pass
 

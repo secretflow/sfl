@@ -21,27 +21,27 @@ from sklearn.model_selection import train_test_split
 # 预处理数据
 def DataPreprocess():
     # import data
-    train_df = pd.read_csv('data/train.csv')
-    test_df = pd.read_csv('data/test.csv')
+    train_df = pd.read_csv("data/train.csv")
+    test_df = pd.read_csv("data/test.csv")
 
     print(train_df.shape, test_df.shape)
     # 先将label这一列保存起来，再从train中删除
-    label = train_df['Label']
-    del train_df['Label']
+    label = train_df["Label"]
+    del train_df["Label"]
 
     # 进行数据合并，为了同时对train和test数据进行预处理
     data_df = pd.concat((train_df, test_df))
 
-    del data_df['Id']
+    del data_df["Id"]
 
     print(data_df.columns)
 
     # 特征分开类别
-    sparse_feas = [col for col in data_df.columns if col[0] == 'C']
-    dense_feas = [col for col in data_df.columns if col[0] == 'I']
+    sparse_feas = [col for col in data_df.columns if col[0] == "C"]
+    dense_feas = [col for col in data_df.columns if col[0] == "I"]
 
     # 填充缺失值
-    data_df[sparse_feas] = data_df[sparse_feas].fillna('-1')
+    data_df[sparse_feas] = data_df[sparse_feas].fillna("-1")
     data_df[dense_feas] = data_df[dense_feas].fillna(0)
 
     # 进行编码  类别特征编码
@@ -60,30 +60,30 @@ def DataPreprocess():
     for feature in sparse_feas:
         max_value = data_df[feature].max()
         sparse_feature_info.append(
-            {'feat_num': int(max_value) + 1}
+            {"feat_num": int(max_value) + 1}
         )  # +1 因为类别从 0 开始
 
     # 将列表转换为 NumPy 数组并保存
-    np.save('fea_col.npy', sparse_feature_info)
+    np.save("fea_col.npy", sparse_feature_info)
 
     # 分开测试集和训练集
     train = data_df[: train_df.shape[0]]
     test = data_df[train_df.shape[0] :]
 
-    train['Label'] = label
+    train["Label"] = label
 
     train_set, val_set = train_test_split(train, test_size=0.2, random_state=2020)
 
-    print(train_set['Label'].value_counts())
-    print(val_set['Label'].value_counts())
+    print(train_set["Label"].value_counts())
+    print(val_set["Label"].value_counts())
 
     # 保存文件
     train_set.reset_index(drop=True, inplace=True)
     val_set.reset_index(drop=True, inplace=True)
 
-    train_set.to_csv('data/train_set1.csv', index=0)
-    val_set.to_csv('data/val_set1.csv', index=0)
-    test.to_csv('data/test_set1.csv', index=0)
+    train_set.to_csv("data/train_set1.csv", index=0)
+    val_set.to_csv("data/val_set1.csv", index=0)
+    test.to_csv("data/test_set1.csv", index=0)
 
 
 # 存储每个稀疏特征的最大类别数
@@ -92,7 +92,7 @@ def generate_fea_col(filename, output_file):
     df = pd.read_csv(filename)
 
     # 找到所有稀疏特征列（以 'C' 开头）
-    sparse_features = [col for col in df.columns if col.startswith('C')]
+    sparse_features = [col for col in df.columns if col.startswith("C")]
 
     # 创建一个列表来存储每个稀疏特征的最大类别数
 
@@ -109,8 +109,8 @@ def getTrainData(filename, feafile, columns_for_alice, columns_for_bob):
     print(df.columns)
 
     # C开头的列代表稀疏特征，I开头的列代表的是稠密特征
-    dense_features_cols_alice = [col for col in columns_for_alice if col[0] == 'I']
-    dense_features_cols_bob = [col for col in columns_for_bob if col[0] == 'I']
+    dense_features_cols_alice = [col for col in columns_for_alice if col[0] == "I"]
+    dense_features_cols_bob = [col for col in columns_for_bob if col[0] == "I"]
 
     # 这个文件里面存储了稀疏特征的最大范围，用于设置Embedding的输入维度
 
@@ -119,17 +119,17 @@ def getTrainData(filename, feafile, columns_for_alice, columns_for_bob):
     # fea_col = pickle.load(feafile)
     sparse_features_cols_alice = []
     for col in columns_for_alice:
-        if col[0] == 'C':
+        if col[0] == "C":
             sparse_features_cols_alice.append(max_fea_col[col])
     sparse_features_cols_bob = []
     for col in columns_for_bob:
-        if col[0] == 'C':
+        if col[0] == "C":
             sparse_features_cols_bob.append(max_fea_col[col])
 
     # 将处理后的数据用于模型训练
     df_data_alice = df[columns_for_alice].values
     df_data = df[columns_for_bob]
-    df_data_bob, labels = df_data.drop(columns='Label').values, df_data['Label'].values
+    df_data_bob, labels = df_data.drop(columns="Label").values, df_data["Label"].values
 
     return (
         df_data_alice,

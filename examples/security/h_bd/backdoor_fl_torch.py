@@ -13,15 +13,16 @@
 # limitations under the License.
 
 import copy
-import random
 import logging
+import random
+
 import numpy as np
 import torch
-
 from secretflow.device import PYU
-from secretflow_fl.ml.nn.callbacks.attack import AttackCallback
-from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import OneHotEncoder
+from torch.utils.data import DataLoader, TensorDataset
+
+from sfl.ml.nn.callbacks.attack import AttackCallback
 
 
 def poison_dataset(dataloader, poison_rate, target_label):
@@ -32,7 +33,7 @@ def poison_dataset(dataloader, poison_rate, target_label):
     batch_size = dataloader.batch_size
     target_label = np.array([target_label])
     classes = np.arange(10).reshape(-1, 1)
-    encoder = OneHotEncoder(categories='auto', sparse_output=False)
+    encoder = OneHotEncoder(categories="auto", sparse_output=False)
     encoder.fit(classes)
     target_label = encoder.transform(target_label.reshape(-1, 1))
     target_label = np.squeeze(target_label)

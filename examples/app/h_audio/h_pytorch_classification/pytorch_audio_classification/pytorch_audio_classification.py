@@ -21,28 +21,23 @@ from pathlib import Path
 
 import IPython.display as ipd
 import matplotlib.pyplot as plt
+import secretflow as sf
 import torch
 import torch.nn.functional as F
 import torchaudio
+from secretflow.security.aggregation import SecureAggregator
 from torch import nn, optim
 from torchmetrics import Accuracy, Precision
 from torchvision import datasets, transforms
 
-import secretflow as sf
-from secretflow.security.aggregation import SecureAggregator
-from secretflow_fl.ml.nn import FLModel
-from secretflow_fl.ml.nn.core.torch import (
-    BaseModule,
-    TorchModel,
-    metric_wrapper,
-    optim_wrapper,
-)
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.core.torch import BaseModule, TorchModel, metric_wrapper, optim_wrapper
 
 # ATTENTION: need install audio backend
 # pip install -r https://raw.githubusercontent.com/MicrosoftDocs/pytorchfundamentals/main/audio-pytorch/install-packages.txt
 default_dir = os.getcwd()
-folder = 'data'
-print(f'Data directory will be: {default_dir}/{folder}')
+folder = "data"
+print(f"Data directory will be: {default_dir}/{folder}")
 
 if os.path.isdir(folder):
     print("Data folder exists.")
@@ -52,25 +47,25 @@ else:
 
 
 trainset_speechcommands = torchaudio.datasets.SPEECHCOMMANDS(
-    f'./{folder}/', download=True
+    f"./{folder}/", download=True
 )
 
 
-os.chdir(f'./{folder}/SpeechCommands/speech_commands_v0.02/')
-labels = [name for name in os.listdir('.') if os.path.isdir(name)]
+os.chdir(f"./{folder}/SpeechCommands/speech_commands_v0.02/")
+labels = [name for name in os.listdir(".") if os.path.isdir(name)]
 # back to default directory
 os.chdir(default_dir)
-print(f'Total Labels: {len(labels)} \n')
-print(f'Label Names: {labels}')
+print(f"Total Labels: {len(labels)} \n")
+print(f"Label Names: {labels}")
 
 
 filename = "./data/SpeechCommands/speech_commands_v0.02/yes/00f0204f_nohash_0.wav"
 waveform, sample_rate = torchaudio.load(uri=filename, num_frames=3)
-print(f'waveform tensor with 3 frames:  {waveform} \n')
+print(f"waveform tensor with 3 frames:  {waveform} \n")
 waveform, sample_rate = torchaudio.load(uri=filename, num_frames=3, frame_offset=2)
-print(f'waveform tensor with 2 frame_offsets: {waveform} \n')
+print(f"waveform tensor with 2 frame_offsets: {waveform} \n")
 waveform, sample_rate = torchaudio.load(uri=filename)
-print(f'waveform tensor:  {waveform}')
+print(f"waveform tensor:  {waveform}")
 
 
 def plot_audio(filename):
@@ -97,7 +92,7 @@ ipd.Audio(waveform.numpy(), rate=sample_rate)
 
 def load_audio_files(path: str, label: str):
     dataset = []
-    walker = sorted(str(p) for p in Path(path).glob(f'*.wav'))
+    walker = sorted(str(p) for p in Path(path).glob(f"*.wav"))
 
     for i, file_path in enumerate(walker):
         path, filename = os.path.split(file_path)
@@ -113,15 +108,15 @@ def load_audio_files(path: str, label: str):
 
 
 trainset_speechcommands_yes = load_audio_files(
-    './data/SpeechCommands/speech_commands_v0.02/yes', 'yes'
+    "./data/SpeechCommands/speech_commands_v0.02/yes", "yes"
 )
 trainset_speechcommands_no = load_audio_files(
-    './data/SpeechCommands/speech_commands_v0.02/no', 'no'
+    "./data/SpeechCommands/speech_commands_v0.02/no", "no"
 )
 
 
-print(f'Length of yes dataset: {len(trainset_speechcommands_yes)}')
-print(f'Length of no dataset: {len(trainset_speechcommands_no)}')
+print(f"Length of yes dataset: {len(trainset_speechcommands_yes)}")
+print(f"Length of no dataset: {len(trainset_speechcommands_no)}")
 
 
 trainloader_yes = torch.utils.data.DataLoader(
@@ -136,17 +131,17 @@ trainloader_no = torch.utils.data.DataLoader(
 
 yes_waveform = trainset_speechcommands_yes[0][0]
 yes_sample_rate = trainset_speechcommands_yes[0][1]
-print(f'Yes Waveform: {yes_waveform}')
-print(f'Yes Sample Rate: {yes_sample_rate}')
-print(f'Yes Label: {trainset_speechcommands_yes[0][2]}')
-print(f'Yes ID: {trainset_speechcommands_yes[0][3]} \n')
+print(f"Yes Waveform: {yes_waveform}")
+print(f"Yes Sample Rate: {yes_sample_rate}")
+print(f"Yes Label: {trainset_speechcommands_yes[0][2]}")
+print(f"Yes ID: {trainset_speechcommands_yes[0][3]} \n")
 
 no_waveform = trainset_speechcommands_no[0][0]
 no_sample_rate = trainset_speechcommands_no[0][1]
-print(f'No Waveform: {no_waveform}')
-print(f'No Sample Rate: {no_sample_rate}')
-print(f'No Label: {trainset_speechcommands_no[0][2]}')
-print(f'No ID: {trainset_speechcommands_no[0][3]}')
+print(f"No Waveform: {no_waveform}")
+print(f"No Sample Rate: {no_sample_rate}")
+print(f"No Label: {trainset_speechcommands_no[0][2]}")
+print(f"No ID: {trainset_speechcommands_no[0][3]}")
 
 
 def show_waveform(waveform, sample_rate, label):
@@ -173,10 +168,10 @@ def show_waveform(waveform, sample_rate, label):
     plt.plot(waveform_transformed[0, :].numpy())
 
 
-show_waveform(yes_waveform, yes_sample_rate, 'yes')
+show_waveform(yes_waveform, yes_sample_rate, "yes")
 
 
-show_waveform(no_waveform, no_sample_rate, 'no')
+show_waveform(no_waveform, no_sample_rate, "no")
 
 
 def show_spectrogram(waveform_classA, waveform_classB):
@@ -188,12 +183,12 @@ def show_spectrogram(waveform_classA, waveform_classB):
 
     plt.figure()
     plt.subplot(1, 2, 1)
-    plt.title("Features of {}".format('no'))
-    plt.imshow(yes_spectrogram.log2()[0, :, :].numpy(), cmap='viridis')
+    plt.title("Features of {}".format("no"))
+    plt.imshow(yes_spectrogram.log2()[0, :, :].numpy(), cmap="viridis")
 
     plt.subplot(1, 2, 2)
-    plt.title("Features of {}".format('yes'))
-    plt.imshow(no_spectrogram.log2()[0, :, :].numpy(), cmap='viridis')
+    plt.title("Features of {}".format("yes"))
+    plt.imshow(no_spectrogram.log2()[0, :, :].numpy(), cmap="viridis")
 
 
 show_spectrogram(yes_waveform, no_waveform)
@@ -204,7 +199,7 @@ def show_melspectrogram(waveform, sample_rate):
     print("Shape of spectrogram: {}".format(mel_spectrogram.size()))
 
     plt.figure()
-    plt.imshow(mel_spectrogram.log2()[0, :, :].numpy(), cmap='viridis')
+    plt.imshow(mel_spectrogram.log2()[0, :, :].numpy(), cmap="viridis")
 
 
 show_melspectrogram(yes_waveform, yes_sample_rate)
@@ -216,7 +211,7 @@ def show_mfcc(waveform, sample_rate):
 
     plt.figure()
     fig1 = plt.gcf()
-    plt.imshow(mfcc_spectrogram.log2()[0, :, :].numpy(), cmap='viridis')
+    plt.imshow(mfcc_spectrogram.log2()[0, :, :].numpy(), cmap="viridis")
 
     plt.figure()
     plt.plot(mfcc_spectrogram.log2()[0, :, :].numpy())
@@ -228,7 +223,7 @@ show_mfcc(no_waveform, no_sample_rate)
 
 def create_spectrogram_images(trainloader, label_dir):
     # make directory
-    directory = f'./data/spectrograms/{label_dir}/'
+    directory = f"./data/spectrograms/{label_dir}/"
     if os.path.isdir(directory):
         print("Data exists for", label_dir)
     else:
@@ -245,15 +240,15 @@ def create_spectrogram_images(trainloader, label_dir):
 
             fig = plt.figure()
             plt.imsave(
-                f'./data/spectrograms/{label_dir}/spec_img{i}.png',
+                f"./data/spectrograms/{label_dir}/spec_img{i}.png",
                 spectrogram_tensor[0].log2()[0, :, :].numpy(),
-                cmap='viridis',
+                cmap="viridis",
             )
 
 
 def create_mfcc_images(trainloader, label_dir):
     # make directory
-    os.makedirs(f'./data/mfcc_spectrograms/{label_dir}/', mode=0o777, exist_ok=True)
+    os.makedirs(f"./data/mfcc_spectrograms/{label_dir}/", mode=0o777, exist_ok=True)
 
     for i, data in enumerate(trainloader):
         waveform = data[0]
@@ -265,18 +260,18 @@ def create_mfcc_images(trainloader, label_dir):
 
         plt.figure()
         fig1 = plt.gcf()
-        plt.imshow(mfcc_spectrogram[0].log2()[0, :, :].numpy(), cmap='viridis')
+        plt.imshow(mfcc_spectrogram[0].log2()[0, :, :].numpy(), cmap="viridis")
         plt.draw()
-        fig1.savefig(f'./data/mfcc_spectrograms/{label_dir}/spec_img{i}.png', dpi=100)
+        fig1.savefig(f"./data/mfcc_spectrograms/{label_dir}/spec_img{i}.png", dpi=100)
 
         # spectorgram_train.append([spectrogram_tensor, label, sample_rate, ID])
 
 
-create_spectrogram_images(trainloader_yes, 'yes')
-create_spectrogram_images(trainloader_no, 'no')
+create_spectrogram_images(trainloader_yes, "yes")
+create_spectrogram_images(trainloader_no, "no")
 
 
-data_path = './data/spectrograms'  # looking in subfolder train
+data_path = "./data/spectrograms"  # looking in subfolder train
 
 yes_no_dataset = datasets.ImageFolder(
     root=data_path,
@@ -320,8 +315,8 @@ td = train_dataloader.dataset[0][0][0][0]
 print(td)
 
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print('Using {} device'.format(device))
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("Using {} device".format(device))
 
 
 class CNNet(nn.Module):
@@ -371,7 +366,7 @@ def train(dataloader, model, loss, optimizer):
 
         if batch % 100 == 0:
             loss, current = loss.item(), batch * len(X)
-            print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
+            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
 
 # Create the validation/test function
@@ -393,21 +388,21 @@ def test(dataloader, model):
     test_loss /= size
     correct /= size
 
-    print(f'\nTest Error:\nacc: {(100*correct):>0.1f}%, avg loss: {test_loss:>8f}\n')
+    print(f"\nTest Error:\nacc: {(100*correct):>0.1f}%, avg loss: {test_loss:>8f}\n")
 
 
 epochs = 15
 
 for t in range(epochs):
-    print(f'Epoch {t+1}\n-------------------------------')
+    print(f"Epoch {t+1}\n-------------------------------")
     train(train_dataloader, model, cost, optimizer)
     test(test_dataloader, model)
-print('Done!')
+print("Done!")
 
 
 model.eval()
 test_loss, correct = 0, 0
-class_map = ['no', 'yes']
+class_map = ["no", "yes"]
 
 with torch.no_grad():
     for batch, (X, Y) in enumerate(test_dataloader):
@@ -425,18 +420,18 @@ print(data_path)
 
 print(os.listdir(data_path))
 
-subdataset_yes_path = os.path.join(data_path, 'yes')
+subdataset_yes_path = os.path.join(data_path, "yes")
 print(os.listdir(subdataset_yes_path)[:20])
 
 
-parties_list = ['alice', 'bob']
+parties_list = ["alice", "bob"]
 
 dataset_name = "spectrograms"
 parties_path_list = []
-split_dataset_path = os.path.join('.', 'fl-data', dataset_name)
+split_dataset_path = os.path.join(".", "fl-data", dataset_name)
 
 for party in parties_list:
-    party_path = os.path.join('.', 'fl-data', dataset_name, party)
+    party_path = os.path.join(".", "fl-data", dataset_name, party)
     os.makedirs(party_path, exist_ok=True)
     parties_path_list.append(party_path)
 
@@ -447,10 +442,10 @@ parties_path_list
 commands = os.listdir(data_path)
 
 
-if 'README.md' in commands:
-    commands.remove('README.md')
-elif '.DS_Store' in commands:
-    commands.remove('.DS_Store')
+if "README.md" in commands:
+    commands.remove("README.md")
+elif ".DS_Store" in commands:
+    commands.remove(".DS_Store")
 
 
 print(commands)
@@ -468,7 +463,7 @@ for command in commands:
     for wav_name in os.listdir(command_path):
         wav_path = join(command_path, wav_name)
         target_dir_path = join(
-            '.', 'fl-data', dataset_name, parties_list[index % parties_num], command
+            ".", "fl-data", dataset_name, parties_list[index % parties_num], command
         )
         shutil.copy(wav_path, target_dir_path)
         # if you want to watch the progress of copying the files, please uncomment the following line
@@ -479,14 +474,14 @@ for command in commands:
     for party_path in parties_path_list:
         command_path = join(party_path, command)
         file_num = len(os.listdir(command_path))
-        print(f'{command_path} : {file_num}')
+        print(f"{command_path} : {file_num}")
 
 
-print('The version of SecretFlow: {}'.format(sf.__version__))
+print("The version of SecretFlow: {}".format(sf.__version__))
 
 sf.shutdown()
-sf.init(['alice', 'bob', 'charlie'], address="local", log_to_driver=False)
-alice, bob, charlie = sf.PYU('alice'), sf.PYU('bob'), sf.PYU('charlie')
+sf.init(["alice", "bob", "charlie"], address="local", log_to_driver=False)
+alice, bob, charlie = sf.PYU("alice"), sf.PYU("bob"), sf.PYU("charlie")
 
 
 def create_dataset_builder(
@@ -596,10 +591,10 @@ model_def = TorchModel(
     optim_fn=optim_fn,
     metrics=[
         metric_wrapper(
-            Accuracy, task="multiclass", num_classes=num_classes, average='micro'
+            Accuracy, task="multiclass", num_classes=num_classes, average="micro"
         ),
         metric_wrapper(
-            Precision, task="multiclass", num_classes=num_classes, average='micro'
+            Precision, task="multiclass", num_classes=num_classes, average="micro"
         ),
     ],
 )
@@ -639,10 +634,10 @@ history = fed_model.fit(
 
 print(history.global_history.keys())
 
-plt.plot(history.global_history['multiclassaccuracy'])
-plt.plot(history.global_history['val_multiclassaccuracy'])
-plt.title('FLModel accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["multiclassaccuracy"])
+plt.plot(history.global_history["val_multiclassaccuracy"])
+plt.title("FLModel accuracy")
+plt.ylabel("Accuracy")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()

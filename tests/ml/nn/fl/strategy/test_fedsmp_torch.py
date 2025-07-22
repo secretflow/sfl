@@ -12,22 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import secretflow as sf
 import torch.optim as optim
 from torch import nn
 from torchmetrics import Accuracy, Precision
 
-import secretflow as sf
 from examples.security.h_gia.FedSMP_defense.FedSMP_torch import FedSMP_server_agg_method
-from secretflow_fl.ml.nn import FLModel
-from secretflow_fl.ml.nn.core.torch import (
-    BaseModule,
-    TorchModel,
-    metric_wrapper,
-    optim_wrapper,
-)
-from secretflow_fl.security.privacy.mechanism.mechanism_fl import GaussianModelDP
-from secretflow_fl.security.privacy.strategy_fl import DPStrategyFL
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.core.torch import BaseModule, TorchModel, metric_wrapper, optim_wrapper
+from sfl.security.privacy.mechanism.mechanism_fl import GaussianModelDP
+from sfl.security.privacy.strategy_fl import DPStrategyFL
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 
 # the global model
@@ -68,7 +63,7 @@ def do_test_fedsmp(configs: dict, alice, bob, carol):
 
     loss_fn = nn.CrossEntropyLoss
 
-    optim_fn = optim_wrapper(optim.Adam, lr=configs['train_lr'])
+    optim_fn = optim_wrapper(optim.Adam, lr=configs["train_lr"])
 
     model_def = TorchModel(
         model_fn=FLBaseNet,
@@ -76,10 +71,10 @@ def do_test_fedsmp(configs: dict, alice, bob, carol):
         optim_fn=optim_fn,
         metrics=[
             metric_wrapper(
-                Accuracy, task="multiclass", num_classes=10, average='micro'
+                Accuracy, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(
-                Precision, task="multiclass", num_classes=10, average='micro'
+                Precision, task="multiclass", num_classes=10, average="micro"
             ),
         ],
     )
@@ -90,26 +85,26 @@ def do_test_fedsmp(configs: dict, alice, bob, carol):
     # DP strategy
     dp_strategy = DPStrategyFL(
         model_gdp=GaussianModelDP(
-            noise_multiplier=configs['noise_multiplier'],
+            noise_multiplier=configs["noise_multiplier"],
             num_clients=len(device_list),
-            l2_norm_clip=configs['l2_norm_clip'],
+            l2_norm_clip=configs["l2_norm_clip"],
         )
     )
 
     # the server agg method
-    FedSMP_server_method = FedSMP_server_agg_method(configs['compression_ratio'])
+    FedSMP_server_method = FedSMP_server_agg_method(configs["compression_ratio"])
 
     # spcify params
     fl_model = FLModel(
         server=server,
         device_list=device_list,
         model=model_def,
-        strategy='fed_smp',
+        strategy="fed_smp",
         dp_strategy=dp_strategy,
         backend="torch",
-        noise_multiplier=configs['noise_multiplier'],
-        l2_norm_clip=configs['l2_norm_clip'],
-        compression_ratio=configs['compression_ratio'],
+        noise_multiplier=configs["noise_multiplier"],
+        l2_norm_clip=configs["l2_norm_clip"],
+        compression_ratio=configs["compression_ratio"],
         num_clients=len(device_list),
         server_agg_method=FedSMP_server_method.aggregate,
     )
@@ -117,8 +112,8 @@ def do_test_fedsmp(configs: dict, alice, bob, carol):
     history = fl_model.fit(
         data,
         label,
-        epochs=configs['epochs'],
-        batch_size=configs['batchsize'],
+        epochs=configs["epochs"],
+        batch_size=configs["batchsize"],
         aggregate_freq=1,
         dp_spent_step_freq=1,
     )

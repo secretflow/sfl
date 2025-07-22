@@ -44,7 +44,7 @@ def train_malicious_params(
         epochs: Number of training epochs.
         K: Number of neurons to select.
     """
-    device = 'cuda' if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # load the dataset
     class CustomDataset(Dataset):
@@ -61,18 +61,18 @@ def train_malicious_params(
     dataset = CustomDataset(aux_dataset)
     trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-    if attack_configs['model'].__name__ == 'FCNNmodel':
+    if attack_configs["model"].__name__ == "FCNNmodel":
         width_out, width_in = global_params[0].shape
-    elif attack_configs['model'].__name__ == 'CNNmodel':
+    elif attack_configs["model"].__name__ == "CNNmodel":
         width_out, width_in = global_params[6].shape[0], global_params[6].shape[1]
         netemb = copy.deepcopy(global_net.body).to(device)
 
     netTR = torch.nn.Sequential(
         OrderedDict(
             [
-                ('flatten', torch.nn.Flatten()),
-                ('linear0', torch.nn.Linear(width_in, width_out)),
-                ('sig', torch.nn.Sigmoid()),
+                ("flatten", torch.nn.Flatten()),
+                ("linear0", torch.nn.Linear(width_in, width_out)),
+                ("sig", torch.nn.Sigmoid()),
             ]
         )
     )
@@ -99,7 +99,7 @@ def train_malicious_params(
             img, label = data[0].to(device), data[1].to(device)
 
             # if the model is CNN, we use the features after the convolution layers to train malicious parameters
-            if attack_configs['model'].__name__ == 'CNNmodel':
+            if attack_configs["model"].__name__ == "CNNmodel":
                 netemb.eval()
                 img = netemb(img)
                 img = img.view(img.size(0), -1)
@@ -115,22 +115,22 @@ def train_malicious_params(
         scheduler.step()
 
         running_loss /= len(trainLoader)
-        print('epoch %d: loss  %.6f' % (iter + 1, running_loss))
+        print("epoch %d: loss  %.6f" % (iter + 1, running_loss))
 
     # insert the malicious parameters into the global parameters
-    if attack_configs['model'].__name__ == 'FCNNmodel':
-        global_params[0] = netTR.state_dict()['linear0.weight'].cpu().numpy()
-        global_params[1] = netTR.state_dict()['linear0.bias'].cpu().numpy()
-    elif attack_configs['model'].__name__ == 'CNNmodel':
-        global_params[6] = netTR.state_dict()['linear0.weight'].cpu().numpy()
-        global_params[7] = netTR.state_dict()['linear0.bias'].cpu().numpy()
+    if attack_configs["model"].__name__ == "FCNNmodel":
+        global_params[0] = netTR.state_dict()["linear0.weight"].cpu().numpy()
+        global_params[1] = netTR.state_dict()["linear0.bias"].cpu().numpy()
+    elif attack_configs["model"].__name__ == "CNNmodel":
+        global_params[6] = netTR.state_dict()["linear0.weight"].cpu().numpy()
+        global_params[7] = netTR.state_dict()["linear0.bias"].cpu().numpy()
 
     # save the malicious parameters
     torch.save(
         global_params,
         os.path.join(
             "./examples/security/h_gia/GIAvMP_attack/malicious_params",
-            '{}-MP.pth'.format(attack_configs['model'].__name__, iter + 1),
+            "{}-MP.pth".format(attack_configs["model"].__name__, iter + 1),
         ),
     )
 
@@ -161,7 +161,7 @@ def DLGinverse(
         lr: Learning rate.
         loss_factors: Loss factors for different loss components.
     """
-    device = 'cuda' if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     b1, b2, b3 = loss_factors
 
@@ -223,7 +223,7 @@ def DLGinverse(
             psnr = 10 * torch.log10(1 / mse)
             psnr_mean = torch.mean(psnr)
             print(
-                'rounds: [%d|%d]  ||  lr: %.4f  ||  loss: %.6f  ||  PSNR: %.6f'
+                "rounds: [%d|%d]  ||  lr: %.4f  ||  loss: %.6f  ||  PSNR: %.6f"
                 % (iters + 1, r, scheduler.get_last_lr()[0], loss.item(), psnr_mean)
             )
 
@@ -246,8 +246,8 @@ def DLGinverse(
             save_image(
                 figs.clone().detach().cpu(),
                 os.path.join(
-                    attack_configs['path_to_res'],
-                    'raw_and_recovered_images_CNN.png',
+                    attack_configs["path_to_res"],
+                    "raw_and_recovered_images_CNN.png",
                 ),
             )
             # save_image(dummy_data[:16].clone().detach().cpu(), filename+'rdataB16.png', nrow=4)
@@ -283,8 +283,8 @@ def RMPinit(b, s, f_dim, L, net):
     weight = torch.Tensor(np.array(weight))
     bias = torch.zeros(L)
     p = net.state_dict()
-    p['linear0.weight'] = weight
-    p['linear0.bias'] = bias
+    p["linear0.weight"] = weight
+    p["linear0.bias"] = bias
     net.load_state_dict(p)
 
 
@@ -341,7 +341,7 @@ class TVLoss(nn.Module):
         return t.size()[1] * t.size()[2] * t.size()[3]
 
 
-def reconstruction_costs(gradients, input_gradient, cost_fn='l2'):
+def reconstruction_costs(gradients, input_gradient, cost_fn="l2"):
 
     indices = torch.arange(len(input_gradient))
 

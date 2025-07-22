@@ -14,28 +14,21 @@
 
 import torch
 import torch.optim as optim
+from secretflow import reveal
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from torchmetrics import Accuracy, Precision
 
-from secretflow import reveal
-from secretflow_fl.ml.nn import FLModel
-from secretflow_fl.ml.nn.core.torch import (
-    BaseModule,
-    TorchModel,
-    metric_wrapper,
-    optim_wrapper,
-)
-from secretflow_fl.ml.nn.fl.backend.torch.strategy.fed_gen import (
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.core.torch import BaseModule, TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.fl.backend.torch.strategy.fed_gen import (
     FedGen,
     FedGenActor,
     FedGenGeneratorModel,
 )
-from secretflow_fl.security.aggregation.stateful_fedgen_aggregator import (
-    StatefulFedGenAggregator,
-)
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+from sfl.security.aggregation.stateful_fedgen_aggregator import StatefulFedGenAggregator
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 
 class ConvNet(BaseModule):
@@ -90,13 +83,13 @@ class DiversityLoss(nn.Module):
         Returns:
         torch.Tensor: The distance between the two tensors.
         """
-        if self.metric == 'l1':
+        if self.metric == "l1":
             # If the metric is L1 norm, compute the mean of the absolute differences between tensor elements
             return torch.abs(tensor1 - tensor2).mean(dim=(2,))
-        elif self.metric == 'l2':
+        elif self.metric == "l2":
             # If the metric is L2 norm, compute the mean of the squared differences between tensor elements
             return torch.pow(tensor1 - tensor2, 2).mean(dim=(2,))
-        elif self.metric == 'cosine':
+        elif self.metric == "cosine":
             # If the metric is cosine similarity, use cosine similarity to compute the distance between the two tensors
             # Cosine similarity values range from -1 to 1, here we convert it to a distance by 1 - cosine_similarity
             return 1 - self.cosine(tensor1, tensor2)
@@ -117,7 +110,7 @@ class TestFedGen:
         loss_fn = nn.CrossEntropyLoss
         optim_fn = optim_wrapper(optim.Adam, lr=1e-2)
         kl_div_loss = nn.KLDivLoss(reduction="batchmean")
-        diversity_loss = DiversityLoss(metric='l1')
+        diversity_loss = DiversityLoss(metric="l1")
 
         # Build the model
         builder = TorchModel(
@@ -165,7 +158,7 @@ class TestFedGen:
         optim_fn = optim_wrapper(optim.Adam, lr=1e-2)  # Optimizer with learning rate
         kl_div_loss = nn.KLDivLoss(reduction="batchmean")  # KL Divergence loss
         diversity_loss = DiversityLoss(
-            metric='l1'
+            metric="l1"
         )  # Diversity loss to promote varied outputs
 
         # Create a generator model for FedGen
@@ -186,10 +179,10 @@ class TestFedGen:
             optim_fn=optim_fn,
             metrics=[
                 metric_wrapper(
-                    Accuracy, task="multiclass", num_classes=10, average='micro'
+                    Accuracy, task="multiclass", num_classes=10, average="micro"
                 ),
                 metric_wrapper(
-                    Precision, task="multiclass", num_classes=10, average='micro'
+                    Precision, task="multiclass", num_classes=10, average="micro"
                 ),
             ],
             kl_div_loss=kl_div_loss,
@@ -246,6 +239,6 @@ class TestFedGen:
         # Assert that the final accuracy matches the recorded history
         assert (
             global_metric[0].result().numpy()
-            == history["global_history"]['val_multiclassaccuracy'][-1]
+            == history["global_history"]["val_multiclassaccuracy"][-1]
         )
         assert global_metric[0].result().numpy() > 0.1

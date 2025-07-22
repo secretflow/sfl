@@ -47,10 +47,10 @@ class DeepCrossbase(nn.Module):
         self._input_dim = self._num_of_dense_feature + sum(self.embedding_dims)
 
         # 初始化
-        self._deepNet = Deep(self._input_dim, self._config['deep_layers'])
-        self._crossNet = Cross(self._input_dim, self._config['num_cross_layers'])
+        self._deepNet = Deep(self._input_dim, self._config["deep_layers"])
+        self._crossNet = Cross(self._input_dim, self._config["num_cross_layers"])
 
-        self._final_dim = self._input_dim + self._config['deep_layers'][-1]
+        self._final_dim = self._input_dim + self._config["deep_layers"][-1]
 
     def forward(self, x):
         # print("Model input shape:", x.shape)  # 打印输入形状
@@ -80,11 +80,11 @@ class DeepCrossbase(nn.Module):
 
     def saveModel(self):
         """保存模型权重"""
-        torch.save(self.state_dict(), self._config['model_name'])
+        torch.save(self.state_dict(), self._config["model_name"])
 
     def loadModel(self, map_location):
         """加载模型权重"""
-        state_dict = torch.load(self._config['model_name'], map_location=map_location)
+        state_dict = torch.load(self._config["model_name"], map_location=map_location)
         self.load_state_dict(state_dict, strict=False)
 
 
@@ -100,7 +100,7 @@ class DeepCrossfuse(nn.Module):
         super(DeepCrossfuse, self).__init__()
         self._config = config
 
-        self.dnn_input_dim = self._config['dnn_input_dim']
+        self.dnn_input_dim = self._config["dnn_input_dim"]
         # 稠密和稀疏特征的数量
         self._num_of_dense_feature = len(dense_features_cols_alice) + len(
             dense_features_cols_bob
@@ -120,9 +120,9 @@ class DeepCrossfuse(nn.Module):
             + sum(self.embedding_dim_bob)
         )
         # 初始化
-        self._deepNet = Deep(self.dnn_input_dim, self._config['deep_layers'])
+        self._deepNet = Deep(self.dnn_input_dim, self._config["deep_layers"])
 
-        self._final_dim = self.cross_out_num + self._config['deep_layers'][-1]
+        self._final_dim = self.cross_out_num + self._config["deep_layers"][-1]
         self._final_linear = nn.Linear(self._final_dim, 1)
 
     def forward(self, deep_outs, cross_outs, xTws):
@@ -158,9 +158,9 @@ class DeepCrossfuse(nn.Module):
 
     def saveModel(self):
         """保存模型权重"""
-        torch.save(self.state_dict(), self._config['model_name'])
+        torch.save(self.state_dict(), self._config["model_name"])
 
     def loadModel(self, map_location):
         """加载模型权重"""
-        state_dict = torch.load(self._config['model_name'], map_location=map_location)
+        state_dict = torch.load(self._config["model_name"], map_location=map_location)
         self.load_state_dict(state_dict, strict=False)

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Subpackge implementing abstract classes for collaborative learning.
-"""
+"""Subpackge implementing abstract classes for collaborative learning."""
 
 from .api import BaseFedAPI, BaseFLKnowledgeDistillationAPI  # noqa : F401
 from .client import BaseClient  # noqa: F401

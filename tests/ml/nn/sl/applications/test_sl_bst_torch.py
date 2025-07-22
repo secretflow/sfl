@@ -18,14 +18,14 @@ import tempfile
 from pathlib import Path
 
 import torch
+from secretflow.data.vertical import read_csv
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.data.vertical import read_csv
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_bst_torch import BSTBase, BSTBasePlus, BSTfuse
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_bst_torch import BSTBase, BSTBasePlus, BSTfuse
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
 
 tmp_dir = tempfile.TemporaryDirectory()
 lia_path = tmp_dir.name
@@ -38,7 +38,6 @@ fea_emb_input_size = {}
 def generate_data(gen_data_path, fea_emb_input_size):
     import numpy as np
     import pandas as pd
-
     from secretflow.utils.simulation.datasets import _DATASETS, get_dataset, unzip
 
     global dataset_download_dir

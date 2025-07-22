@@ -109,7 +109,7 @@ def train(
             # if local_rank == 0:
             # wandb.log({"train_loss": sum_loss.item() / cfg.log_steps, "train_auc": sum_auc.item() / cfg.log_steps})
             print(
-                '[{}] Ed: {}, average_loss: {:.5f}, average_acc: {:.5f}'.format(
+                "[{}] Ed: {}, average_loss: {:.5f}, average_acc: {:.5f}".format(
                     local_rank,
                     cnt * cfg.batch_size,
                     sum_loss.item() / cfg.log_steps,
@@ -132,7 +132,7 @@ def train(
                 pretty_print(res)  # 打印验证结果
                 # wandb.log(res)  # 记录到wandb
 
-            early_stop, get_better = early_stopping(res['auc'])  # 判断是否提前停止
+            early_stop, get_better = early_stopping(res["auc"])  # 判断是否提前停止
             if early_stop:
                 print("Early Stop.")
                 break  # 提前停止
@@ -148,7 +148,7 @@ def train(
 def val(model, local_rank, cfg):
     model.eval()  # 设置模型为评估模式
     dataloader = load_data(
-        cfg, mode='val', model=model, local_rank=local_rank
+        cfg, mode="val", model=model, local_rank=local_rank
     )  # 加载验证数据
     tasks = []
     with torch.no_grad():  # 评估时不计算梯度
@@ -223,8 +223,8 @@ def main_worker(local_rank, cfg):
     # -----------------------------------------环境初始化
     seed_everything(cfg.seed)  # 设置随机种子
     dist.init_process_group(
-        backend='nccl',  # NVIDIA提供的高效分布式通信库，为GPU优化
-        init_method='tcp://127.0.0.1:23456',  # 所有的进程通过该地址进行通信
+        backend="nccl",  # NVIDIA提供的高效分布式通信库，为GPU优化
+        init_method="tcp://127.0.0.1:23456",  # 所有的进程通过该地址进行通信
         world_size=cfg.gpu_num,  # 总GPU数量
         rank=local_rank,
     )  # 当前进程的GPU编号
@@ -238,7 +238,7 @@ def main_worker(local_rank, cfg):
     # accumulation_steps内存问题，用小batch——size,但是每个batch之后不更新，而是累积几个step一起更新，从而模拟更大批次的训练
     num_warmup_steps = int(num_training_steps * cfg.warmup_ratio + 1)  # 计算warmup步数
     train_dataloader = load_data(
-        cfg, mode='train', local_rank=local_rank
+        cfg, mode="train", local_rank=local_rank
     )  # 加载训练数据
     model = load_model(cfg).to(local_rank)  # 加载模型并移到对应GPU
     optimizer = torch.optim.Adam(
@@ -253,9 +253,9 @@ def main_worker(local_rank, cfg):
         file_path = Path(
             f"{cfg.path.ckp_dir}/{cfg.model.model_name}_{cfg.dataset.dataset_name}_{cfg.load_mark}.pth"
         )
-        checkpoint = torch.load(file_path, map_location='cpu')
-        model.load_state_dict(checkpoint['model_state_dict'])  # 加载模型参数
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])  # 加载优化器参数
+        checkpoint = torch.load(file_path, map_location="cpu")
+        model.load_state_dict(checkpoint["model_state_dict"])  # 加载模型参数
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])  # 加载优化器参数
 
     model = torch.nn.parallel.DistributedDataParallel(
         model, device_ids=[local_rank]

@@ -6,8 +6,8 @@ jobs:
   trigger-circleci:
     runs-on: ubuntu-latest
     steps:
-      - name: secretflow-deploy
-        id: secretflow-deploy
+      - name: secretflow-test
+        id: secretflow-test
         uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.0.5
         with:
           GHA_Meta: "publish_testpypi"

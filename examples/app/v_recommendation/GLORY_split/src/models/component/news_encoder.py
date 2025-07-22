@@ -35,7 +35,7 @@ class NewsEncoder(nn.Module):
         token_emb_dim = cfg.model.word_emb_dim
         self.news_dim = cfg.model.head_num * cfg.model.head_dim
 
-        if cfg.dataset.dataset_lang == 'english':
+        if cfg.dataset.dataset_lang == "english":
             pretrain = torch.from_numpy(glove_emb).float()
             self.word_encoder = nn.Embedding.from_pretrained(
                 pretrain, freeze=False, padding_idx=0
@@ -47,9 +47,9 @@ class NewsEncoder(nn.Module):
         self.view_size = [cfg.model.title_size, cfg.model.abstract_size]
 
         self.attention = Sequential(
-            'x, mask',
+            "x, mask",
             [
-                (nn.Dropout(p=cfg.dropout_probability), 'x -> x'),
+                (nn.Dropout(p=cfg.dropout_probability), "x -> x"),
                 (
                     MultiHeadAttention(
                         token_emb_dim,
@@ -58,13 +58,13 @@ class NewsEncoder(nn.Module):
                         cfg.model.head_num,
                         cfg.model.head_dim,
                     ),
-                    'x,x,x,mask -> x',
+                    "x,x,x,mask -> x",
                 ),
                 nn.LayerNorm(self.news_dim),
                 nn.Dropout(p=cfg.dropout_probability),
                 (
                     AttentionPooling(self.news_dim, cfg.model.attention_hidden_dim),
-                    'x,mask -> x',
+                    "x,mask -> x",
                 ),
                 nn.LayerNorm(self.news_dim),
                 # nn.Linear(self.news_dim, self.news_dim),

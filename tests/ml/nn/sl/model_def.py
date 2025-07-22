@@ -18,7 +18,7 @@ from torch import nn as nn
 from torch import optim
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow_fl.ml.nn.core.torch import BaseModule
+from sfl.ml.nn.core.torch import BaseModule
 
 
 class ConvNetBase(BaseModule):

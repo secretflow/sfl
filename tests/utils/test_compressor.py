@@ -15,7 +15,7 @@
 import numpy as np
 import numpy.testing as npt
 
-from secretflow_fl.utils.compressor import (
+from sfl.utils.compressor import (
     MixedCompressor,
     QuantizedCompressor,
     QuantizedFP,
@@ -26,9 +26,9 @@ from secretflow_fl.utils.compressor import (
     SparseCompressor,
     TopkSparse,
 )
-from secretflow_fl.utils.compressor.mixed_compressor import MixedCompressedData
-from secretflow_fl.utils.compressor.quantized_compressor import QuantizedCompressedData
-from secretflow_fl.utils.compressor.sparse_compressor import SparseCompressedData
+from sfl.utils.compressor.mixed_compressor import MixedCompressedData
+from sfl.utils.compressor.quantized_compressor import QuantizedCompressedData
+from sfl.utils.compressor.sparse_compressor import SparseCompressedData
 
 
 def do_test_quantized_compressor(

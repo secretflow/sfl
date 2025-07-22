@@ -15,14 +15,14 @@
 import tempfile
 
 import torch
+from secretflow.data.vertical import read_csv
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.data.vertical import read_csv
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_din_torch import DINBase, DINFuse
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_din_torch import DINBase, DINFuse
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
 
 from .test_sl_bst_torch import generate_data
 

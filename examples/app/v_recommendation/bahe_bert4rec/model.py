@@ -218,7 +218,7 @@ class BERT4Rec(nn.Module):
 
 
 class AtomicBehaviorEmbedding(nn.Module):
-    def __init__(self, albert_model_name='albert-base-v2'):
+    def __init__(self, albert_model_name="albert-base-v2"):
         super(AtomicBehaviorEmbedding, self).__init__()
         self.albert = AlbertModel.from_pretrained(albert_model_name)
         self.tokenizer = AlbertTokenizer.from_pretrained(albert_model_name)
@@ -241,7 +241,7 @@ class AtomicBehaviorEmbedding(nn.Module):
                 padding=True,
                 truncation=True,
                 max_length=128,  # 减小最大长度以节省内存
-                return_tensors='pt',
+                return_tensors="pt",
             )
 
             with torch.no_grad():  # 使用no_grad减少内存使用

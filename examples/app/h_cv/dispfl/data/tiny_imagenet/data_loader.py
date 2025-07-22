@@ -60,7 +60,7 @@ def record_part(y_test, train_cls_counts, test_dataidxs, logger):
                 tmp.append(0)
         test_cls_counts.append(tmp)
         logger.debug(
-            'DATA Partition: Train %s; Test %s'
+            "DATA Partition: Train %s; Test %s"
             % (str(train_cls_counts[net_i]), str(tmp))
         )
     # logger.debug('Data statistics: %s' % str(net_cls_counts))
@@ -154,7 +154,7 @@ def partition_data(datadir, partition, n_nets, alpha, logger):
             np.random.shuffle(idx_batch[j])
             net_dataidx_map[j] = idx_batch[j]
 
-    elif partition == 'n_cls':
+    elif partition == "n_cls":
         n_client = n_nets
         n_cls = 200
 
@@ -200,7 +200,7 @@ def partition_data(datadir, partition, n_nets, alpha, logger):
 
                 break
 
-    elif partition == 'dir':
+    elif partition == "dir":
         n_client = n_nets
         n_cls = 200
 
@@ -241,7 +241,7 @@ def partition_data(datadir, partition, n_nets, alpha, logger):
 
                 break
 
-    elif partition == 'my_part':
+    elif partition == "my_part":
         n_shards = alpha
         n_client = n_nets
         n_cls = 200

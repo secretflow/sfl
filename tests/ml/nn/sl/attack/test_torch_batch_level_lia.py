@@ -18,16 +18,14 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from secretflow.data.ndarray import FedNdarray, PartitionWay
 from torch.utils.data import Dataset
 from torchmetrics import Accuracy, Precision
 
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_resnet_torch import NaiveSumSoftmax
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.batch_level_lia_torch import (
-    BatchLevelLabelInferenceAttack,
-)
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_resnet_torch import NaiveSumSoftmax
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.batch_level_lia_torch import BatchLevelLabelInferenceAttack
 
 from .model_def import BottomModelForCifar10
 

@@ -48,7 +48,7 @@ class AttentionPooling(nn.Module):
 
     def initialize(self):
         nn.init.xavier_uniform_(
-            self.att_fc1.weight, gain=nn.init.calculate_gain('tanh')
+            self.att_fc1.weight, gain=nn.init.calculate_gain("tanh")
         )
         nn.init.zeros_(self.att_fc1.bias)
         nn.init.xavier_uniform_(self.att_fc2.weight)

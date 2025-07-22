@@ -21,12 +21,9 @@ If the description is long, the first line should be a short summary that makes 
 separated from the rest by a newline
 
 """
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.callbacks.early_stopping import (
-    EarlyStoppingBatch,
-    EarlyStoppingEpoch,
-)
-from secretflow_fl.utils.simulation.datasets_fl import load_ml_1m
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.callbacks.early_stopping import EarlyStoppingBatch, EarlyStoppingEpoch
+from sfl.utils.simulation.datasets_fl import load_ml_1m
 
 from .test_sl_deepfm import (
     create_base_model_alice,

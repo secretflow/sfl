@@ -18,13 +18,9 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 
-from secretflow_fl.ml.nn.applications.sl_resnet_torch import (
-    BasicBlock,
-    ResNetBase,
-    ResNetFuse,
-)
-from secretflow_fl.ml.nn.applications.sl_vgg_torch import VGGBase, VGGFuse
-from secretflow_fl.ml.nn.core.torch import BaseModule
+from sfl.ml.nn.applications.sl_resnet_torch import BasicBlock, ResNetBase, ResNetFuse
+from sfl.ml.nn.applications.sl_vgg_torch import VGGBase, VGGFuse
+from sfl.ml.nn.core.torch import BaseModule
 
 
 class SimSLVGG16(BaseModule):

@@ -13,11 +13,9 @@
 # limitations under the License.
 
 import pytest
-
 from secretflow.security.aggregation.plain_aggregator import PlainAggregator
-from secretflow_fl.security.aggregation.sparse_plain_aggregator import (
-    SparsePlainAggregator,
-)
+
+from sfl.security.aggregation.sparse_plain_aggregator import SparsePlainAggregator
 from tests.security.aggregation.test_aggregator_base import AggregatorBase
 from tests.sf_fixtures import mpc_fixture
 

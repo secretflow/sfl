@@ -16,8 +16,7 @@
 # limitations under the License.
 
 
-"""sl model base
-"""
+"""sl model base"""
 import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -26,13 +25,13 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from secretflow.device import PYUObject, proxy
+from secretflow.utils.communicate import ForwardData
 from tensorflow.python.keras import callbacks as callbacks_module
 
-from secretflow.device import PYUObject, proxy
-from secretflow_fl.security.privacy import DPStrategy
-from secretflow.utils.communicate import ForwardData
-from secretflow_fl.ml.nn.metrics import AUC, Mean, Precision, Recall
-from secretflow_fl.ml.nn.sl.strategy_dispatcher import register_strategy
+from sfl.ml.nn.metrics import AUC, Mean, Precision, Recall
+from sfl.ml.nn.sl.strategy_dispatcher import register_strategy
+from sfl.security.privacy import DPStrategy
 
 
 class SLBaseModel(ABC):

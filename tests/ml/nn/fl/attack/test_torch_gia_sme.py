@@ -12,22 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
+import secretflow as sf
 import torch
 import torch.nn as nn
+from secretflow.security.aggregation import SecureAggregator
 from torch import optim
 from torchmetrics import Accuracy, Precision
 
-import secretflow as sf
 from examples.security.h_gia.SME_attack.gia_sme_torch import GiadentInversionAttackSME
-from secretflow.security.aggregation import SecureAggregator
-from secretflow_fl.ml.nn import FLModel
-from secretflow_fl.ml.nn.core.torch import (
-    BaseModule,
-    TorchModel,
-    metric_wrapper,
-    optim_wrapper,
-)
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.core.torch import BaseModule, TorchModel, metric_wrapper, optim_wrapper
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 
 # the global model
@@ -56,7 +51,7 @@ class FLBaseNet(BaseModule):
 def do_test_fl_and_gia_sme(attack_configs: dict, alice, bob):
 
     # prepare dataset
-    client_data_num = attack_configs['k']
+    client_data_num = attack_configs["k"]
     (train_data, train_label), (test_data, test_label) = load_mnist(
         parts={alice: (0, client_data_num)},
         normalized_x=True,
@@ -65,17 +60,17 @@ def do_test_fl_and_gia_sme(attack_configs: dict, alice, bob):
     )
 
     loss_fn = nn.CrossEntropyLoss
-    optim_fn = optim_wrapper(optim.Adam, lr=attack_configs['train_lr'])
+    optim_fn = optim_wrapper(optim.Adam, lr=attack_configs["train_lr"])
     model_def = TorchModel(
         model_fn=FLBaseNet,
         loss_fn=loss_fn,
         optim_fn=optim_fn,
         metrics=[
             metric_wrapper(
-                Accuracy, task="multiclass", num_classes=10, average='micro'
+                Accuracy, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(
-                Precision, task="multiclass", num_classes=10, average='micro'
+                Precision, task="multiclass", num_classes=10, average="micro"
             ),
         ],
     )
@@ -90,7 +85,7 @@ def do_test_fl_and_gia_sme(attack_configs: dict, alice, bob):
         device_list=device_list,
         model=model_def,
         aggregator=aggregator,
-        strategy='fed_avg_w',  # fl strategy
+        strategy="fed_avg_w",  # fl strategy
         backend="torch",  # backend support ['tensorflow', 'torch']
         # use_gpu=True,
     )
@@ -103,8 +98,8 @@ def do_test_fl_and_gia_sme(attack_configs: dict, alice, bob):
     history = fl_model.fit(
         train_data,
         train_label,
-        epochs=attack_configs['epochs'],
-        batch_size=attack_configs['batchsize'],
+        epochs=attack_configs["epochs"],
+        batch_size=attack_configs["batchsize"],
         aggregate_freq=1,
         callbacks=[gia_callback],
     )

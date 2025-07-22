@@ -43,12 +43,12 @@ class TrainDataset(IterableDataset):
         else:
             pad_x = x[-fix_length:] + [padding_value] * (fix_length - len(x))
             mask = [1] * min(fix_length, len(x)) + [0] * (fix_length - len(x))
-        return pad_x, np.array(mask, dtype='float32')
+        return pad_x, np.array(mask, dtype="float32")
 
     # 数据行映射
     def line_mapper(self, line):
 
-        line = line.strip().split('\t')
+        line = line.strip().split("\t")
         click_id = line[3].split()
         sess_pos = line[4].split()
         sess_neg = line[5].split()
@@ -92,7 +92,7 @@ class TrainGraphDataset(TrainDataset):
 
     def line_mapper(self, line, sum_num_news):
 
-        line = line.strip().split('\t')
+        line = line.strip().split("\t")
         click_id = line[3].split()[-self.cfg.model.his_size :]  # 取最近的历史新闻
         sess_pos = line[4].split()
         sess_neg = line[5].split()
@@ -296,7 +296,7 @@ class ValidGraphDataset(TrainGraphDataset):
     # 数据行映射处理
     def line_mapper(self, line):
 
-        line = line.strip().split('\t')
+        line = line.strip().split("\t")
         click_id = line[3].split()[
             -self.cfg.model.his_size :
         ]  # 获取点击的新闻 ID（最近的历史新闻）
@@ -320,10 +320,10 @@ class ValidGraphDataset(TrainGraphDataset):
 
         # ------------------ 实体 --------------------
         labels = np.array(
-            [int(i.split('-')[1]) for i in line[4].split()]
+            [int(i.split("-")[1]) for i in line[4].split()]
         )  # 获取标签信息
         candidate_index = self.trans_to_nindex(
-            [i.split('-')[0] for i in line[4].split()]
+            [i.split("-")[0] for i in line[4].split()]
         )  # 转换候选新闻 ID 为索引
         candidate_input = self.news_input[candidate_index]  # 获取候选新闻输入
 
@@ -382,7 +382,7 @@ class ValidGraphDataset(TrainGraphDataset):
     # 数据迭代器
     def __iter__(self):
         for line in open(self.filename):
-            if line.strip().split('\t')[3]:  # 确保当前行有点击新闻信息
+            if line.strip().split("\t")[3]:  # 确保当前行有点击新闻信息
                 (
                     batch,
                     mapping_idx,

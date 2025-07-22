@@ -36,11 +36,11 @@ def gen_data(data_num, feature_num, num_class=2):
 
     data.rename(columns=index_colname_map, inplace=True)
     data_with_label = data
-    data_with_label['label'] = np.array(label)
+    data_with_label["label"] = np.array(label)
 
     return data_with_label
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     data = gen_data(100000, 20, num_class=2)
     data.to_csv("alice.data", index=True, index_label="id")

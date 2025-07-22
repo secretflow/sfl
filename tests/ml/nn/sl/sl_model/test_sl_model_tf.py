@@ -23,19 +23,15 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 import pytest
-
 from secretflow.data.ndarray import load
 from secretflow.device import reveal
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.sl.agglayer.agg_method import Average
-from secretflow_fl.security.privacy import DPStrategy, LabelDP
-from secretflow_fl.security.privacy.mechanism.tensorflow import GaussianEmbeddingDP
-from secretflow_fl.utils.compressor import (
-    MixedCompressor,
-    QuantizedZeroPoint,
-    TopkSparse,
-)
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.sl.agglayer.agg_method import Average
+from sfl.security.privacy import DPStrategy, LabelDP
+from sfl.security.privacy.mechanism.tensorflow import GaussianEmbeddingDP
+from sfl.utils.compressor import MixedCompressor, QuantizedZeroPoint, TopkSparse
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 from ..model_def import (
     FuseCustomLossModel,

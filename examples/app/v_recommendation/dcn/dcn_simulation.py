@@ -15,27 +15,27 @@
 import json
 
 import pandas as pd
+import secretflow as sf
 import torch
 from data.fed_data_gen import generate_alice_bob_criteo_1m_data, load_criteo_partitioned
 from matplotlib import pyplot as plt
 from model.sl_dcn_torch import DCNBase, DCNFuse
+from secretflow.data.vertical import read_csv
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import AUROC, Accuracy, Precision
 
-import secretflow as sf
-from secretflow.data.vertical import read_csv
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.utils import TorchModel
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import metric_wrapper, optim_wrapper
+from sfl.ml.nn.utils import TorchModel
 
 # Check the version of your SecretFlow
-print('The version of SecretFlow: {}'.format(sf.__version__))
+print("The version of SecretFlow: {}".format(sf.__version__))
 
 # In case you have a running secretflow runtime already.
 sf.shutdown()
-sf.init(['alice', 'bob'], address="local", log_to_driver=False)
-alice, bob = sf.PYU('alice'), sf.PYU('bob')
+sf.init(["alice", "bob"], address="local", log_to_driver=False)
+alice, bob = sf.PYU("alice"), sf.PYU("bob")
 
 
 alice_base_out_dim = 0
@@ -105,11 +105,11 @@ class BobDataset(Dataset):
 
 def gen_alice_bob_cat_num_categories():
     alice_criteo_train_1m, bob_criteo_train_1m = generate_alice_bob_criteo_1m_data()
-    alice_cat_features = [x for x in alice_criteo_train_1m.columns if x.startswith('C')]
-    alice_num_features = [x for x in alice_criteo_train_1m.columns if x.startswith('I')]
+    alice_cat_features = [x for x in alice_criteo_train_1m.columns if x.startswith("C")]
+    alice_num_features = [x for x in alice_criteo_train_1m.columns if x.startswith("I")]
     alice_categories = [alice_criteo_train_1m[x].max() + 1 for x in alice_cat_features]
-    bob_cat_features = [x for x in bob_criteo_train_1m.columns if x.startswith('C')]
-    bob_num_features = [x for x in bob_criteo_train_1m.columns if x.startswith('I')]
+    bob_cat_features = [x for x in bob_criteo_train_1m.columns if x.startswith("C")]
+    bob_num_features = [x for x in bob_criteo_train_1m.columns if x.startswith("I")]
     bob_categories = [bob_criteo_train_1m[x].max() + 1 for x in bob_cat_features]
 
     return (
@@ -283,7 +283,7 @@ def run():
         device_y=alice,
         model_fuse=fuse_model,
         random_seed=1234,
-        backend='torch',
+        backend="torch",
     )
     # 加载数据
     vdf = load_criteo_partitioned([alice, bob], train=True)
@@ -305,37 +305,37 @@ def run():
         dataset_builder=dataset_buidler_dict,
     )
     # 保存训练历史
-    print('history: ', history)
+    print("history: ", history)
     history_converted = {
         key: [v.tolist() for v in value] for key, value in history.items()
     }
-    with open('history.json', 'w', encoding='utf-8') as f:
+    with open("history.json", "w", encoding="utf-8") as f:
         json.dump(history_converted, f, ensure_ascii=False, indent=4)
 
 
 def plot_metric(dfhistory, metric, epoch):
     plt.figure()
     train_metrics = dfhistory["train_" + metric]
-    val_metrics = dfhistory['val_' + metric]
+    val_metrics = dfhistory["val_" + metric]
     epochs = range(1, epoch + 1)
-    plt.plot(epochs, train_metrics[:epoch], 'bo--')
-    plt.plot(epochs, val_metrics[:epoch], 'ro-')
-    plt.title('Training and validation ' + metric)
+    plt.plot(epochs, train_metrics[:epoch], "bo--")
+    plt.plot(epochs, val_metrics[:epoch], "ro-")
+    plt.title("Training and validation " + metric)
     plt.xlabel("Epochs")
     plt.ylabel(metric)
-    plt.legend(["train_" + metric, 'val_' + metric])
-    file_path = '{}.png'.format(metric)  # 你可以指定完整的文件路径
+    plt.legend(["train_" + metric, "val_" + metric])
+    file_path = "{}.png".format(metric)  # 你可以指定完整的文件路径
     plt.savefig(file_path)
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()
     # 读取训练历史并绘制曲线
-    with open('history.json', 'r', encoding='utf-8') as file:
+    with open("history.json", "r", encoding="utf-8") as file:
         # data = json.load(file)
         train_val_his = json.load(file)
-    plot_metric(train_val_his, 'loss', epoch=30)
-    plot_metric(train_val_his, 'BinaryAccuracy', epoch=30)
-    plot_metric(train_val_his, 'BinaryPrecision', epoch=30)
-    plot_metric(train_val_his, 'BinaryAUROC', epoch=30)
+    plot_metric(train_val_his, "loss", epoch=30)
+    plot_metric(train_val_his, "BinaryAccuracy", epoch=30)
+    plot_metric(train_val_his, "BinaryPrecision", epoch=30)
+    plot_metric(train_val_his, "BinaryAUROC", epoch=30)

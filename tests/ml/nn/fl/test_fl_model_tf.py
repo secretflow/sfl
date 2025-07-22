@@ -21,18 +21,18 @@ import tempfile
 import numpy as np
 import pytest
 import tensorflow as tf
-
 from secretflow.data.ndarray import load
 from secretflow.device import reveal
 from secretflow.security.aggregation import PlainAggregator
 from secretflow.security.compare import PlainComparator
 from secretflow.utils.simulation.datasets import load_iris
-from secretflow_fl.ml.nn import FLModel
-from secretflow_fl.ml.nn.fl.compress import COMPRESS_STRATEGY
-from secretflow_fl.preprocessing.encoder_fl import OneHotEncoder
-from secretflow_fl.security.aggregation import SparsePlainAggregator
-from secretflow_fl.security.privacy import DPStrategyFL, GaussianModelDP
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
+from sfl.preprocessing.encoder_fl import OneHotEncoder
+from sfl.security.aggregation import SparsePlainAggregator
+from sfl.security.privacy import DPStrategyFL, GaussianModelDP
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 from .model_def import CVAE, cvae_model
 

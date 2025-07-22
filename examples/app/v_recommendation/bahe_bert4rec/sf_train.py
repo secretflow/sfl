@@ -38,19 +38,19 @@ class Client:
 
     def _train_single_batch(self, batch):
         # 处理本地数据
-        behavior_texts = batch['behavior_texts']
-        seq = batch['seq_d1'] if self.client_id == 0 else batch['seq_d2']
-        domain_id = batch['domain_id']
+        behavior_texts = batch["behavior_texts"]
+        seq = batch["seq_d1"] if self.client_id == 0 else batch["seq_d2"]
+        domain_id = batch["domain_id"]
 
         # 使用BAHE生成用户嵌入
         user_embedding = self.bahe_model(behavior_texts)
 
         # 直接使用forward方法而不是process_sequence
         seq_embedding = self.bert4rec_model(
-            batch['i_node'], seq, domain_id, user_embedding
+            batch["i_node"], seq, domain_id, user_embedding
         )
 
-        return {'user_embedding': user_embedding, 'seq_embedding': seq_embedding}
+        return {"user_embedding": user_embedding, "seq_embedding": seq_embedding}
 
     def update_gradients(self, loss):
         loss = self.device(loss)
@@ -69,10 +69,10 @@ class Server:
 
     def _train_single_batch(self, client_outputs, batch):
         # 获取客户端输出
-        user_embedding_d1 = client_outputs[0]['user_embedding']
-        user_embedding_d2 = client_outputs[1]['user_embedding']
-        seq_embedding_d1 = client_outputs[0]['seq_embedding']
-        seq_embedding_d2 = client_outputs[1]['seq_embedding']
+        user_embedding_d1 = client_outputs[0]["user_embedding"]
+        user_embedding_d2 = client_outputs[1]["user_embedding"]
+        seq_embedding_d1 = client_outputs[0]["seq_embedding"]
+        seq_embedding_d2 = client_outputs[1]["seq_embedding"]
 
         # 使用forward方法而不是fusion_layer
         output = self._model(
@@ -80,32 +80,32 @@ class Server:
             user_embedding_d2,
             seq_embedding_d1,
             seq_embedding_d2,
-            batch['domain_id'],
+            batch["domain_id"],
         )
 
         # 计算损失
-        loss = nn.BCEWithLogitsLoss()(output, batch['label'])
+        loss = nn.BCEWithLogitsLoss()(output, batch["label"])
         return loss
 
 
 def sf_train(clients, server, epochs, train_dataset_params, batch_size):
     # 为alice和bob创建数据加载器
     alice_data = DualDomainSeqDataset(
-        seq_len=train_dataset_params['seq_len'],
+        seq_len=train_dataset_params["seq_len"],
         isTrain=True,
-        neg_nums=train_dataset_params['neg_nums'],
-        long_length=train_dataset_params['long_length'],
-        pad_id=train_dataset_params['pad_id'],
+        neg_nums=train_dataset_params["neg_nums"],
+        long_length=train_dataset_params["long_length"],
+        pad_id=train_dataset_params["pad_id"],
         csv_path=f"{train_dataset_params['dataset_type']}_dataset/{train_dataset_params['domain_type']}_train{int(train_dataset_params['overlap_ratio']*100)}.csv",
         domain_id=1,  # Alice负责域2
     )
 
     bob_data = DualDomainSeqDataset(
-        seq_len=train_dataset_params['seq_len'],
+        seq_len=train_dataset_params["seq_len"],
         isTrain=True,
-        neg_nums=train_dataset_params['neg_nums'],
-        long_length=train_dataset_params['long_length'],
-        pad_id=train_dataset_params['pad_id'],
+        neg_nums=train_dataset_params["neg_nums"],
+        long_length=train_dataset_params["long_length"],
+        pad_id=train_dataset_params["pad_id"],
         csv_path=f"{train_dataset_params['dataset_type']}_dataset/{train_dataset_params['domain_type']}_train{int(train_dataset_params['overlap_ratio']*100)}.csv",
         domain_id=0,  # Bob负责域1
     )
@@ -145,8 +145,8 @@ def sf_train(clients, server, epochs, train_dataset_params, batch_size):
 
             # 准备服务器端需要的数据
             labels = {
-                'label': server.device(bob_batch['label'].float()),
-                'domain_id': server.device(bob_batch['domain_id']),
+                "label": server.device(bob_batch["label"].float()),
+                "domain_id": server.device(bob_batch["domain_id"]),
             }
 
             # 服务器端计算损失
@@ -157,7 +157,7 @@ def sf_train(clients, server, epochs, train_dataset_params, batch_size):
 
             if batch_id % 10 == 0:
                 logging.warning(
-                    f'[Training Epoch: {epoch}] Batch: {batch_id}, Loss: {loss}'
+                    f"[Training Epoch: {epoch}] Batch: {batch_id}, Loss: {loss}"
                 )
 
             # 更新客户端梯度
@@ -171,8 +171,8 @@ def sf_train(clients, server, epochs, train_dataset_params, batch_size):
         logging.warning(f"Training Epoch: {epoch}, total loss: {total_loss}")
 
 
-if __name__ == '__main__':
-    sf.init(["alice", "bob", "server"], address='local', debug_mode=False)
+if __name__ == "__main__":
+    sf.init(["alice", "bob", "server"], address="local", debug_mode=False)
     alice_pyu = sf.PYU("alice")
     bob_pyu = sf.PYU("bob")
     server_pyu = sf.PYU("server")
@@ -192,32 +192,32 @@ if __name__ == '__main__':
     parser.add_argument(
         "--dataset_path", type=str, default="amazon_dataset", help="Path to dataset"
     )
-    parser.add_argument('-ds', '--dataset_type', type=str, default='amazon')
-    parser.add_argument('-dm', '--domain_type', type=str, default='cloth_sport')
+    parser.add_argument("-ds", "--dataset_type", type=str, default="amazon")
+    parser.add_argument("-dm", "--domain_type", type=str, default="cloth_sport")
 
     parser.add_argument(
-        '--long_length',
+        "--long_length",
         type=int,
         default=7,
-        help='the length for setting long-tail node',
+        help="the length for setting long-tail node",
     )
     parser.add_argument(
-        '--neg_nums', type=int, default=199, help='sample negative numbers'
+        "--neg_nums", type=int, default=199, help="sample negative numbers"
     )
     parser.add_argument(
-        '--overlap_ratio',
+        "--overlap_ratio",
         type=float,
         default=0.25,
-        help='overlap ratio for choose dataset ',
+        help="overlap ratio for choose dataset ",
     )
     # overlap_ratio = 0.25 表示25%的用户是跨域用户（即在两个域都有行为的用户）
-    parser.add_argument('--epoch', type=int, default=50, help='# of epoch')
-    parser.add_argument('--bs', type=int, default=256, help='# images in batch')
-    parser.add_argument('--hid_dim', type=int, default=32, help='hidden layer dim')
-    parser.add_argument('--isInC', type=bool, default=False, help='add inc ')
-    parser.add_argument('--isItC', type=bool, default=False, help='add itc')
-    parser.add_argument('--ts1', type=float, default=0.5, help='mask rate for encoder')
-    parser.add_argument('--ts2', type=float, default=0.5, help='mask rate for decoder')
+    parser.add_argument("--epoch", type=int, default=50, help="# of epoch")
+    parser.add_argument("--bs", type=int, default=256, help="# images in batch")
+    parser.add_argument("--hid_dim", type=int, default=32, help="hidden layer dim")
+    parser.add_argument("--isInC", type=bool, default=False, help="add inc ")
+    parser.add_argument("--isItC", type=bool, default=False, help="add itc")
+    parser.add_argument("--ts1", type=float, default=0.5, help="mask rate for encoder")
+    parser.add_argument("--ts2", type=float, default=0.5, help="mask rate for decoder")
     args = parser.parse_args()
     user_length = 895510  # 63275#6814 cdr23 #63275 cdr12
     item_length_d1 = 8240
@@ -226,7 +226,7 @@ if __name__ == '__main__':
 
     # 创建客户端模型
     bahe_model = BAHE(
-        albert_model_name='albert/albert-base-v2',
+        albert_model_name="albert/albert-base-v2",
         embed_dim=args.emb_dim,
         num_heads=4,
         ff_dim=512,
@@ -259,13 +259,13 @@ if __name__ == '__main__':
 
     # 训练参数
     train_dataset_params = {
-        'seq_len': args.seq_len,
-        'neg_nums': args.neg_nums,
-        'long_length': args.long_length,
-        'pad_id': item_length - 1,
-        'dataset_type': args.dataset_type,
-        'domain_type': args.domain_type,
-        'overlap_ratio': args.overlap_ratio,
+        "seq_len": args.seq_len,
+        "neg_nums": args.neg_nums,
+        "long_length": args.long_length,
+        "pad_id": item_length - 1,
+        "dataset_type": args.dataset_type,
+        "domain_type": args.domain_type,
+        "overlap_ratio": args.overlap_ratio,
     }
 
     # 开始训练

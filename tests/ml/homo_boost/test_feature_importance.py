@@ -14,9 +14,7 @@
 
 import copy
 
-from secretflow_fl.ml.boost.homo_boost.tree_core.feature_importance import (
-    FeatureImportance,
-)
+from sfl.ml.boost.homo_boost.tree_core.feature_importance import FeatureImportance
 
 
 class TestFeatureImportance:

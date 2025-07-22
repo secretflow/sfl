@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Subpackage for label leakage attack, which infere the private label information of the training dataset.
-"""
+"""Subpackage for label leakage attack, which infere the private label information of the training dataset."""
 
 from .normattack import NormAttackSplitNNManager  # noqa: F401
 from .normattack import (

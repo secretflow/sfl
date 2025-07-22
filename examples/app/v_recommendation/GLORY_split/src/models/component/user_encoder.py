@@ -26,7 +26,7 @@ class UserEncoder(nn.Module):
         self.news_dim = cfg.model.head_num * cfg.model.head_dim
         # layers
         self.atte = Sequential(
-            'x, mask',
+            "x, mask",
             [
                 (
                     MultiHeadAttention(
@@ -36,14 +36,14 @@ class UserEncoder(nn.Module):
                         cfg.model.head_num,
                         cfg.model.head_dim,
                     ),
-                    'x,x,x,mask -> x',
+                    "x,x,x,mask -> x",
                 ),
                 (
                     AttentionPooling(
                         cfg.model.head_num * cfg.model.head_dim,
                         cfg.model.attention_hidden_dim,
                     ),
-                    'x, mask -> x',
+                    "x, mask -> x",
                 ),
             ],
         )

@@ -22,8 +22,8 @@ class Server:
         self._model = model
         self._optimizer = torch.optim.Adam(
             self._model.parameters(),
-            lr=config['lr'],
-            weight_decay=config['l2_regularization'],
+            lr=config["lr"],
+            weight_decay=config["l2_regularization"],
         )
         self._loss_func = torch.nn.BCELoss()
 

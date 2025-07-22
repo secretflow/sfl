@@ -157,11 +157,11 @@ class GraphTrainLoader(DataLoader):
         while True:
             input_nodes, batch_nodes, blocks = next(self.graph_iter)
 
-            feats = blocks[0].srcdata['features']
+            feats = blocks[0].srcdata["features"]
             data_x = (blocks, feats)
 
             if self.has_y:
-                train_y = blocks[-1].dstdata['labels']
+                train_y = blocks[-1].dstdata["labels"]
                 if self.has_s_w:
                     train_sample_weight = next(self.sw_iter)
                     yield data_x, train_y, train_sample_weight
@@ -209,7 +209,7 @@ class GraphEvalLoader(DataLoader):
             batch_size != self.node.shape[0] and self.indices is None
         ):  # mismatch between given `batch_size` and input shape
             logging.warning(
-                f'Shape mismatch between given batch size {batch_size} and input size {self.node.shape[0]}. Force to use {self.node.shape[0]}.'
+                f"Shape mismatch between given batch size {batch_size} and input size {self.node.shape[0]}. Force to use {self.node.shape[0]}."
             )
             self.batch_size = self.node.shape[0]  # force batch size
 
@@ -293,11 +293,11 @@ class GraphEvalLoader(DataLoader):
         self.reset_loader()
         while True:
             input_nodes, batch_nodes, blocks = next(self.graph_iter)
-            feats = blocks[0].srcdata['features']
+            feats = blocks[0].srcdata["features"]
             data_x = (blocks, feats)
 
             if self.has_y:
-                train_y = blocks[-1].dstdata['labels']
+                train_y = blocks[-1].dstdata["labels"]
                 if self.has_s_w:
                     train_sample_weight = next(self.sw_iter)
                     yield data_x, train_y, train_sample_weight
@@ -323,31 +323,31 @@ def load_dgl_data(dataset_name):
         data = dgl.data.PubmedGraphDataset(reverse_edge=False, force_reload=True)
     elif dataset_name == "Amazon":
         data = dgl.data.AmazonCoBuyComputerDataset()
-    elif dataset_name == 'Photo':  # not working
+    elif dataset_name == "Photo":  # not working
         data = dgl.data.AmazonCoBuyPhotoDataset(force_reload=True)
-    elif dataset_name == 'Physics':
+    elif dataset_name == "Physics":
         data = dgl.data.CoauthorPhysicsDataset()
     elif dataset_name == "Coauthor":
         data = dgl.data.CoauthorCSDataset()
     elif dataset_name == "Reddit":  # not working
         data = dgl.data.RedditDataset()
-    elif dataset_name == 'AIFB':  # not working
+    elif dataset_name == "AIFB":  # not working
         data = dgl.data.AIFBDataset()
-    elif dataset_name == 'CoraFull':
+    elif dataset_name == "CoraFull":
         data = dgl.data.CoraFullDataset()
 
     g = data[0]
     g = dgl.add_self_loop(g)
 
-    g.ndata['features'] = g.ndata['feat']
-    g.ndata['labels'] = g.ndata['label']
+    g.ndata["features"] = g.ndata["feat"]
+    g.ndata["labels"] = g.ndata["label"]
 
-    logging.info('Total labels: {}'.format(len(g.ndata['labels'])))
+    logging.info("Total labels: {}".format(len(g.ndata["labels"])))
     if dataset_name in [
-        'Photo',
-        'Amazon',
+        "Photo",
+        "Amazon",
     ]:  # workaround of incorrect value returned by DGL
-        return g, len(np.unique(g.ndata['labels']))
+        return g, len(np.unique(g.ndata["labels"]))
     return g, data.num_classes
 
 
@@ -359,20 +359,20 @@ def split_graph(g, frac_list=[0.6, 0.2, 0.2]):
     val_g = g.subgraph(val_subset.indices)
     test_g = g.subgraph(test_subset.indices)
 
-    if 'features' not in train_g.ndata:
-        train_g.ndata['features'] = train_g.ndata['feat']
-    if 'labels' not in train_g.ndata:
-        train_g.ndata['labels'] = train_g.ndata['label']
+    if "features" not in train_g.ndata:
+        train_g.ndata["features"] = train_g.ndata["feat"]
+    if "labels" not in train_g.ndata:
+        train_g.ndata["labels"] = train_g.ndata["label"]
 
-    if 'features' not in val_g.ndata:
-        val_g.ndata['features'] = val_g.ndata['feat']
-    if 'labels' not in train_g.ndata:
-        val_g.ndata['labels'] = val_g.ndata['label']
+    if "features" not in val_g.ndata:
+        val_g.ndata["features"] = val_g.ndata["feat"]
+    if "labels" not in train_g.ndata:
+        val_g.ndata["labels"] = val_g.ndata["label"]
 
-    if 'features' not in test_g.ndata:
-        test_g.ndata['features'] = test_g.ndata['feat']
-    if 'labels' not in train_g.ndata:
-        test_g.ndata['labels'] = test_g.ndata['label']
+    if "features" not in test_g.ndata:
+        test_g.ndata["features"] = test_g.ndata["feat"]
+    if "labels" not in train_g.ndata:
+        test_g.ndata["labels"] = test_g.ndata["label"]
     return train_g, val_g, test_g
 
 
@@ -473,9 +473,9 @@ def construct_dgl_graph_from_adjmat(
     src, dst = np.nonzero(edge_adj)
 
     dgl_graph = dgl.graph((src, dst), num_nodes=n_nodes)
-    dgl_graph.ndata['features'] = torch.tensor(features.astype(np.float32))
+    dgl_graph.ndata["features"] = torch.tensor(features.astype(np.float32))
     if labels is not None:
-        dgl_graph.ndata['labels'] = torch.tensor(labels.astype(np.float32))
+        dgl_graph.ndata["labels"] = torch.tensor(labels.astype(np.float32))
 
     return dgl_graph
 
@@ -492,40 +492,40 @@ def load_data_sl(dataset_name: str, n_party=2, local_path=None):
     Returns:
         A list of np.ndarray, split features and edges.
     """
-    if dataset_name in ['cora', 'pubmed', 'citeseer']:
+    if dataset_name in ["cora", "pubmed", "citeseer"]:
         if not local_path:
             dataset_zip = dataset(dataset_name)
         else:
             dataset_zip = os.path.join(
-                os.path.expanduser('~'), local_path, f'{dataset_name}.zip'
+                os.path.expanduser("~"), local_path, f"{dataset_name}.zip"
             )
 
         extract_path = str(Path(dataset_zip).parent)
-        logging.info(f'extract_path is {extract_path}, dataset is {dataset_name}')
+        logging.info(f"extract_path is {extract_path}, dataset is {dataset_name}")
 
-        with zipfile.ZipFile(dataset_zip, 'r') as zip_f:
+        with zipfile.ZipFile(dataset_zip, "r") as zip_f:
             zip_f.extractall(extract_path)
 
         file_names = [
-            os.path.join(extract_path, f'ind.{dataset_name}.{name}')
-            for name in ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
+            os.path.join(extract_path, f"ind.{dataset_name}.{name}")
+            for name in ["x", "y", "tx", "ty", "allx", "ally", "graph"]
         ]
 
         objects = []
         for name in file_names:
-            with open(name, 'rb') as f:
-                objects.append(pickle.load(f, encoding='latin1'))
+            with open(name, "rb") as f:
+                objects.append(pickle.load(f, encoding="latin1"))
 
         x, y, tx, ty, allx, ally, graph = tuple(objects)
 
         with open(
-            os.path.join(extract_path, f"ind.{dataset_name}.test.index"), 'r'
+            os.path.join(extract_path, f"ind.{dataset_name}.test.index"), "r"
         ) as f:
             test_idx_reorder = f.readlines()
         test_idx_reorder = list(map(lambda s: int(s.strip()), test_idx_reorder))
         test_idx_range = np.sort(test_idx_reorder)
 
-        if dataset_name == 'citeseer':
+        if dataset_name == "citeseer":
             # Fix citeseer dataset (there are some isolated nodes in the graph)
             # Find isolated nodes, add them as zero-vecs into the right position
             test_idx_range_full = range(
@@ -613,16 +613,16 @@ def load_data_sl(dataset_name: str, n_party=2, local_path=None):
     saved_files = [
         os.path.join(temp_dir, name)
         for name in [
-            'edge_alice.npy',
-            'edge_bob.npy',
-            'x_alice.npy',
-            'x_bob.npy',
-            'y_train.npy',
-            'y_val.npy',
-            'y_test.npy',
-            'idx_train.npy',
-            'idx_val.npy',
-            'idx_test.npy',
+            "edge_alice.npy",
+            "edge_bob.npy",
+            "x_alice.npy",
+            "x_bob.npy",
+            "y_train.npy",
+            "y_val.npy",
+            "y_test.npy",
+            "idx_train.npy",
+            "idx_val.npy",
+            "idx_test.npy",
         ]
     ]
 
@@ -730,7 +730,7 @@ def evenly_split_edges(adj, n_parts=2):
         split_adjs.append(nx.adjacency_matrix(g).toarray())
 
     logging.info(
-        f'sampling done! len(edge_set) = {len(edge_set)}, len(split_edges) = {len(split_edges)}, len(split_edges[0])={len(split_edges[0])}'
+        f"sampling done! len(edge_set) = {len(edge_set)}, len(split_edges) = {len(split_edges)}, len(split_edges[0])={len(split_edges[0])}"
     )
 
     return split_adjs, list(range(n_nodes))
@@ -766,20 +766,20 @@ def construct_dgl_graph_from_numpy(data):
 
     n_classes = len(np.unique(torch.LongTensor(np.where(labels)[1]).unsqueeze(-1)))
     n_nodes = features.shape[0]
-    logging.info(f'Node num: {n_nodes}, #class: {n_classes}')
+    logging.info(f"Node num: {n_nodes}, #class: {n_classes}")
 
     src, dst = np.nonzero(edge_adj)
 
     dgl_graph = dgl.graph((src, dst), num_nodes=n_nodes)
-    dgl_graph.ndata['features'] = torch.from_numpy(features.astype(np.float32))
-    dgl_graph.ndata['labels'] = torch.from_numpy(labels.astype(np.float32))
+    dgl_graph.ndata["features"] = torch.from_numpy(features.astype(np.float32))
+    dgl_graph.ndata["labels"] = torch.from_numpy(labels.astype(np.float32))
 
     return dgl_graph, n_classes
 
 
 def test_utils():
     def test_load_dgl():
-        test_ds = ['Cora', 'Pubmed', 'Citeseer']
+        test_ds = ["Cora", "Pubmed", "Citeseer"]
 
         for ds in test_ds:
             g, n_classes = load_dgl_data(ds)
@@ -792,12 +792,12 @@ def test_utils():
             train_g.number_of_nodes(), val_g.number_of_nodes(), test_g.number_of_nodes()
         )
         logging.info(
-            train_g.ndata['labels'], val_g.number_of_nodes(), test_g.number_of_nodes()
+            train_g.ndata["labels"], val_g.number_of_nodes(), test_g.number_of_nodes()
         )
 
-    for ds in ['cora', 'pubmed', 'citeseer']:
-        load_data_sl(ds, '.secretflow/datasets')
+    for ds in ["cora", "pubmed", "citeseer"]:
+        load_data_sl(ds, ".secretflow/datasets")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_utils()

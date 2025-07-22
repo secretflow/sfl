@@ -16,28 +16,26 @@
 # limitations under the License.
 
 
-"""SLModel
-
-"""
+"""SLModel"""
 import logging
 import math
 import os
 from typing import Callable, Dict, Iterable, List, Tuple, Union
 
 from multiprocess import cpu_count
-from tqdm import tqdm
-
 from secretflow.data.base import PartitionBase
 from secretflow.data.horizontal import HDataFrame
 from secretflow.data.ndarray import FedNdarray
 from secretflow.data.vertical import VDataFrame
 from secretflow.device import PYU, Device, reveal, wait
 from secretflow.device.device.pyu import PYUObject
-from secretflow_fl.security.privacy import DPStrategy
 from secretflow.utils.random import global_random
-from secretflow_fl.ml.nn.sl.agglayer.agg_layer import AggLayer
-from secretflow_fl.ml.nn.sl.agglayer.agg_method import AggMethod
-from secretflow_fl.ml.nn.sl.strategy_dispatcher import dispatch_strategy
+from tqdm import tqdm
+
+from sfl.ml.nn.sl.agglayer.agg_layer import AggLayer
+from sfl.ml.nn.sl.agglayer.agg_method import AggMethod
+from sfl.ml.nn.sl.strategy_dispatcher import dispatch_strategy
+from sfl.security.privacy import DPStrategy
 
 
 class CustomSLModel:
@@ -101,9 +99,9 @@ class CustomSLModel:
         defense_args = kwargs.get("defense_args", {})
 
         if backend.lower() == "tensorflow":
-            import secretflow_fl.ml.nn.sl.backend.tensorflow.strategy  # noqa
+            import sfl.ml.nn.sl.backend.tensorflow.strategy  # noqa
         elif backend.lower() == "torch":
-            import secretflow_fl.ml.nn.sl.backend.torch.strategy  # noqa
+            import sfl.ml.nn.sl.backend.torch.strategy  # noqa
         else:
             raise Exception(f"Invalid backend = {backend}")
         worker_list = list(base_model_dict.keys())

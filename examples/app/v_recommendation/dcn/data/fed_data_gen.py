@@ -18,19 +18,19 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
+from secretflow.data.vertical import VDataFrame, read_csv
+from secretflow.device.device.pyu import PYU
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder, QuantileTransformer
 
-from secretflow.data.vertical import VDataFrame, read_csv
-from secretflow.device.device.pyu import PYU
-from secretflow_fl.utils.simulation.datasets_fl import load_criteo_unpartitioned
+from sfl.utils.simulation.datasets_fl import load_criteo_unpartitioned
 
 # split origin 1m data to alice and bob, each has different column, alice_criteo_train_1m.csv and bob_criteo_train_1m.csv are generated
 # to static cat_num_categories for alice and bob, which will be used in dcn-model's input parameters
 
-_CACHE_DIR = os.path.join(os.path.expanduser('~'), '.secretflow/datasets')
+_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".secretflow/datasets")
 
 
 def generate_alice_bob_criteo_1m_data(num_samples: int = 1000000):
@@ -42,10 +42,10 @@ def generate_alice_bob_criteo_1m_data(num_samples: int = 1000000):
         + ["C" + str(x) for x in range(14, 40)]
     )
 
-    cat_cols = [x for x in dfdata.columns if x.startswith('C')]
-    num_cols = [x for x in dfdata.columns if x.startswith('I')]
+    cat_cols = [x for x in dfdata.columns if x.startswith("C")]
+    num_cols = [x for x in dfdata.columns if x.startswith("I")]
     num_pipe = Pipeline(
-        steps=[('impute', SimpleImputer()), ('quantile', QuantileTransformer())]
+        steps=[("impute", SimpleImputer()), ("quantile", QuantileTransformer())]
     )
 
     for col in cat_cols:
@@ -54,48 +54,48 @@ def generate_alice_bob_criteo_1m_data(num_samples: int = 1000000):
     dfdata[num_cols] = num_pipe.fit_transform(dfdata[num_cols])
 
     alice_col = [
-        'label',
-        'I1',
-        'I2',
-        'I3',
-        'I4',
-        'I5',
-        'I6',
-        'C14',
-        'C15',
-        'C16',
-        'C17',
-        'C18',
-        'C19',
-        'C20',
-        'C21',
-        'C22',
-        'C23',
-        'C24',
-        'C25',
-        'C26',
+        "label",
+        "I1",
+        "I2",
+        "I3",
+        "I4",
+        "I5",
+        "I6",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23",
+        "C24",
+        "C25",
+        "C26",
     ]
     bob_col = [
-        'I7',
-        'I8',
-        'I9',
-        'I10',
-        'I11',
-        'I12',
-        'I13',
-        'C27',
-        'C28',
-        'C29',
-        'C30',
-        'C31',
-        'C32',
-        'C33',
-        'C34',
-        'C35',
-        'C36',
-        'C37',
-        'C38',
-        'C39',
+        "I7",
+        "I8",
+        "I9",
+        "I10",
+        "I11",
+        "I12",
+        "I13",
+        "C27",
+        "C28",
+        "C29",
+        "C30",
+        "C31",
+        "C32",
+        "C33",
+        "C34",
+        "C35",
+        "C36",
+        "C37",
+        "C38",
+        "C39",
     ]
 
     alice_criteo_train_1m = dfdata.loc[:, alice_col]
@@ -116,9 +116,9 @@ def load_criteo_partitioned(
         num_samples=num_samples
     )
     data_dir = (
-        os.path.join(data_dir, 'criteo_partitioned')
+        os.path.join(data_dir, "criteo_partitioned")
         if data_dir
-        else os.path.join(_CACHE_DIR, 'criteo_partitioned')
+        else os.path.join(_CACHE_DIR, "criteo_partitioned")
     )
 
     if not Path(data_dir).is_dir():
@@ -143,28 +143,28 @@ def load_criteo_partitioned(
             os.path.join(data_dir, "train_alice.csv"),
             index=False,
             sep="|",
-            encoding='utf-8',
+            encoding="utf-8",
         )
 
         bob_train.to_csv(
             os.path.join(data_dir, "train_bob.csv"),
             index=False,
             sep="|",
-            encoding='utf-8',
+            encoding="utf-8",
         )
 
         alice_val.to_csv(
             os.path.join(data_dir, "val_alice.csv"),
             index=False,
             sep="|",
-            encoding='utf-8',
+            encoding="utf-8",
         )
 
         bob_val.to_csv(
             os.path.join(data_dir, "val_bob.csv"),
             index=False,
             sep="|",
-            encoding='utf-8',
+            encoding="utf-8",
         )
 
     _generate_train_val_test(alice_criteo_train_1m, bob_criteo_train_1m, split_ratio)

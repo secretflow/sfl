@@ -18,18 +18,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from secretflow.data.ndarray import FedNdarray, PartitionWay
 from torch.utils.data import DataLoader, TensorDataset
 from torchmetrics import Accuracy, Precision
 
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import (
-    BaseModule,
-    TorchModel,
-    metric_wrapper,
-    optim_wrapper,
-)
-from secretflow_fl.ml.nn.sl.attacks.fia_torch import FeatureInferenceAttack
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import BaseModule, TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.fia_torch import FeatureInferenceAttack
 
 
 class SLBaseNet(BaseModule):

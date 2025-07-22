@@ -17,8 +17,9 @@ import shutil
 from pathlib import Path
 
 from secretflow.data.vertical import read_csv
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_bst_tf import BSTBase, BSTFuse, BSTPlusBase
+
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_bst_tf import BSTBase, BSTFuse, BSTPlusBase
 
 gen_data_path = "/tmp/movielens"
 dataset_download_dir = "/tmp/dataset_download/ml-1m"
@@ -27,7 +28,6 @@ dataset_download_dir = "/tmp/dataset_download/ml-1m"
 def generate_data(plus=True):
     import numpy as np
     import pandas as pd
-
     from secretflow.utils.simulation.datasets import _DATASETS, get_dataset, unzip
 
     global dataset_download_dir

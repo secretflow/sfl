@@ -22,15 +22,15 @@ from secretflow.data.vertical import read_csv as v_read_csv
 from secretflow.device.device.pyu import PYU
 from secretflow.utils.simulation.datasets import get_dataset, unzip
 
-_CACHE_DIR = os.path.join(os.path.expanduser('~'), '.secretflow/datasets')
+_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".secretflow/datasets")
 
-_Dataset = namedtuple('_Dataset', ['filename', 'url', 'sha256'])
+_Dataset = namedtuple("_Dataset", ["filename", "url", "sha256"])
 
 _DATASETS = {
-    'ml-1m': _Dataset(
-        'ml-1m.zip',
-        'https://files.grouplens.org/datasets/movielens/ml-1m.zip',
-        'a6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20',
+    "ml-1m": _Dataset(
+        "ml-1m.zip",
+        "https://files.grouplens.org/datasets/movielens/ml-1m.zip",
+        "a6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20",
     )
 }
 
@@ -83,11 +83,11 @@ def load_ml_1m(
         return ",".join(values)
 
     if data_dir is None:
-        data_dir = os.path.join(_CACHE_DIR, 'ml-1m')
+        data_dir = os.path.join(_CACHE_DIR, "ml-1m")
         if not Path(data_dir).is_dir():
-            filepath = get_dataset(_DATASETS['ml-1m'])
+            filepath = get_dataset(_DATASETS["ml-1m"])
             unzip(filepath, data_dir)
-    extract_dir = os.path.join(data_dir, 'ml-1m')
+    extract_dir = os.path.join(data_dir, "ml-1m")
     users_data = _load_data(
         extract_dir + "/users.dat",
         columns=["UserID", "Gender", "Age", "Occupation", "Zip-code"],

@@ -159,7 +159,7 @@ def customized_resnet18(
 
     assert len(dict(res18.named_parameters()).keys()) == len(
         res18.state_dict().keys()
-    ), 'More BN layers are there...'
+    ), "More BN layers are there..."
 
     return res18
 
@@ -249,7 +249,7 @@ def tiny_resnet18(
 
     assert len(dict(res18.named_parameters()).keys()) == len(
         res18.state_dict().keys()
-    ), 'More BN layers are there...'
+    ), "More BN layers are there..."
 
     return res18
 

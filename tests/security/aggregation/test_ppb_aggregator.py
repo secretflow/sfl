@@ -14,7 +14,7 @@
 
 import pytest
 
-from secretflow_fl.security.aggregation.experiment.ppb_aggregator import PPBAggregator
+from sfl.security.aggregation.experiment.ppb_aggregator import PPBAggregator
 from tests.security.aggregation.test_aggregator_base import AggregatorBase
 from tests.sf_fixtures import mpc_fixture
 

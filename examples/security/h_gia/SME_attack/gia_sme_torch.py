@@ -21,12 +21,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from scipy.optimize import linear_sum_assignment
-from torchvision.transforms import ToPILImage
-
 from secretflow import reveal, wait
 from secretflow.device import PYU, DeviceObject, PYUObject
-from secretflow_fl.ml.nn.callbacks.attack import AttackCallback
-from secretflow_fl.ml.nn.fl.backend.torch.fl_base import BaseTorchModel
+from torchvision.transforms import ToPILImage
+
+from sfl.ml.nn.callbacks.attack import AttackCallback
+from sfl.ml.nn.fl.backend.torch.fl_base import BaseTorchModel
 
 
 def require_grad(net, flag):
@@ -71,9 +71,9 @@ def save_figs(tensors, path, subdir=None, dataset=None):
     def save(imgs, path):
         for name, im in imgs:
             plt.figure()
-            plt.imshow(im, cmap='gray')
-            plt.axis('off')
-            plt.savefig(os.path.join(path, f'{name}.png'), bbox_inches='tight')
+            plt.imshow(im, cmap="gray")
+            plt.axis("off")
+            plt.savefig(os.path.join(path, f"{name}.png"), bbox_inches="tight")
             plt.close()
 
     tensor2image = ToPILImage()
@@ -158,12 +158,12 @@ class GiadentInversionAttackSME(AttackCallback):
             ):
 
                 attacker = SME(
-                    setup=attack_configs['setup'],
-                    alpha=attack_configs['alpha'],
-                    test_steps=attack_configs['test_steps'],
-                    path_to_res=attack_configs['path_to_res'],
-                    lamb=attack_configs['lamb'],
-                    mean_std=attack_configs['mean_std'],
+                    setup=attack_configs["setup"],
+                    alpha=attack_configs["alpha"],
+                    test_steps=attack_configs["test_steps"],
+                    path_to_res=attack_configs["path_to_res"],
+                    lamb=attack_configs["lamb"],
+                    mean_std=attack_configs["mean_std"],
                 )
 
                 attacker.net0 = victim_model1
@@ -171,15 +171,15 @@ class GiadentInversionAttackSME(AttackCallback):
                 attacker.trainloader = victim_trainloader
 
                 stats = attacker.reconstruction(
-                    eta=attack_configs['eta'],
-                    beta=attack_configs['beta'],
-                    iters=attack_configs['iters'],
-                    lr_decay=attack_configs['lr_decay'],
-                    save_figure=attack_configs['save_figure'],
+                    eta=attack_configs["eta"],
+                    beta=attack_configs["beta"],
+                    iters=attack_configs["iters"],
+                    lr_decay=attack_configs["lr_decay"],
+                    save_figure=attack_configs["save_figure"],
                 )
 
                 with open(
-                    os.path.join(attack_configs['path_to_res'], "res.json"), "w"
+                    os.path.join(attack_configs["path_to_res"], "res.json"), "w"
                 ) as f:
                     json.dump(stats, f, indent=4)
                 return stats
@@ -204,11 +204,11 @@ class GiadentInversionAttackSME(AttackCallback):
 
     def get_attack_metrics(self):
 
-        file_path = os.path.join(self.attack_configs['path_to_res'], "res.json")
+        file_path = os.path.join(self.attack_configs["path_to_res"], "res.json")
 
         if os.path.exists(file_path):
             try:
-                with open(file_path, 'r', encoding='utf-8') as file:
+                with open(file_path, "r", encoding="utf-8") as file:
                     data = json.load(file)
                 self.metrics = data
             except json.JSONDecodeError as e:
@@ -258,26 +258,26 @@ class SME:
             labels.append(l)
             data.append(img)
 
-        self.data = torch.cat(data).to(self.setup['device'])
+        self.data = torch.cat(data).to(self.setup["device"])
 
         # We assume that labels have been restored separately, for details please refer to the paper.
-        self.y = torch.cat(labels).to(device=self.setup['device'])
+        self.y = torch.cat(labels).to(device=self.setup["device"])
         # Dummy input.
         self.x = torch.normal(
-            0, 1, size=self.data.shape, requires_grad=True, device=self.setup['device']
+            0, 1, size=self.data.shape, requires_grad=True, device=self.setup["device"]
         )
 
-        self.mean = self.mean.to(self.setup['device'])
-        self.std = self.std.to(self.setup['device'])
+        self.mean = self.mean.to(self.setup["device"])
+        self.std = self.std.to(self.setup["device"])
         # This is a trick (a sort of prior information) adopted from IG.
         prior_boundary(self.x, -self.mean / self.std, (1 - self.mean) / self.std)
 
-        self.net0.to(device=self.setup['device'])
-        self.net1.to(device=self.setup['device'])
+        self.net0.to(device=self.setup["device"])
+        self.net1.to(device=self.setup["device"])
 
         # when taking the SME strategy, alpha is set within (0, 1).
         self.alpha = torch.tensor(
-            self.alpha, requires_grad=True, device=self.setup['device']
+            self.alpha, requires_grad=True, device=self.setup["device"]
         )
         if 0 < self.alpha < 1:
             self.alpha.grad = torch.tensor(0.0).to(**self.setup)
@@ -309,7 +309,7 @@ class SME:
         require_grad(self.net1, False)
         with torch.no_grad():
             _net = copy.deepcopy(self.net0)
-            _net.to(device=self.setup['device'])
+            _net.to(device=self.setup["device"])
             for p, q, z in zip(
                 self.net0.parameters(), self.net1.parameters(), _net.parameters()
             ):

@@ -190,9 +190,9 @@ class Client:
         self.logger.warn(
             "Before test acc on {}'th client, test_corect: {} / test_total:{} , test_acc: {:.2f}".format(
                 self.client_idx,
-                tst_results['test_correct'],
-                tst_results['test_total'],
-                tst_results['test_acc'],
+                tst_results["test_correct"],
+                tst_results["test_total"],
+                tst_results["test_acc"],
             )
         )
         start_model_train_time = time.time()
@@ -208,9 +208,9 @@ class Client:
         self.logger.warn(
             "After test acc on {}'th client, test_corect: {} / test_total:{} , test_acc: {:.2f}, model train time use = {}".format(
                 self.client_idx,
-                tst_results['test_correct'],
-                tst_results['test_total'],
-                tst_results['test_acc'],
+                tst_results["test_correct"],
+                tst_results["test_total"],
+                tst_results["test_acc"],
                 time.time() - start_model_train_time,
             )
         )

@@ -21,19 +21,19 @@ from venv import logger
 
 import numpy as np
 import tensorflow as tf
+from secretflow.device import reveal
+from secretflow.security.aggregation import PlainAggregator
 from torch import nn, optim
 from torchmetrics import Accuracy, Precision
 
 from examples.security.h_bd.fl_model_freqbd import FLModel_bd
 from examples.security.h_bd.freqbackdoor_fl_torch import BackdoorAttack
-from secretflow.device import reveal
-from secretflow.security.aggregation import PlainAggregator
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.fl.compress import COMPRESS_STRATEGY
-from secretflow_fl.preprocessing.encoder_fl import OneHotEncoder
-from secretflow_fl.security.aggregation import SparsePlainAggregator
-from secretflow_fl.security.privacy import DPStrategyFL, GaussianModelDP
-from secretflow_fl.utils.simulation.datasets_fl import load_cifar10_horiontal
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
+from sfl.preprocessing.encoder_fl import OneHotEncoder
+from sfl.security.aggregation import SparsePlainAggregator
+from sfl.security.privacy import DPStrategyFL, GaussianModelDP
+from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
 from tests.fl.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
 
 _temp_dir = tempfile.mkdtemp()
@@ -52,7 +52,7 @@ def _torch_model_with_cifar10(
     strategy,
     backend,
     callbacks,
-    **kwargs
+    **kwargs,
 ):
     device_list = [devices.alice, devices.bob]
     server = devices.carol
@@ -105,9 +105,9 @@ def _torch_model_with_cifar10(
         target_label=callbacks[0].target_label,
     )
 
-    logger.warning('bd_metric')
+    logger.warning("bd_metric")
     logger.warning(bd_metric)
-    logger.warning('local_metric')
+    logger.warning("local_metric")
     logger.warning(local_metric)
     print(bd_metric, local_metric)
 

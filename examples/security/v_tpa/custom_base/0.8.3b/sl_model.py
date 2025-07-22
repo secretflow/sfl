@@ -16,9 +16,7 @@
 # limitations under the License.
 
 
-"""SLModel
-
-"""
+"""SLModel"""
 
 import logging
 import math
@@ -27,8 +25,6 @@ import pdb
 from typing import Callable, Dict, Iterable, List, Tuple, Union
 
 from multiprocess import cpu_count
-from tqdm import tqdm
-
 from secretflow.data.base import Partition
 from secretflow.data.horizontal import HDataFrame
 from secretflow.data.ndarray import FedNdarray
@@ -36,9 +32,11 @@ from secretflow.data.vertical import VDataFrame
 from secretflow.device import PYU, Device, reveal, wait
 from secretflow.device.device.pyu import PYUObject
 from secretflow.utils.random import global_random
-from secretflow_fl.ml.nn.sl.strategy_dispatcher import dispatch_strategy
-from secretflow_fl.security.privacy import DPStrategy
-from secretflow_fl.utils.compressor import Compressor
+from tqdm import tqdm
+
+from sfl.ml.nn.sl.strategy_dispatcher import dispatch_strategy
+from sfl.security.privacy import DPStrategy
+from sfl.utils.compressor import Compressor
 
 
 class SLModel:
@@ -76,7 +74,7 @@ class SLModel:
         defense_args = kwargs.get("defense_args", {})
 
         # TODO: add argument `backend`
-        import secretflow_fl.ml.nn.sl.backend.tensorflow.strategy  # noqa
+        import sfl.ml.nn.sl.backend.tensorflow.strategy  # noqa
 
         self._workers = {}
         for device, model in base_model_dict.items():

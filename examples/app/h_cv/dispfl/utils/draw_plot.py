@@ -71,20 +71,20 @@ def draw_acc(total_rows, total_cols, cur_idx: int, plain_acc: ACC, sf_acc: ACC, 
     (l1,) = plt.plot(
         plain_acc.round,
         plain_acc.acc,
-        color='r',
+        color="r",
         marker=None,
         linestyle="-",
         linewidth=0.5,
     )
     (l2,) = plt.plot(
-        sf_acc.round, sf_acc.acc, color='b', marker=None, linestyle='-', linewidth=0.5
+        sf_acc.round, sf_acc.acc, color="b", marker=None, linestyle="-", linewidth=0.5
     )
     plt.tick_params(axis="x", labelsize=15)
     plt.tick_params(axis="y", labelsize=15)
     plt.xlabel("Communication rounds", fontsize=18)
     plt.ylabel("Test Accuracy", fontsize=18)
     plt.legend(
-        handles=[l1, l2], labels=['plain', 'secretflow'], loc=4
+        handles=[l1, l2], labels=["plain", "secretflow"], loc=4
     )  # loc = best for best
     plt.title(title, fontsize=18)
 
@@ -116,5 +116,5 @@ def run_drawing():
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_drawing()

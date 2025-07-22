@@ -15,17 +15,17 @@
 import os
 import tempfile
 
+from secretflow.device import reveal
+from secretflow.security.aggregation import PlainAggregator
 from torch import nn, optim
 from torchmetrics import Accuracy, Precision
 
 from examples.security.h_bd.backdoor_fl_torch import BackdoorAttack
 from examples.security.h_bd.fl_model_bd import FLModel_bd
-from secretflow.device import reveal
-from secretflow.security.aggregation import PlainAggregator
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.fl.compress import COMPRESS_STRATEGY
-from secretflow_fl.security.aggregation import SparsePlainAggregator
-from secretflow_fl.utils.simulation.datasets_fl import load_cifar10_horiontal
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
+from sfl.security.aggregation import SparsePlainAggregator
+from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
 
 from ..model_def import SimpleCNN
 
@@ -45,7 +45,7 @@ def _torch_model_with_cifar10(
     strategy,
     backend,
     callbacks,
-    **kwargs
+    **kwargs,
 ):
     device_list = [devices.alice, devices.bob]
     server = devices.carol

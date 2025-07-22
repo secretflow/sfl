@@ -37,7 +37,7 @@ class LambdaLayer(nn.Module):
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_planes, planes, kernel_size, stride=1, option='A'):
+    def __init__(self, in_planes, planes, kernel_size, stride=1, option="A"):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(
             in_planes,
@@ -55,7 +55,7 @@ class BasicBlock(nn.Module):
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != planes:
-            if option == 'A':
+            if option == "A":
                 """
                 For CIFAR10 ResNet paper uses option A.
                 """
@@ -67,7 +67,7 @@ class BasicBlock(nn.Module):
                         0,
                     )
                 )
-            elif option == 'B':
+            elif option == "B":
                 self.shortcut = nn.Sequential(
                     nn.Conv2d(
                         in_planes,
@@ -166,7 +166,7 @@ class TopModelForCifar10(nn.Module):
         self.bn1top = nn.BatchNorm1d(20)
         self.bn2top = nn.BatchNorm1d(10)
         self.bn3top = nn.BatchNorm1d(10)
-        print('batch norm: ', self.bn0top)
+        print("batch norm: ", self.bn0top)
         self.apply(weights_init)
 
     def forward(self, input_tensor):
@@ -193,13 +193,13 @@ class BottomModelPlus(nn.Module):
         size_bottom_out=10,
         num_classes=10,
         num_layer=1,
-        activation_func_type='ReLU',
+        activation_func_type="ReLU",
         use_bn=True,
     ):
         super(BottomModelPlus, self).__init__()
         self.bottom_model = bottom_model
 
-        dict_activation_func_type = {'ReLU': F.relu, 'Sigmoid': F.sigmoid, 'None': None}
+        dict_activation_func_type = {"ReLU": F.relu, "Sigmoid": F.sigmoid, "None": None}
         self.activation_func = dict_activation_func_type[activation_func_type]
         self.num_layer = num_layer
         self.use_bn = use_bn
@@ -283,7 +283,7 @@ class WideDeepBase(nn.Module):
             ]
         )
         for name, tensor in self.linear.named_parameters():
-            if 'weight' in name:
+            if "weight" in name:
                 nn.init.normal_(tensor, mean=0, std=0.0001)
 
         self.activation = nn.ReLU()
@@ -308,7 +308,7 @@ class WideDeepBottomAlice(nn.Module):
     ):
         super(WideDeepBottomAlice, self).__init__()
         self.sparse_feature_columns = list(
-            filter(lambda x: x[1] == 'sparse', dnn_feature_columns)
+            filter(lambda x: x[1] == "sparse", dnn_feature_columns)
         )
         self.embedding_dic = nn.ModuleDict(
             {
@@ -317,7 +317,7 @@ class WideDeepBottomAlice(nn.Module):
             }
         )
         self.dense_feature_columns = list(
-            filter(lambda x: x[1] == 'dense', dnn_feature_columns)
+            filter(lambda x: x[1] == "dense", dnn_feature_columns)
         )
 
         self.feature_index = defaultdict(int)
@@ -370,7 +370,7 @@ class WideDeepBottomBob(nn.Module):
             ]
         )
         for name, tensor in self.linear.named_parameters():
-            if 'weight' in name:
+            if "weight" in name:
                 nn.init.normal_(tensor, mean=0, std=0.00001)
 
         self.act = nn.ReLU()
@@ -416,14 +416,14 @@ class LocalEmbedding(nn.Module):
 
         # Convolutional layer 1
         self.c1 = nn.Conv2d(
-            in_channels=1, out_channels=64, kernel_size=5, padding='same'
+            in_channels=1, out_channels=64, kernel_size=5, padding="same"
         )
         # Max pooling 1
         self.s1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # Convolutional layer 2
         self.c2 = nn.Conv2d(
-            in_channels=64, out_channels=128, kernel_size=5, padding='same'
+            in_channels=64, out_channels=128, kernel_size=5, padding="same"
         )
         # Max pooling 2
         self.s2 = nn.MaxPool2d(kernel_size=2, stride=2, padding=1)
@@ -535,7 +535,7 @@ class FModel(nn.Module):
         super(FModel, self).__init__()
 
         if width not in ["narrow", "standard", "wide"]:
-            raise ValueError(f'Width {width} is not supported.')
+            raise ValueError(f"Width {width} is not supported.")
         model_width = {
             "narrow": [8, 16, 32],
             "standard": [16, 32, 64],
@@ -556,7 +556,7 @@ class FModel(nn.Module):
         }
 
         if level < 3 or level > 9:
-            raise NotImplementedError(f'Level {level} is not supported.')
+            raise NotImplementedError(f"Level {level} is not supported.")
 
         self.conv1 = nn.Conv2d(
             input_shape[0],
@@ -597,14 +597,14 @@ class GModel(nn.Module):
         super(GModel, self).__init__()
 
         if width not in ["narrow", "standard", "wide"]:
-            raise ValueError(f'Width {width} is not supported.')
+            raise ValueError(f"Width {width} is not supported.")
         model_width = {
             "narrow": [8, 16, 32],
             "standard": [16, 32, 64],
             "wide": [32, 64, 128],
         }
         if level < 3 or level > 9:
-            raise NotImplementedError(f'Level {level} is not supported.')
+            raise NotImplementedError(f"Level {level} is not supported.")
         self.widths = model_width[width]
         layer_config = {
             3: [self.widths[0], self.widths[1]],
@@ -704,7 +704,7 @@ class Decoder(nn.Module):
     def _upsample_block(self, in_channels, out_channels):
         """Creates an UpSampling2D -> Conv2D block."""
         layers = nn.ModuleList()
-        layers.append(nn.Upsample(scale_factor=2, mode='nearest'))
+        layers.append(nn.Upsample(scale_factor=2, mode="nearest"))
         layers.append(
             nn.Conv2d(
                 in_channels=in_channels,

@@ -56,18 +56,18 @@ class tiny(torchvision.datasets.VisionDataset):
 
         # now load the picked numpy arrays
 
-        root_dir = root + '/tiny-imagenet-200'
+        root_dir = root + "/tiny-imagenet-200"
         self.identity = root_dir + "/tiny" + str(self.train) + ".pkl"
         if os.path.exists(self.identity):
-            tmp_file = open(self.identity, 'rb')
+            tmp_file = open(self.identity, "rb")
             read_data = pickle.load(tmp_file)
             self.data = read_data[0]
             self.targets = read_data[1]
             tmp_file.close()
         else:
             trn_img_list, trn_lbl_list, tst_img_list, tst_lbl_list = [], [], [], []
-            trn_file = os.path.join(root_dir, 'train_list.txt')
-            tst_file = os.path.join(root_dir, 'val_list.txt')
+            trn_file = os.path.join(root_dir, "train_list.txt")
+            tst_file = os.path.join(root_dir, "val_list.txt")
             with open(trn_file) as f:
                 line_list = f.readlines()
                 for line in line_list:
@@ -105,15 +105,15 @@ class tiny(torchvision.datasets.VisionDataset):
                 # ********************
                 img_path = os.path.join(self.root_dir, img_name)
                 img_id = self.label_list[index % self.size]
-                img_raw = Image.open(img_path).convert('RGB')
+                img_raw = Image.open(img_path).convert("RGB")
                 self.data.append(np.asarray(img_raw))
                 self.targets.append(img_id)
                 if index % 1000 == 999:
-                    print('Load PIL images ' + str(self.train) + ': No.', index)
+                    print("Load PIL images " + str(self.train) + ": No.", index)
 
             self.data = np.vstack(self.data).reshape(-1, 3, 64, 64)
             self.data = self.data.transpose((0, 2, 3, 1))
-            tmp_file = open(self.identity, 'wb')
+            tmp_file = open(self.identity, "wb")
             pickle.dump([self.data, self.targets], tmp_file)
             tmp_file.close()
 

@@ -16,14 +16,14 @@ import logging
 import tempfile
 
 import pytest
-
 from secretflow import reveal
-from secretflow_fl import tune
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.callbacks.tune.automl import AutoMLCallback
-from secretflow_fl.security.privacy import DPStrategy, LabelDP
-from secretflow_fl.security.privacy.mechanism.tensorflow import GaussianEmbeddingDP
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+
+from sfl import tune
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.callbacks.tune.automl import AutoMLCallback
+from sfl.security.privacy import DPStrategy, LabelDP
+from sfl.security.privacy.mechanism.tensorflow import GaussianEmbeddingDP
+from sfl.utils.simulation.datasets_fl import load_mnist
 from tests.fl.ml.nn.sl.model_def import create_base_model, create_fuse_model
 
 _temp_dir = tempfile.mkdtemp()

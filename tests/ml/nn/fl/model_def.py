@@ -21,7 +21,7 @@ from torch import nn, optim
 from torch.nn import functional as F
 from torchmetrics import MeanSquaredError
 
-from secretflow_fl.ml.nn.core.torch import BaseModule
+from sfl.ml.nn.core.torch import BaseModule
 
 
 # Tensorflow Model

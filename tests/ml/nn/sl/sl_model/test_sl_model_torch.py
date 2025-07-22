@@ -18,18 +18,18 @@ import os
 import tempfile
 
 import numpy as np
+from secretflow.device import reveal
 from torch import nn, optim
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.device import reveal
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.agglayer.agg_method import Average
-from secretflow_fl.security.privacy import DPStrategy
-from secretflow_fl.security.privacy.mechanism.label_dp import LabelDP
-from secretflow_fl.security.privacy.mechanism.torch import GaussianEmbeddingDP
-from secretflow_fl.utils.compressor import TopkSparse
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.agglayer.agg_method import Average
+from sfl.security.privacy import DPStrategy
+from sfl.security.privacy.mechanism.label_dp import LabelDP
+from sfl.security.privacy.mechanism.torch import GaussianEmbeddingDP
+from sfl.utils.compressor import TopkSparse
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 from ..model_def import (
     ConvNetBase,
@@ -77,7 +77,7 @@ def torch_model_with_mnist(
     label,
     strategy="split_nn",
     backend="torch",
-    **kwargs
+    **kwargs,
 ):
     # kwargs parsing
     dp_strategy_dict = kwargs.get("dp_strategy_dict", None)

@@ -46,13 +46,13 @@ import numpy as np
 import pandas as pd
 import pretty_midi
 import seaborn as sns
+import secretflow as sf
 import tensorflow as tf
 from IPython import display
 from matplotlib import pyplot as plt
-
-import secretflow as sf
 from secretflow.security.aggregation import SecureAggregator
-from secretflow_fl.ml.nn import FLModel
+
+from sfl.ml.nn import FLModel
 
 seed = 42
 tf.random.set_seed(seed)
@@ -65,19 +65,19 @@ _SAMPLING_RATE = 16000
 # ### 下载 Maestro 数据集
 
 
-data_dir = pathlib.Path('data/maestro-v2.0.0')
+data_dir = pathlib.Path("data/maestro-v2.0.0")
 if not data_dir.exists():
     tf.keras.utils.get_file(
-        'maestro-v2.0.0-midi.zip',
-        origin='https://storage.googleapis.com/magentadata/datasets/maestro/v2.0.0/maestro-v2.0.0-midi.zip',
+        "maestro-v2.0.0-midi.zip",
+        origin="https://storage.googleapis.com/magentadata/datasets/maestro/v2.0.0/maestro-v2.0.0-midi.zip",
         extract=True,
-        cache_dir='.',
-        cache_subdir='data',
+        cache_dir=".",
+        cache_subdir="data",
     )
 
 
-filenames = glob.glob(str(data_dir / '**/*.mid*'))
-print('Number of files:', len(filenames))
+filenames = glob.glob(str(data_dir / "**/*.mid*"))
+print("Number of files:", len(filenames))
 
 
 # ### 处理 MIDI 文件
@@ -100,10 +100,10 @@ def display_audio(pm: pretty_midi.PrettyMIDI, seconds=30):
 display_audio(pm)
 
 
-print('Number of instruments:', len(pm.instruments))
+print("Number of instruments:", len(pm.instruments))
 instrument = pm.instruments[0]
 instrument_name = pretty_midi.program_to_instrument_name(instrument.program)
-print('Instrument name:', instrument_name)
+print("Instrument name:", instrument_name)
 
 
 # ### 提取音符
@@ -113,7 +113,7 @@ for i, note in enumerate(instrument.notes[:10]):
     note_name = pretty_midi.note_number_to_name(note.pitch)
     duration = note.end - note.start
     print(
-        f'{i}: pitch={note.pitch}, note_name={note_name},' f' duration={duration:.4f}'
+        f"{i}: pitch={note.pitch}, note_name={note_name}," f" duration={duration:.4f}"
     )
 
 
@@ -129,11 +129,11 @@ def midi_to_notes(midi_file: str) -> pd.DataFrame:
     for note in sorted_notes:
         start = note.start
         end = note.end
-        notes['pitch'].append(note.pitch)
-        notes['start'].append(start)
-        notes['end'].append(end)
-        notes['step'].append(start - prev_start)
-        notes['duration'].append(end - start)
+        notes["pitch"].append(note.pitch)
+        notes["start"].append(start)
+        notes["end"].append(end)
+        notes["step"].append(start - prev_start)
+        notes["duration"].append(end - start)
         prev_start = start
 
     return pd.DataFrame({name: np.array(value) for name, value in notes.items()})
@@ -144,22 +144,22 @@ raw_notes.head()
 
 
 get_note_names = np.vectorize(pretty_midi.note_number_to_name)
-sample_note_names = get_note_names(raw_notes['pitch'])
+sample_note_names = get_note_names(raw_notes["pitch"])
 sample_note_names[:10]
 
 
 def plot_piano_roll(notes: pd.DataFrame, count: Optional[int] = None):
     if count:
-        title = f'First {count} notes'
+        title = f"First {count} notes"
     else:
-        title = f'Whole track'
-        count = len(notes['pitch'])
+        title = f"Whole track"
+        count = len(notes["pitch"])
     plt.figure(figsize=(20, 4))
-    plot_pitch = np.stack([notes['pitch'], notes['pitch']], axis=0)
-    plot_start_stop = np.stack([notes['start'], notes['end']], axis=0)
+    plot_pitch = np.stack([notes["pitch"], notes["pitch"]], axis=0)
+    plot_start_stop = np.stack([notes["start"], notes["end"]], axis=0)
     plt.plot(plot_start_stop[:, :count], plot_pitch[:, :count], color="b", marker=".")
-    plt.xlabel('Time [s]')
-    plt.ylabel('Pitch')
+    plt.xlabel("Time [s]")
+    plt.ylabel("Pitch")
     _ = plt.title(title)
 
 
@@ -175,11 +175,11 @@ def plot_distributions(notes: pd.DataFrame, drop_percentile=2.5):
     sns.histplot(notes, x="pitch", bins=20)
 
     plt.subplot(1, 3, 2)
-    max_step = np.percentile(notes['step'], 100 - drop_percentile)
+    max_step = np.percentile(notes["step"], 100 - drop_percentile)
     sns.histplot(notes, x="step", bins=np.linspace(0, max_step, 21))
 
     plt.subplot(1, 3, 3)
-    max_duration = np.percentile(notes['duration'], 100 - drop_percentile)
+    max_duration = np.percentile(notes["duration"], 100 - drop_percentile)
     sns.histplot(notes, x="duration", bins=np.linspace(0, max_duration, 21))
 
 
@@ -202,11 +202,11 @@ def notes_to_midi(
 
     prev_start = 0
     for i, note in notes.iterrows():
-        start = float(prev_start + note['step'])
-        end = float(start + note['duration'])
+        start = float(prev_start + note["step"])
+        end = float(start + note["duration"])
         note = pretty_midi.Note(
             velocity=velocity,
-            pitch=int(note['pitch']),
+            pitch=int(note["pitch"]),
             start=start,
             end=end,
         )
@@ -218,7 +218,7 @@ def notes_to_midi(
     return pm
 
 
-example_file = 'example.midi'
+example_file = "example.midi"
 example_pm = notes_to_midi(
     raw_notes, out_file=example_file, instrument_name=instrument_name
 )
@@ -240,10 +240,10 @@ all_notes = pd.concat(all_notes)
 
 
 n_notes = len(all_notes)
-print('Number of notes parsed:', n_notes)
+print("Number of notes parsed:", n_notes)
 
 
-key_order = ['pitch', 'step', 'duration']
+key_order = ["pitch", "step", "duration"]
 train_notes = np.stack([all_notes[key] for key in key_order], axis=1)
 
 
@@ -289,10 +289,10 @@ seq_ds.element_spec
 
 
 for seq, target in seq_ds.take(1):
-    print('sequence shape:', seq.shape)
-    print('sequence elements (first 10):', seq[0:10])
+    print("sequence shape:", seq.shape)
+    print("sequence elements (first 10):", seq[0:10])
     print()
-    print('target:', target)
+    print("target:", target)
 
 
 batch_size = 64
@@ -324,17 +324,17 @@ inputs = tf.keras.Input(input_shape)
 x = tf.keras.layers.LSTM(128)(inputs)
 
 outputs = {
-    'pitch': tf.keras.layers.Dense(128, name='pitch')(x),
-    'step': tf.keras.layers.Dense(1, name='step')(x),
-    'duration': tf.keras.layers.Dense(1, name='duration')(x),
+    "pitch": tf.keras.layers.Dense(128, name="pitch")(x),
+    "step": tf.keras.layers.Dense(1, name="step")(x),
+    "duration": tf.keras.layers.Dense(1, name="duration")(x),
 }
 
 model = tf.keras.Model(inputs, outputs)
 
 loss = {
-    'pitch': tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    'step': mse_with_positive_pressure,
-    'duration': mse_with_positive_pressure,
+    "pitch": tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    "step": mse_with_positive_pressure,
+    "duration": mse_with_positive_pressure,
 }
 
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
@@ -351,9 +351,9 @@ losses
 model.compile(
     loss=loss,
     loss_weights={
-        'pitch': 0.05,
-        'step': 1.0,
-        'duration': 1.0,
+        "pitch": 0.05,
+        "step": 1.0,
+        "duration": 1.0,
     },
     optimizer=optimizer,
 )
@@ -364,10 +364,10 @@ model.evaluate(train_ds, return_dict=True)
 
 callbacks = [
     tf.keras.callbacks.ModelCheckpoint(
-        filepath='./training_checkpoints/ckpt_{epoch}', save_weights_only=True
+        filepath="./training_checkpoints/ckpt_{epoch}", save_weights_only=True
     ),
     tf.keras.callbacks.EarlyStopping(
-        monitor='loss', patience=5, verbose=1, restore_best_weights=True
+        monitor="loss", patience=5, verbose=1, restore_best_weights=True
     ),
 ]
 
@@ -381,7 +381,7 @@ history = model.fit(
 )
 
 
-plt.plot(history.epoch, history.history['loss'], label='total loss')
+plt.plot(history.epoch, history.history["loss"], label="total loss")
 plt.show()
 
 
@@ -399,9 +399,9 @@ def predict_next_note(
     inputs = tf.expand_dims(notes, 0)
 
     predictions = model.predict(inputs)
-    pitch_logits = predictions['pitch']
-    step = predictions['step']
-    duration = predictions['duration']
+    pitch_logits = predictions["pitch"]
+    step = predictions["step"]
+    duration = predictions["duration"]
 
     pitch_logits /= temperature
     pitch = tf.random.categorical(pitch_logits, num_samples=1)
@@ -437,13 +437,13 @@ for _ in range(num_predictions):
     input_notes = np.append(input_notes, np.expand_dims(input_note, 0), axis=0)
     prev_start = start
 
-generated_notes = pd.DataFrame(generated_notes, columns=(*key_order, 'start', 'end'))
+generated_notes = pd.DataFrame(generated_notes, columns=(*key_order, "start", "end"))
 
 
 generated_notes.head(10)
 
 
-out_file = 'output.mid'
+out_file = "output.mid"
 out_pm = notes_to_midi(
     generated_notes, out_file=out_file, instrument_name=instrument_name
 )
@@ -462,12 +462,12 @@ plot_distributions(generated_notes)
 
 # ### 隐语环境初始化
 # Check the version of your SecretFlow
-print('The version of SecretFlow: {}'.format(sf.__version__))
+print("The version of SecretFlow: {}".format(sf.__version__))
 
 # In case you have a running secretflow runtime already.
 sf.shutdown()
-sf.init(['alice', 'bob', 'charlie'], address="local", log_to_driver=False)
-alice, bob, charlie = sf.PYU('alice'), sf.PYU('bob'), sf.PYU('charlie')
+sf.init(["alice", "bob", "charlie"], address="local", log_to_driver=False)
+alice, bob, charlie = sf.PYU("alice"), sf.PYU("bob"), sf.PYU("charlie")
 
 
 # ### 封装 DataBuilder
@@ -491,7 +491,7 @@ def create_dataset_builder(
         all_notes = pd.concat(all_notes)
         n_notes = len(all_notes)
 
-        key_order = ['pitch', 'step', 'duration']
+        key_order = ["pitch", "step", "duration"]
         train_notes = np.stack([all_notes[key] for key in key_order], axis=1)
 
         notes_ds = tf.data.Dataset.from_tensor_slices(train_notes)
@@ -525,7 +525,7 @@ def create_dataset_builder(
 # 得益于隐语优异的设计，我们只需要将单机模式下定义的网络结构，进行适当的封装即可。具体到本教程，我们只需要对单机模式的模型进行封装即可。
 
 
-def create_audio_generate_model(input_shape, name='model'):
+def create_audio_generate_model(input_shape, name="model"):
     def create_model():
         # Create model
 
@@ -533,17 +533,17 @@ def create_audio_generate_model(input_shape, name='model'):
         x = tf.keras.layers.LSTM(128)(inputs)
 
         outputs = {
-            'pitch': tf.keras.layers.Dense(128, name='pitch')(x),
-            'step': tf.keras.layers.Dense(1, name='step')(x),
-            'duration': tf.keras.layers.Dense(1, name='duration')(x),
+            "pitch": tf.keras.layers.Dense(128, name="pitch")(x),
+            "step": tf.keras.layers.Dense(1, name="step")(x),
+            "duration": tf.keras.layers.Dense(1, name="duration")(x),
         }
 
         model = tf.keras.Model(inputs, outputs)
 
         loss = {
-            'pitch': tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-            'step': mse_with_positive_pressure,
-            'duration': mse_with_positive_pressure,
+            "pitch": tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            "step": mse_with_positive_pressure,
+            "duration": mse_with_positive_pressure,
         }
         # Compile model
         optimizer = tf.keras.optimizers.Adam(learning_rate=0.005)
@@ -640,32 +640,32 @@ print(history.global_history.keys())
 
 
 # Draw loss values for training & validation
-plt.plot(history.global_history['loss'])
-plt.plot(history.global_history['val_loss'])
-plt.title('FLModel loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["loss"])
+plt.plot(history.global_history["val_loss"])
+plt.title("FLModel loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 
 # Draw loss values for training & validation
-plt.plot(history.global_history['pitch_loss'])
-plt.plot(history.global_history['val_pitch_loss'])
-plt.title('FLModel pitch loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["pitch_loss"])
+plt.plot(history.global_history["val_pitch_loss"])
+plt.title("FLModel pitch loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 
 # Draw loss values for training & validation
-plt.plot(history.global_history['step_loss'])
-plt.plot(history.global_history['val_step_loss'])
-plt.title('FLModel step loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["step_loss"])
+plt.plot(history.global_history["val_step_loss"])
+plt.title("FLModel step loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 

@@ -30,13 +30,13 @@ class CandidateEncoder(nn.Module):
 
         if self.use_entity:
             self.atte = Sequential(
-                'a,b,c',
+                "a,b,c",
                 [
                     (
                         lambda a, b, c: torch.stack([a, b, c], dim=-2).view(
                             -1, 3, self.news_dim
                         ),
-                        'a,b,c -> x',
+                        "a,b,c -> x",
                     ),
                     AttentionPooling(self.news_dim, cfg.model.attention_hidden_dim),
                     nn.Linear(self.news_dim, self.output_dim),
@@ -45,9 +45,9 @@ class CandidateEncoder(nn.Module):
             )
         else:
             self.atte = Sequential(
-                'a,b,c',
+                "a,b,c",
                 [
-                    (nn.Linear(self.news_dim, self.output_dim), 'a -> x'),
+                    (nn.Linear(self.news_dim, self.output_dim), "a -> x"),
                     nn.LeakyReLU(0.2),
                 ],
             )

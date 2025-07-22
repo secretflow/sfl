@@ -101,7 +101,7 @@ def record_part(y_test, train_cls_counts, test_dataidxs, logger):
                 tmp.append(0)
         test_cls_counts.append(tmp)
         logger.debug(
-            'DATA Partition: Train %s; Test %s'
+            "DATA Partition: Train %s; Test %s"
             % (str(train_cls_counts[net_i]), str(tmp))
         )
     return
@@ -112,7 +112,7 @@ def partition_data(datadir, partition, n_nets, alpha, logger):
     X_train, y_train, X_test, y_test = load_cifar100_data(datadir)
     n_train = X_train.shape[0]
 
-    if partition == 'n_cls':
+    if partition == "n_cls":
         n_client = n_nets
         n_cls = 100
 
@@ -158,7 +158,7 @@ def partition_data(datadir, partition, n_nets, alpha, logger):
 
                 break
 
-    elif partition == 'dir':
+    elif partition == "dir":
         n_client = n_nets
         n_cls = 100
 
@@ -199,7 +199,7 @@ def partition_data(datadir, partition, n_nets, alpha, logger):
 
                 break
 
-    elif partition == 'my_part':
+    elif partition == "my_part":
         n_shards = alpha
         n_shards = 1
         n_client = n_nets

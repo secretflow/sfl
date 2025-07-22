@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import numpy as np
-import tensorflow as tf
-
 import secretflow as sf
+import tensorflow as tf
 from secretflow.utils.communicate import ForwardData
-from secretflow_fl.ml.nn.sl.agglayer.agg_layer import AggLayer
-from secretflow_fl.ml.nn.sl.agglayer.agg_method import Average, Concat, Sum
+
+from sfl.ml.nn.sl.agglayer.agg_layer import AggLayer
+from sfl.ml.nn.sl.agglayer.agg_method import Average, Concat, Sum
 
 
 class TestPlainAggLayer:

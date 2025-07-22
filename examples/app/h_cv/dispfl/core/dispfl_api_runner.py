@@ -165,7 +165,7 @@ class BaseDispflAPI(ABC):
                 client = self.client_list[clnt_idx]
                 if active_ths_rnd[clnt_idx] == 0:
                     self.logger.info(
-                        '-------------------------- Client ({}/{}) DROP this round CM({}/{}) with spasity {} ----------------------------'.format(
+                        "-------------------------- Client ({}/{}) DROP this round CM({}/{}) with spasity {} ----------------------------".format(
                             clnt_idx,
                             self.args.client_num_in_total,
                             round_idx,
@@ -175,7 +175,7 @@ class BaseDispflAPI(ABC):
                     )
 
                 self.logger.info(
-                    '------------------------------- Training Client ({}/{}) with Round CM({}/{}) with spasity {}  --------------------------'.format(
+                    "------------------------------- Training Client ({}/{}) with Round CM({}/{}) with spasity {}  --------------------------".format(
                         clnt_idx,
                         self.args.client_num_in_total,
                         round_idx,
@@ -264,7 +264,7 @@ class BaseDispflAPI(ABC):
                 wait(tst_results)
                 tst_results_ths_round.append(tst_results)
                 self.logger.info(
-                    '------------------------------- Finish Training Client ({}/{}) with Round CM({}/{}) with spasity {} ----------------------------'.format(
+                    "------------------------------- Finish Training Client ({}/{}) with Round CM({}/{}) with spasity {} ----------------------------".format(
                         clnt_idx,
                         self.args.client_num_in_total,
                         round_idx,
@@ -368,17 +368,17 @@ class BaseDispflAPI(ABC):
                 round_idx
             )
         )
-        test_metrics = {'num_samples': [], 'num_correct': [], 'losses': []}
+        test_metrics = {"num_samples": [], "num_correct": [], "losses": []}
         for client_idx in range(self.args.client_num_in_total):
             # test data
-            test_metrics['num_samples'].append(
-                copy.deepcopy(tst_results_ths_round[client_idx]['test_total'])
+            test_metrics["num_samples"].append(
+                copy.deepcopy(tst_results_ths_round[client_idx]["test_total"])
             )
-            test_metrics['num_correct'].append(
-                copy.deepcopy(tst_results_ths_round[client_idx]['test_correct'])
+            test_metrics["num_correct"].append(
+                copy.deepcopy(tst_results_ths_round[client_idx]["test_correct"])
             )
-            test_metrics['losses'].append(
-                copy.deepcopy(tst_results_ths_round[client_idx]['test_loss'])
+            test_metrics["losses"].append(
+                copy.deepcopy(tst_results_ths_round[client_idx]["test_loss"])
             )
 
             """
@@ -392,7 +392,7 @@ class BaseDispflAPI(ABC):
         test_acc = (
             sum(
                 [
-                    test_metrics['num_correct'][i] / test_metrics['num_samples'][i]
+                    test_metrics["num_correct"][i] / test_metrics["num_samples"][i]
                     for i in range(self.args.client_num_in_total)
                 ]
             )
@@ -401,15 +401,15 @@ class BaseDispflAPI(ABC):
         test_loss = (
             sum(
                 [
-                    np.array(test_metrics['losses'][i])
-                    / np.array(test_metrics['num_samples'][i])
+                    np.array(test_metrics["losses"][i])
+                    / np.array(test_metrics["num_samples"][i])
                     for i in range(self.args.client_num_in_total)
                 ]
             )
             / self.args.client_num_in_total
         )
 
-        stats = {'test_acc': test_acc, 'test_loss': test_loss}
+        stats = {"test_acc": test_acc, "test_loss": test_loss}
 
         self.logger.info(
             f"In round {round_idx} after local trainning, test_acc = {test_acc}, test_loss = {test_loss}"
@@ -422,17 +422,17 @@ class BaseDispflAPI(ABC):
                 round_idx
             )
         )
-        test_metrics = {'num_samples': [], 'num_correct': [], 'losses': []}
+        test_metrics = {"num_samples": [], "num_correct": [], "losses": []}
         for client_idx in range(self.args.client_num_in_total):
             # test data
-            test_metrics['num_samples'].append(
-                copy.deepcopy(tst_results_ths_round[client_idx]['test_total'])
+            test_metrics["num_samples"].append(
+                copy.deepcopy(tst_results_ths_round[client_idx]["test_total"])
             )
-            test_metrics['num_correct'].append(
-                copy.deepcopy(tst_results_ths_round[client_idx]['test_correct'])
+            test_metrics["num_correct"].append(
+                copy.deepcopy(tst_results_ths_round[client_idx]["test_correct"])
             )
-            test_metrics['losses'].append(
-                copy.deepcopy(tst_results_ths_round[client_idx]['test_loss'])
+            test_metrics["losses"].append(
+                copy.deepcopy(tst_results_ths_round[client_idx]["test_loss"])
             )
 
             """
@@ -446,7 +446,7 @@ class BaseDispflAPI(ABC):
         test_acc = (
             sum(
                 [
-                    test_metrics['num_correct'][i] / test_metrics['num_samples'][i]
+                    test_metrics["num_correct"][i] / test_metrics["num_samples"][i]
                     for i in range(self.args.client_num_in_total)
                 ]
             )
@@ -455,15 +455,15 @@ class BaseDispflAPI(ABC):
         test_loss = (
             sum(
                 [
-                    np.array(test_metrics['losses'][i])
-                    / np.array(test_metrics['num_samples'][i])
+                    np.array(test_metrics["losses"][i])
+                    / np.array(test_metrics["num_samples"][i])
                     for i in range(self.args.client_num_in_total)
                 ]
             )
             / self.args.client_num_in_total
         )
 
-        stats = {'test_acc': test_acc, 'test_loss': test_loss}
+        stats = {"test_acc": test_acc, "test_loss": test_loss}
 
         self.logger.info(
             f"In round {round_idx} before local trainning, test_acc = {test_acc}, test_loss = {test_loss}"

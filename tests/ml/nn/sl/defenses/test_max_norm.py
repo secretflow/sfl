@@ -14,17 +14,17 @@
 
 import numpy as np
 import torch
+from secretflow.data.split import train_test_split
+from secretflow.preprocessing import StandardScaler
+from secretflow.utils.simulation.data.dataframe import create_df
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from torch import nn
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.data.split import train_test_split
-from secretflow.preprocessing import StandardScaler
-from secretflow.utils.simulation.data.dataframe import create_df
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.defenses.max_norm import max_norm
-from secretflow_fl.utils.simulation.datasets_fl import load_criteo_unpartitioned
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.defenses.max_norm import max_norm
+from sfl.utils.simulation.datasets_fl import load_criteo_unpartitioned
 
 from ..attack.model_def import WideDeepBottomAlice, WideDeepBottomBob, WideDeepFuse
 

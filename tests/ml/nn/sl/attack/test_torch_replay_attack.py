@@ -14,20 +14,20 @@
 
 import numpy as np
 import torch
+from secretflow.data.ndarray import FedNdarray, PartitionWay
+from secretflow.device import reveal
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow.device import reveal
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_resnet_torch import (
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_resnet_torch import (
     BasicBlock,
     NaiveSumSoftmax,
     ResNetBase,
 )
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.replay_attack_torch import ReplayAttack
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.replay_attack_torch import ReplayAttack
 
 batch_size = 8
 

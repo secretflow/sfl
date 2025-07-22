@@ -29,8 +29,8 @@ class Client:
         self._config = config
         self._optimizer = torch.optim.Adam(
             self._model.parameters(),
-            lr=config['lr'],
-            weight_decay=config['l2_regularization'],
+            lr=config["lr"],
+            weight_decay=config["l2_regularization"],
         )
         self._loss_func = torch.nn.BCELoss()
 
@@ -53,9 +53,9 @@ class Client:
         return self._model
 
     def use_cuda(self):
-        if self._config['use_cuda'] is True:
-            assert torch.cuda.is_available(), 'CUDA is not available'
-            torch.cuda.set_device(self._config['device_id'])
+        if self._config["use_cuda"] is True:
+            assert torch.cuda.is_available(), "CUDA is not available"
+            torch.cuda.set_device(self._config["device_id"])
             self._model.cuda()
 
     def save(self):

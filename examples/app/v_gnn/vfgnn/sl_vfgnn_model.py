@@ -13,7 +13,7 @@
 # limitations under the License.
 import os
 
-os.environ['DGLBACKEND'] = 'pytorch'
+os.environ["DGLBACKEND"] = "pytorch"
 import math  # noqa
 from typing import List  # noqa
 
@@ -132,7 +132,7 @@ Activation dict
 
 
 def get_activation(activation):
-    _ACTIVATIONS = {'tanh': F.tanh, 'relu': F.relu, 'sigmoid': F.sigmoid}
+    _ACTIVATIONS = {"tanh": F.tanh, "relu": F.relu, "sigmoid": F.sigmoid}
     return _ACTIVATIONS[activation]
 
 
@@ -212,7 +212,7 @@ class VFGNN(nn.Module):
             base_model = BaseModel(
                 (
                     self.in_feats[i]
-                    if self.init_mode == 'identity'
+                    if self.init_mode == "identity"
                     else self.init_model_num_hidden
                 ),
                 self.n_classes,
@@ -253,13 +253,13 @@ class VFGNN(nn.Module):
         # CG2: local sage conv for each base model
         out_hiddens = []
         for i in range(len(self.base_models)):
-            if self.init_mode == 'identity':
+            if self.init_mode == "identity":
                 h, local_emb = self.base_models[i]((blocks[i], init_emb[i]))
-            elif self.init_mode == 'regression':  # each party owns the same embedding
+            elif self.init_mode == "regression":  # each party owns the same embedding
                 h, local_emb = self.base_models[i]((blocks[i], init_emb))
             else:
                 raise NotImplementedError(
-                    f'Init mode: {self.init_mode} not implemented!'
+                    f"Init mode: {self.init_mode} not implemented!"
                 )
             out_hiddens.append(h)
 
@@ -334,33 +334,33 @@ class InitModel(nn.Module):
         # combine outputs from init models
         self.in_feat_size = self.compute_in_feat_size()
 
-        if self.init_mode == 'identity':
+        if self.init_mode == "identity":
             self.layer = nn.Identity()
-        elif self.init_mode == 'regression':
+        elif self.init_mode == "regression":
             print(self.in_feat_size, self.init_model_num_hidden)
             self.layer = nn.Linear(self.in_feat_size, self.init_model_num_hidden)
         else:
-            raise NotImplementedError(f'Init method {self.init_mode} not implemented!')
+            raise NotImplementedError(f"Init method {self.init_mode} not implemented!")
 
         self.batch_size = batch_size
         self.num_workers = num_workers
 
     def compute_in_feat_size(self):
-        if self.init_mode == 'identity':
+        if self.init_mode == "identity":
             in_feat_size = self.in_feats[0]
-        elif self.init_mode == 'regression':
+        elif self.init_mode == "regression":
             in_feat_size = 0
             for i in range(len(self.in_feats)):
                 in_feat_size += self.in_feats[i]
         else:
-            raise NotImplementedError(f'Init method {self.init_mode} not implemented!')
+            raise NotImplementedError(f"Init method {self.init_mode} not implemented!")
 
         return in_feat_size
 
     def forward(self, xs):
-        if self.init_mode == 'identity':
+        if self.init_mode == "identity":
             h = self.layer(xs)
-        elif self.init_mode == 'regression':
+        elif self.init_mode == "regression":
             # FIXME: currently this has error since the sampled neighbours are different on each party.
             # Therefore, the joint initialization is not feasible.
             # E.g.,
@@ -378,12 +378,12 @@ class InitModel(nn.Module):
             #   1: 2 != 3
             #   2: [b, c] != [d, e, f]
             raise Exception(
-                f'Init method: {self.init_mode} not supported in this case!'
+                f"Init method: {self.init_mode} not supported in this case!"
             )
             # joint_input_feat = torch.concat(xs, dim=1)
             # h = self.layer(joint_input_feat)
         else:
-            raise NotImplementedError(f'Init method {self.init_mode} not implemented!')
+            raise NotImplementedError(f"Init method {self.init_mode} not implemented!")
 
         return h, xs
 
@@ -487,7 +487,7 @@ class FuseModel(nn.Module):
         # add one layer for AGGREGATE the embeddings from all the base models
         self.fuse_model_layers = (
             self.fuse_model_layers + 1
-            if self.global_aggregate == 'regression'
+            if self.global_aggregate == "regression"
             else self.fuse_model_layers
         )
 
@@ -513,33 +513,33 @@ class FuseModel(nn.Module):
         self.num_workers = num_workers
 
     def compute_in_feat_size(self):
-        if self.global_aggregate == 'concat':
+        if self.global_aggregate == "concat":
             # in_feat_size = 0
             # for i in range(len(self.in_feats)):
             #     in_feat_size += self.in_feats[i]
             in_feat_size = self.in_feats * self.in_channel
-        elif self.global_aggregate == 'mean':
+        elif self.global_aggregate == "mean":
             # sanity check
             # for i in range(1, len(self.in_feats)):
             #     assert self.in_feats[i] == self.in_feats[0]
             in_feat_size = self.in_feats
-        elif self.global_aggregate == 'regression':
+        elif self.global_aggregate == "regression":
             in_feat_size = self.in_feats * self.in_channel
         else:
-            print(f'Global aggregate method {self.global_aggregate} not implemented')
+            print(f"Global aggregate method {self.global_aggregate} not implemented")
             exit()
 
         return in_feat_size
 
     def forward(self, xs):
-        if self.global_aggregate == 'concat':
+        if self.global_aggregate == "concat":
             h = torch.concat(xs, dim=1)
-        elif self.global_aggregate == 'mean':
+        elif self.global_aggregate == "mean":
             h = torch.mean(torch.stack(xs), dim=0)
-        elif self.global_aggregate == 'regression':
+        elif self.global_aggregate == "regression":
             h = torch.concat(xs, dim=1)
         else:
-            print(f'Global aggregate method {self.global_aggregate} not implemented')
+            print(f"Global aggregate method {self.global_aggregate} not implemented")
             exit()
 
         for i in range(0, self.fuse_model_layers - 1):
@@ -599,12 +599,12 @@ def evaluate_vfgnn_target(model, in_graphs, num_layers, val_nid, batch_size, dev
 
                 blocks_list.append(blocks)
 
-                batch_inputs = blocks[0].srcdata['features']
+                batch_inputs = blocks[0].srcdata["features"]
                 inputs_list.append(batch_inputs)
 
             # Load the input features as well as output labels
             # batch_inputs, batch_labels = load_subtensor(train_g, seeds, input_nodes, device)
-            batch_labels = blocks_list[-1][-1].dstdata['labels']
+            batch_labels = blocks_list[-1][-1].dstdata["labels"]
 
             # Compute the forward propagation
             batch_pred, embs = model(blocks_list, inputs_list)

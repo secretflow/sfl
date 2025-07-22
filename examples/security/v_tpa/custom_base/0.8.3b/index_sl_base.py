@@ -20,21 +20,21 @@ from typing import Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+import secretflow.device as ft
 import tensorflow as tf
 import torch
+from secretflow.device import PYUObject, proxy
 from tensorflow.python.keras import callbacks as callbacks_module
 from torch import nn
 from torch.nn.modules.loss import _Loss as BaseTorchLoss
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
-import secretflow.device as ft
-from secretflow.device import PYUObject, proxy
-from secretflow_fl.ml.nn.metrics import AUC, Mean, Precision, Recall
-from secretflow_fl.ml.nn.sl.backend.tensorflow.utils import ForwardData
-from secretflow_fl.ml.nn.sl.strategy_dispatcher import register_strategy
-from secretflow_fl.security.privacy import DPStrategy
-from secretflow_fl.utils.compressor import Compressor, SparseCompressor
+from sfl.ml.nn.metrics import AUC, Mean, Precision, Recall
+from sfl.ml.nn.sl.backend.tensorflow.utils import ForwardData
+from sfl.ml.nn.sl.strategy_dispatcher import register_strategy
+from sfl.security.privacy import DPStrategy
+from sfl.utils.compressor import Compressor, SparseCompressor
 
 from .sl_base import SLBaseTFModel
 
