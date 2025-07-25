@@ -32,7 +32,7 @@ from sfl.preprocessing.encoder_fl import OneHotEncoder
 from sfl.security.aggregation import SparsePlainAggregator
 from sfl.security.privacy import DPStrategyFL, GaussianModelDP
 from sfl.utils.simulation.datasets_fl import load_mnist
-from tests.fl.ml.nn.fl.model_def import VAE, ConvNet, ConvNetBN, ConvRGBNet, MlpNet
+from tests.ml.nn.fl.model_def import VAE, ConvNet, ConvNetBN, ConvRGBNet, MlpNet
 
 _temp_dir = tempfile.mkdtemp()
 

@@ -29,11 +29,9 @@ from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
 from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
 from sfl.security.aggregation import SparsePlainAggregator
 from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
-from tests.fl.ml.nn.fl.attack.backdoor_fl_torch import BackdoorAttack
-
-# from secretflow_fl.ml.nn import FLModel
-from tests.fl.ml.nn.fl.attack.fl_model_bd import FLModel_bd
-from tests.fl.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
+from tests.ml.nn.fl.attack.backdoor_fl_torch import BackdoorAttack
+from tests.ml.nn.fl.attack.fl_model_bd import FLModel_bd
+from tests.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
 
 skip_live = os.getenv("SKIP_LIVE_TESTS", "1") == "1"
 

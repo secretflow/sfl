@@ -20,7 +20,7 @@ from secretflow.component.core import load_component_modules
 
 def _import_all_submodules():
     root_path = os.path.dirname(__file__)
-    load_component_modules(root_path, "secretflow_fl.component")
+    load_component_modules(root_path, "sfl.component")
 
 
 _import_all_submodules()

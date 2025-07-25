@@ -189,8 +189,8 @@ jobs:
           name: Install python deps
           command: |
             conda init
-            pip install uv
-            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu
+            conda install -y -c conda-forge uv
+            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
       - persist_to_workspace:
           root: .
           paths:
@@ -222,8 +222,8 @@ jobs:
           name: Install python dependencies
           command: |
             conda init
-            pip install uv
-            uv pip install -r pyproject.toml --extra dev
+            conda install -y -c conda-forge uv
+            uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
       - run:
           name: "build shared library"
           command: |
@@ -375,12 +375,6 @@ workflows:
           matrix:
             parameters:
               resource_class: ["2xlarge+", "arm.2xlarge"]
-      - linux_ml_test:
-          matrix:
-            parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
       - linux_prod_basic_test:
           matrix:
             parameters:

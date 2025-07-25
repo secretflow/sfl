@@ -30,8 +30,6 @@ from ..attack.backdoor_fl_torch import BackdoorAttack
 from ..attack.fl_model_bd import FLModel_bd
 from ..model_def import SimpleCNN
 
-# from secretflow_fl.ml.nn import FLModel
-
 _temp_dir = tempfile.mkdtemp()
 import logging
 

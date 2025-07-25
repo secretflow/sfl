@@ -30,7 +30,7 @@ from torchvision.datasets import CIFAR10
 from sfl.ml.nn import SLModel
 from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
 from sfl.ml.nn.sl.attacks.sdar_torch import SDARAttack
-from tests.fl.ml.nn.sl.attack.model_def import (
+from tests.ml.nn.sl.attack.model_def import (
     Decoder,
     DecoderDiscriminator,
     FModel,

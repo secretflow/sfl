@@ -24,7 +24,7 @@ from sfl.ml.nn.callbacks.tune.automl import AutoMLCallback
 from sfl.security.privacy import DPStrategy, LabelDP
 from sfl.security.privacy.mechanism.tensorflow import GaussianEmbeddingDP
 from sfl.utils.simulation.datasets_fl import load_mnist
-from tests.fl.ml.nn.sl.model_def import create_base_model, create_fuse_model
+from tests.ml.nn.sl.model_def import create_base_model, create_fuse_model
 
 _temp_dir = tempfile.mkdtemp()
 

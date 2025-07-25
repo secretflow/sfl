@@ -19,14 +19,15 @@ import pdb
 
 import numpy as np
 import pandas as pd
+import secretflow as sf
 import tensorflow as tf
 import torch
 from attack.attack_config import BADNETS_ARGS, POISONING_ARGS
 from config import AGGREGATIONS, METHODS, PARTIES, PARTY_NUM, TIMES
-
-# # # from secretflow_fl.ml.nn import SLModel
 from custom_base.custom_sl_model import CustomSLModel
 from dataset.dataset_config import DATASETS
+from secretflow.data.ndarray import load
+from secretflow.device import reveal
 from test_model.tf.basic_sl_model import create_fuse_model, create_passive_model
 from test_model.tf.cifar10_model import Splittable_Model, split_options
 from test_model.tf.fuse_model import get_fuse_model
@@ -35,10 +36,6 @@ from tools.logger import config_logger, print_log
 from tools.metric import asr
 from torch.nn import functional as F
 from tqdm import *
-
-import secretflow as sf
-from secretflow.data.ndarray import load
-from secretflow.device import reveal
 
 config_logger(fname="./logs/baseline_layer.log")
 party_num = PARTY_NUM
