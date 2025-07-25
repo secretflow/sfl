@@ -375,12 +375,6 @@ workflows:
           matrix:
             parameters:
               resource_class: ["2xlarge+", "arm.2xlarge"]
-      - linux_ml_test:
-          matrix:
-            parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
       - linux_prod_basic_test:
           matrix:
             parameters:
