@@ -61,7 +61,7 @@ class MyModelTrainer(ModelTrainer):
                 else:
                     spasities[name] = 0
         elif distribution == "ERK":
-            self.logger.info('initialize by ERK')
+            self.logger.info("initialize by ERK")
             total_params = 0
             for name in params:
                 total_params += params[name].numel()
@@ -194,7 +194,7 @@ class MyModelTrainer(ModelTrainer):
                     if name in self.masks:
                         param.data *= self.masks[name].to(device)
             self.logger.info(
-                'Client Index = {}\tEpoch: {}\tLoss: {:.6f}'.format(
+                "Client Index = {}\tEpoch: {}\tLoss: {:.6f}".format(
                     self.id, epoch, sum(epoch_loss) / len(epoch_loss)
                 )
             )
@@ -205,7 +205,7 @@ class MyModelTrainer(ModelTrainer):
         model.to(device)
         model.eval()
 
-        metrics = {'test_correct': 0, 'test_acc': 0.0, 'test_loss': 0, 'test_total': 0}
+        metrics = {"test_correct": 0, "test_acc": 0.0, "test_loss": 0, "test_total": 0}
 
         criterion = nn.CrossEntropyLoss().to(device)
 
@@ -219,10 +219,10 @@ class MyModelTrainer(ModelTrainer):
                 _, predicted = torch.max(pred, -1)
                 correct = predicted.eq(target).sum()
 
-                metrics['test_correct'] += correct.item()
-                metrics['test_loss'] += loss.item() * target.size(0)
-                metrics['test_total'] += target.size(0)
-                metrics['test_acc'] = metrics['test_correct'] / metrics['test_total']
+                metrics["test_correct"] += correct.item()
+                metrics["test_loss"] += loss.item() * target.size(0)
+                metrics["test_total"] += target.size(0)
+                metrics["test_acc"] = metrics["test_correct"] / metrics["test_total"]
         return metrics
 
     def test_on_the_server(

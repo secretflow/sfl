@@ -25,13 +25,13 @@ class GraphAttention(Layer):
         self,
         F_,
         attn_heads=1,
-        attn_heads_reduction='average',  # {'concat', 'average'}
+        attn_heads_reduction="average",  # {'concat', 'average'}
         dropout_rate=0.5,
-        activation='relu',
+        activation="relu",
         use_bias=True,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='zeros',
-        attn_kernel_initializer='glorot_uniform',
+        kernel_initializer="glorot_uniform",
+        bias_initializer="zeros",
+        attn_kernel_initializer="glorot_uniform",
         kernel_regularizer=None,
         bias_regularizer=None,
         attn_kernel_regularizer=None,
@@ -41,8 +41,8 @@ class GraphAttention(Layer):
         attn_kernel_constraint=None,
         **kwargs,
     ):
-        if attn_heads_reduction not in {'concat', 'average'}:
-            raise ValueError('Possbile reduction methods: concat, average')
+        if attn_heads_reduction not in {"concat", "average"}:
+            raise ValueError("Possbile reduction methods: concat, average")
 
         self.F_ = F_  # Number of output features (F' in the paper)
         self.attn_heads = attn_heads  # Number of attention heads (K in the paper)
@@ -70,7 +70,7 @@ class GraphAttention(Layer):
         self.biases = []  # Layer biases for attention heads
         self.attn_kernels = []  # Attention kernels for attention heads
 
-        if attn_heads_reduction == 'concat':
+        if attn_heads_reduction == "concat":
             # Output will have shape (..., K * F')
             self.output_dim = self.F_ * self.attn_heads
         else:
@@ -91,7 +91,7 @@ class GraphAttention(Layer):
                 initializer=self.kernel_initializer,
                 regularizer=self.kernel_regularizer,
                 constraint=self.kernel_constraint,
-                name='kernel_{}'.format(head),
+                name="kernel_{}".format(head),
             )
             self.kernels.append(kernel)
 
@@ -102,7 +102,7 @@ class GraphAttention(Layer):
                     initializer=self.bias_initializer,
                     regularizer=self.bias_regularizer,
                     constraint=self.bias_constraint,
-                    name='bias_{}'.format(head),
+                    name="bias_{}".format(head),
                 )
                 self.biases.append(bias)
 
@@ -112,14 +112,14 @@ class GraphAttention(Layer):
                 initializer=self.attn_kernel_initializer,
                 regularizer=self.attn_kernel_regularizer,
                 constraint=self.attn_kernel_constraint,
-                name='attn_kernel_self_{}'.format(head),
+                name="attn_kernel_self_{}".format(head),
             )
             attn_kernel_neighs = self.add_weight(
                 shape=(self.F_, 1),
                 initializer=self.attn_kernel_initializer,
                 regularizer=self.attn_kernel_regularizer,
                 constraint=self.attn_kernel_constraint,
-                name='attn_kernel_neigh_{}'.format(head),
+                name="attn_kernel_neigh_{}".format(head),
             )
             self.attn_kernels.append([attn_kernel_self, attn_kernel_neighs])
         self.built = True
@@ -176,7 +176,7 @@ class GraphAttention(Layer):
             outputs.append(node_features)
 
         # Aggregate the heads' output according to the reduction method
-        if self.attn_heads_reduction == 'concat':
+        if self.attn_heads_reduction == "concat":
             output = K.concatenate(outputs)  # (N x KF')
         else:
             output = K.mean(K.stack(outputs), axis=0)  # N x F')
@@ -192,9 +192,9 @@ class GraphAttention(Layer):
         config = super().get_config().copy()
         config.update(
             {
-                'attn_heads': self.attn_heads,
-                'attn_heads_reduction': self.attn_heads_reduction,
-                'F_': self.F_,
+                "attn_heads": self.attn_heads,
+                "attn_heads_reduction": self.attn_heads_reduction,
+                "F_": self.F_,
             }
         )
         return config
@@ -210,13 +210,13 @@ def create_base_model(
         outputs = GraphAttention(
             F_=n_hidden,
             attn_heads=num_heads,
-            attn_heads_reduction='average',  # {'concat', 'average'}
+            attn_heads_reduction="average",  # {'concat', 'average'}
             dropout_rate=dropout_rate,
-            activation='relu',
+            activation="relu",
             use_bias=True,
-            kernel_initializer='glorot_uniform',
-            bias_initializer='zeros',
-            attn_kernel_initializer='glorot_uniform',
+            kernel_initializer="glorot_uniform",
+            bias_initializer="zeros",
+            attn_kernel_initializer="glorot_uniform",
             kernel_regularizer=regular,
             bias_regularizer=None,
             attn_kernel_regularizer=None,
@@ -230,15 +230,15 @@ def create_base_model(
         model._name = "embed_model"
         # Compile model
         model.summary()
-        metrics = ['acc']
+        metrics = ["acc"]
         optimizer = tf.keras.optimizers.get(
             {
-                'class_name': 'adam',
-                'config': {'learning_rate': learning_rate},
+                "class_name": "adam",
+                "config": {"learning_rate": learning_rate},
             }
         )
         model.compile(
-            loss='categorical_crossentropy',
+            loss="categorical_crossentropy",
             weighted_metrics=metrics,
             optimizer=optimizer,
         )

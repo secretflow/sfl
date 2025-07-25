@@ -42,11 +42,11 @@ class GLORY(nn.Module):
 
         # GCN（图卷积网络）
         self.global_news_encoder = Sequential(
-            'x, index',
+            "x, index",
             [
                 (
-                    GatedGraphConv(self.news_dim, num_layers=3, aggr='add'),
-                    'x, index -> x',
+                    GatedGraphConv(self.news_dim, num_layers=3, aggr="add"),
+                    "x, index -> x",
                 ),  # 采用 GatedGraphConv 进行图卷积
             ],
         )
@@ -60,24 +60,24 @@ class GLORY(nn.Module):
 
             # 局部实体编码器
             self.local_entity_encoder = Sequential(
-                'x, mask',
+                "x, mask",
                 [
-                    (self.entity_embedding_layer, 'x -> x'),
+                    (self.entity_embedding_layer, "x -> x"),
                     (
                         EntityEncoder(cfg),
-                        'x, mask -> x',
+                        "x, mask -> x",
                     ),  # 使用 EntityEncoder 进行实体编码
                 ],
             )
 
             # 全局实体编码器
             self.global_entity_encoder = Sequential(
-                'x, mask',
+                "x, mask",
                 [
-                    (self.entity_embedding_layer, 'x -> x'),
+                    (self.entity_embedding_layer, "x -> x"),
                     (
                         GlobalEntityEncoder(cfg),
-                        'x, mask -> x',
+                        "x, mask -> x",
                     ),  # 使用 GlobalEntityEncoder 进行全局实体编码
                 ],
             )
@@ -270,9 +270,9 @@ class GLORY(nn.Module):
 
 
 class GLORYServer(nn.Module):
-    '''
+    """
     服务器只计算global gnn
-    '''
+    """
 
     def __init__(
         self,
@@ -285,11 +285,11 @@ class GLORYServer(nn.Module):
 
         # GCN（图卷积网络）
         self.global_news_encoder = Sequential(
-            'x, index',
+            "x, index",
             [
                 (
-                    GatedGraphConv(self.news_dim, num_layers=3, aggr='add'),
-                    'x, index -> x',
+                    GatedGraphConv(self.news_dim, num_layers=3, aggr="add"),
+                    "x, index -> x",
                 ),  # 采用 GatedGraphConv 进行图卷积
             ],
         )
@@ -303,9 +303,9 @@ class GLORYServer(nn.Module):
 
 
 class GLORYClient(nn.Module):
-    '''
+    """
     客户端负责本地新闻的语义计算和后续全局图向量传入的计算
-    '''
+    """
 
     def __init__(
         self,
@@ -333,22 +333,22 @@ class GLORYClient(nn.Module):
 
             # 局部实体编码器
             self.local_entity_encoder = Sequential(
-                'x, mask',
+                "x, mask",
                 [
-                    (self.entity_embedding_layer, 'x -> x'),
+                    (self.entity_embedding_layer, "x -> x"),
                     (
                         EntityEncoder(cfg),
-                        'x, mask -> x',
+                        "x, mask -> x",
                     ),  # 使用 EntityEncoder 进行实体编码
                 ],
             )
             self.global_entity_encoder = Sequential(
-                'x, mask',
+                "x, mask",
                 [
-                    (self.entity_embedding_layer, 'x -> x'),
+                    (self.entity_embedding_layer, "x -> x"),
                     (
                         GlobalEntityEncoder(cfg),
-                        'x, mask -> x',
+                        "x, mask -> x",
                     ),  # 使用 GlobalEntityEncoder 进行全局实体编码
                 ],
             )
@@ -472,9 +472,9 @@ class GLORYClient(nn.Module):
 
 
 class GLORYSplit(nn.Module):
-    '''
+    """
     完整的模型
-    '''
+    """
 
     def __init__(self, cfg, glove_emb=None, entity_emb=None):
         super().__init__()

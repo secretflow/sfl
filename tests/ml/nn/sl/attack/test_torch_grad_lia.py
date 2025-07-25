@@ -16,14 +16,14 @@ import numpy as np
 import pandas as pd
 import torch.nn as nn
 import torch.optim as optim
-from torchmetrics import AUROC
-
 from secretflow.data import partition
 from secretflow.data.vertical import VDataFrame
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_dnn_torch import DnnBase, DnnFuse
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.grad_lia_attack_torch import (
+from torchmetrics import AUROC
+
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_dnn_torch import DnnBase, DnnFuse
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.grad_lia_attack_torch import (
     GradientClusterLabelInferenceAttack,
 )
 

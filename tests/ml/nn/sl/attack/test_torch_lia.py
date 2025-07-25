@@ -16,18 +16,18 @@ import random
 import tempfile
 
 import numpy as np
+import secretflow as sf
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from secretflow.data.ndarray import FedNdarray, PartitionWay
 from torch.utils.data import Dataset
 from torchmetrics import Accuracy, Precision
 from torchvision import datasets, transforms
 
-import secretflow as sf
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.lia_torch import LabelInferenceAttack
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.lia_torch import LabelInferenceAttack
 
 from .data_util import (
     CIFAR10Labeled,

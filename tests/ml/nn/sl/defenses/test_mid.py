@@ -18,14 +18,14 @@ import os
 import tempfile
 
 import numpy as np
+from secretflow.device import reveal
 from torch import nn, optim
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.device import reveal
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.defenses.mid import MIDefense
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.defenses.mid import MIDefense
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 from ..model_def import ConvNetBase, ConvNetFuse
 
@@ -46,7 +46,7 @@ def torch_model_with_mnist(
     label,
     strategy="split_nn",
     backend="torch",
-    **kwargs
+    **kwargs,
 ):
     # kwargs parsing
     dp_strategy_dict = kwargs.get("dp_strategy_dict", None)

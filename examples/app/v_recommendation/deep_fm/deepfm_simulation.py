@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import secretflow as sf
 from data.dataset import load_ml_1m
 from model.deepfm_model import DeepFMbase, DeepFMfuse
 
-import secretflow as sf
-from secretflow_fl.ml.nn import SLModel
+from sfl.ml.nn import SLModel
 
 # In case you have a running secretflow runtime already.
 sf.shutdown()
-sf.init(['alice', 'bob', 'charlie'], address="local", log_to_driver=True)
-alice, bob, charlie = sf.PYU('alice'), sf.PYU('bob'), sf.PYU('charlie')
+sf.init(["alice", "bob", "charlie"], address="local", log_to_driver=True)
+alice, bob, charlie = sf.PYU("alice"), sf.PYU("bob"), sf.PYU("charlie")
 
 
 NUM_USERS = 6040
@@ -121,7 +121,7 @@ def create_base_model_bob():
                 num_bins=NUM_MOVIES, output_mode="one_hot"
             )
             movie_genres_out = tf.keras.layers.TextVectorization(
-                output_mode='multi_hot', split="whitespace", vocabulary=GENRES_VOCAB
+                output_mode="multi_hot", split="whitespace", vocabulary=GENRES_VOCAB
             )
             outputs = {
                 "MovieID": movie_id_out(inputs["MovieID"]),

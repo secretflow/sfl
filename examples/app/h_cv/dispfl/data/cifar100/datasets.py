@@ -26,15 +26,15 @@ import torch.utils.data as data
 from torchvision.datasets import CIFAR100
 
 IMG_EXTENSIONS = (
-    '.jpg',
-    '.jpeg',
-    '.png',
-    '.ppm',
-    '.bmp',
-    '.pgm',
-    '.tif',
-    '.tiff',
-    '.webp',
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".ppm",
+    ".bmp",
+    ".pgm",
+    ".tif",
+    ".tiff",
+    ".webp",
 )
 
 

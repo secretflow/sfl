@@ -13,27 +13,27 @@
 # limitations under the License.
 
 
-"""FedModel
-
-"""
+"""FedModel"""
+import copy
 import logging
 import math
 import os
 from typing import Callable, Dict, List, Tuple, Union
+
 import numpy as np
-import copy
-from examples.security.h_bd.backdoor_fl_torch import poison_dataset
 from secretflow.data.horizontal import HDataFrame
 from secretflow.data.ndarray import FedNdarray
 from secretflow.device import PYU, reveal, wait
 from secretflow.device.device.pyu import PYUObject
 from secretflow.utils.random import global_random
-from secretflow_fl.ml.nn.callbacks.callbacklist import CallbackList
-from secretflow_fl.ml.nn.fl.compress import COMPRESS_STRATEGY, do_compress
-from secretflow_fl.ml.nn.fl.strategy_dispatcher import dispatch_strategy
-from secretflow_fl.ml.nn.metrics import Metric, aggregate_metrics
-from secretflow_fl.utils.compressor import sparse_encode
-from secretflow_fl.ml.nn import FLModel
+
+from examples.security.h_bd.backdoor_fl_torch import poison_dataset
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.callbacks.callbacklist import CallbackList
+from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY, do_compress
+from sfl.ml.nn.fl.strategy_dispatcher import dispatch_strategy
+from sfl.ml.nn.metrics import Metric, aggregate_metrics
+from sfl.utils.compressor import sparse_encode
 
 
 class FLModel_bd(FLModel):

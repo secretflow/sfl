@@ -44,7 +44,7 @@ def print_model_param_nums(model=None):
             for name, param in model.named_parameters()
         ]
     )
-    print('  + Number of params: %.2f' % (total))
+    print("  + Number of params: %.2f" % (total))
 
 
 def count_training_flops(model, dataset, full=False):
@@ -74,7 +74,7 @@ def count_model_param_flops(model=None, dataset=None, multiply_adds=True, full=F
     list_2 = {}
 
     def simple_hook2(self, input, output):
-        list_2['names'] = np.prod(input[0].shape)
+        list_2["names"] = np.prod(input[0].shape)
 
     list_conv = []
 

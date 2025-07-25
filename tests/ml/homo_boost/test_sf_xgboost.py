@@ -18,11 +18,11 @@ import tempfile
 import numpy as np
 import pandas as pd
 import pytest
-
 from secretflow.data.horizontal import read_csv as h_read_csv
 from secretflow.security.aggregation.plain_aggregator import PlainAggregator
 from secretflow.security.compare.plain_comparator import PlainComparator
-from secretflow_fl.ml.boost.homo_boost import SFXgboost
+
+from sfl.ml.boost.homo_boost import SFXgboost
 from tests.sf_fixtures import SFProdParams
 
 _temp_dir = tempfile.mkdtemp()

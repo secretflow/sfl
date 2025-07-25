@@ -17,12 +17,12 @@ import tempfile
 import numpy as np
 import pandas as pd
 import pytest
-
 from secretflow.data.horizontal import read_csv as h_read_csv
 from secretflow.device import reveal
 from secretflow.security.aggregation.plain_aggregator import PlainAggregator
 from secretflow.security.compare.plain_comparator import PlainComparator
-from secretflow_fl.preprocessing.binning.homo_binning import HomoBinning
+
+from sfl.preprocessing.binning.homo_binning import HomoBinning
 from tests.sf_fixtures import mpc_fixture
 
 _temp_dir = tempfile.mkdtemp()
@@ -66,8 +66,8 @@ def prod_env_and_data(sf_production_setup_devices):
     dfs = [data1, data2]
 
     file_uris = {
-        pyu_alice: f'{_temp_dir}/test_alice.csv',
-        pyu_bob: f'{_temp_dir}/test_bob.csv',
+        pyu_alice: f"{_temp_dir}/test_alice.csv",
+        pyu_bob: f"{_temp_dir}/test_bob.csv",
     }
 
     for df, file_uri in zip(dfs, file_uris.values()):
@@ -80,11 +80,11 @@ def prod_env_and_data(sf_production_setup_devices):
     )
 
     return sf_production_setup_devices, {
-        'data1': data1,
-        'data2': data2,
-        'dfs': dfs,
-        'file_uris': file_uris,
-        'hdf': hdf,
+        "data1": data1,
+        "data2": data2,
+        "dfs": dfs,
+        "file_uris": file_uris,
+        "hdf": hdf,
     }
 
 
@@ -99,7 +99,7 @@ def test_homo_binning(prod_env_and_data):
         max_iter=200,
         compress_thres=30,
     )
-    bin_result = bin_obj.fit_split_points(data['hdf'])
+    bin_result = bin_obj.fit_split_points(data["hdf"])
     bin_result_df = pd.DataFrame.from_dict(reveal(bin_result))
 
     expect_result = {

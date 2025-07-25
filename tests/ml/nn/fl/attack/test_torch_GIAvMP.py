@@ -14,19 +14,14 @@
 import numpy as np
 import torch
 import torch.nn as nn
+from secretflow.security.aggregation import SecureAggregator
 from torch import optim
 from torchmetrics import Accuracy, Precision
 
 from examples.security.h_gia.GIAvMP_attack.GIAvMP_torch import GIAvMP
-from secretflow.security.aggregation import SecureAggregator
-from secretflow_fl.ml.nn import FLModel
-from secretflow_fl.ml.nn.core.torch import (
-    BaseModule,
-    TorchModel,
-    metric_wrapper,
-    optim_wrapper,
-)
-from secretflow_fl.utils.simulation.datasets_fl import (
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.core.torch import BaseModule, TorchModel, metric_wrapper, optim_wrapper
+from sfl.utils.simulation.datasets_fl import (
     load_cifar10_horiontal,
     load_cifar10_unpartitioned,
 )
@@ -79,7 +74,7 @@ class CNNmodel(BaseModule):
 def do_test_fl_and_GIAvMP(attack_configs: dict, alice, bob):
 
     # prepare dataset
-    client_data_num = attack_configs['k']
+    client_data_num = attack_configs["k"]
     (train_data, train_label), (test_data, test_label) = load_cifar10_horiontal(
         parts={alice: (0, client_data_num)},
         normalized_x=True,
@@ -92,21 +87,21 @@ def do_test_fl_and_GIAvMP(attack_configs: dict, alice, bob):
     x_test = np.array(x_test, dtype=np.float32)
     aux_dataset = [i for i in zip(x_test, y_test)]
     aux_dataset = aux_dataset[
-        : int(len(aux_dataset) * attack_configs['ratio_aux_dataset'])
+        : int(len(aux_dataset) * attack_configs["ratio_aux_dataset"])
     ]
 
     loss_fn = nn.CrossEntropyLoss
-    optim_fn = optim_wrapper(optim.SGD, lr=attack_configs['train_lr'])
+    optim_fn = optim_wrapper(optim.SGD, lr=attack_configs["train_lr"])
     model_def = TorchModel(
-        model_fn=attack_configs['model'],
+        model_fn=attack_configs["model"],
         loss_fn=loss_fn,
         optim_fn=optim_fn,
         metrics=[
             metric_wrapper(
-                Accuracy, task="multiclass", num_classes=10, average='micro'
+                Accuracy, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(
-                Precision, task="multiclass", num_classes=10, average='micro'
+                Precision, task="multiclass", num_classes=10, average="micro"
             ),
         ],
     )
@@ -121,7 +116,7 @@ def do_test_fl_and_GIAvMP(attack_configs: dict, alice, bob):
         device_list=device_list,
         model=model_def,
         aggregator=aggregator,
-        strategy='fed_avg_w',
+        strategy="fed_avg_w",
         backend="torch",
     )
 
@@ -136,8 +131,8 @@ def do_test_fl_and_GIAvMP(attack_configs: dict, alice, bob):
     history = fl_model.fit(
         train_data,
         train_label,
-        epochs=attack_configs['epochs'],
-        batch_size=attack_configs['batchsize'],
+        epochs=attack_configs["epochs"],
+        batch_size=attack_configs["batchsize"],
         aggregate_freq=1,
         callbacks=[GIAvMP_callback],
     )

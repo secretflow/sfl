@@ -13,20 +13,15 @@
 # limitations under the License.
 
 import torch.optim as optim
+from secretflow import reveal
+from secretflow.security import SecureAggregator
 from torch import nn
 from torch.nn import functional as F
 from torchmetrics import Accuracy, Precision
 
-from secretflow import reveal
-from secretflow.security import SecureAggregator
-from secretflow_fl.ml.nn import FLModel
-from secretflow_fl.ml.nn.core.torch import (
-    BaseModule,
-    TorchModel,
-    metric_wrapper,
-    optim_wrapper,
-)
-from secretflow_fl.utils.simulation.datasets_fl import load_mnist
+from sfl.ml.nn import FLModel
+from sfl.ml.nn.core.torch import BaseModule, TorchModel, metric_wrapper, optim_wrapper
+from sfl.utils.simulation.datasets_fl import load_mnist
 
 
 class ConvNet(BaseModule):
@@ -87,10 +82,10 @@ class TestMOON:
             optim_fn=optim_fn,
             metrics=[
                 metric_wrapper(
-                    Accuracy, task="multiclass", num_classes=10, average='micro'
+                    Accuracy, task="multiclass", num_classes=10, average="micro"
                 ),
                 metric_wrapper(
-                    Precision, task="multiclass", num_classes=10, average='micro'
+                    Precision, task="multiclass", num_classes=10, average="micro"
                 ),
             ],
             cosine_similarity_fn=cosine_similarity_fn,
@@ -145,6 +140,6 @@ class TestMOON:
         # Assert that the final accuracy matches the recorded history
         assert (
             global_metric[0].result().numpy()
-            == history["global_history"]['val_multiclassaccuracy'][-1]
+            == history["global_history"]["val_multiclassaccuracy"][-1]
         )
         assert global_metric[0].result().numpy() > 0.1

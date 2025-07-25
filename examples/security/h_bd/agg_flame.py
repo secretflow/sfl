@@ -116,7 +116,7 @@ class FlameAggregator(PlainAggregator):
                 min_cluster_size=int(num_clients / 2 + 1),  # Require majority cluster
                 min_samples=1,
                 allow_single_cluster=True,  # Handle all-in-one-cluster case
-                metric='precomputed',  # Use precomputed distance matrix
+                metric="precomputed",  # Use precomputed distance matrix
             ).fit(cd)
             cluster_labels = clusterer.labels_.tolist()
             print("Cluster labels:", cluster_labels)

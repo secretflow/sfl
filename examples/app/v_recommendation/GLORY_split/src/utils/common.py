@@ -30,9 +30,9 @@ from omegaconf import DictConfig, ListConfig
 
 
 def seed_everything(seed):
-    '''
+    """
     分别对CPU,GPU上的操作以及numpy上的操作进行固定
-    '''
+    """
     # 设置 PyTorch 的随机种子，影响 CPU 上的所有操作
     torch.manual_seed(seed)
 
@@ -69,7 +69,7 @@ def load_model(cfg):
     else:
         entity_emb = None
 
-    if cfg.dataset.dataset_lang == 'english':
+    if cfg.dataset.dataset_lang == "english":
         word_dict = pickle.load(
             open(Path(cfg.dataset.train_dir) / "word_dict.bin", "rb")
         )
@@ -93,8 +93,8 @@ def save_model(cfg, model, optimizer=None, mark=None):
     file_path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(
         {
-            'model_state_dict': model.module.state_dict(),
-            'optimizer_state_dict': (
+            "model_state_dict": model.module.state_dict(),
+            "optimizer_state_dict": (
                 optimizer.state_dict() if optimizer is not None else None
             ),
         },
@@ -107,7 +107,7 @@ def load_pretrain_emb(embedding_file_path, target_dict, target_dim):
     embedding_matrix = np.zeros(shape=(len(target_dict) + 1, target_dim))
     have_item = []
     if embedding_file_path is not None:
-        with open(embedding_file_path, 'rb') as f:
+        with open(embedding_file_path, "rb") as f:
             while True:
                 line = f.readline()
                 if len(line) == 0:
@@ -119,15 +119,15 @@ def load_pretrain_emb(embedding_file_path, target_dict, target_dim):
                     tp = [float(x) for x in line[1:]]
                     embedding_matrix[index] = np.array(tp)
                     have_item.append(itme)
-    print('-----------------------------------------------------')
-    print(f'Dict length: {len(target_dict)}')
-    print(f'Have words: {len(have_item)}')
+    print("-----------------------------------------------------")
+    print(f"Dict length: {len(target_dict)}")
+    print(f"Have words: {len(have_item)}")
     miss_rate = (
         (len(target_dict) - len(have_item)) / len(target_dict)
         if len(target_dict) != 0
         else 0
     )
-    print(f'Missing rate: {miss_rate}')
+    print(f"Missing rate: {miss_rate}")
     return embedding_matrix
 
 
@@ -140,7 +140,7 @@ def reduce_mean(result, nprocs):
 
 def pretty_print(d, indent=0):
     for key, value in d.items():
-        print('\t' * indent + str(key) + '\t' + str(value))
+        print("\t" * indent + str(key) + "\t" + str(value))
 
 
 # def get_root():

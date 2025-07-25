@@ -21,13 +21,13 @@ from os.path import join
 import keras_cv
 import matplotlib.pyplot as plt
 import numpy as np
+import secretflow as sf
 import tensorflow as tf
+from secretflow.security.aggregation import SecureAggregator
 from tensorflow import keras
 from tensorflow.keras import backend, layers
 
-import secretflow as sf
-from secretflow_fl.ml.nn import FLModel
-from secretflow.security.aggregation import SecureAggregator
+from sfl.ml.nn import FLModel
 
 IMAGE_SIZE = 288
 BATCH_SIZE = 4
@@ -344,25 +344,25 @@ for image, mask in val_dataset.take(1):
     display([image[0], mask[0], normalize_output(pred_mask[0][0])])
 
 
-print('The version of SecretFlow: {}'.format(sf.__version__))
+print("The version of SecretFlow: {}".format(sf.__version__))
 sf.shutdown()
-sf.init(['alice', 'bob', 'charlie'], address="local", log_to_driver=False)
-alice, bob, charlie = sf.PYU('alice'), sf.PYU('bob'), sf.PYU('charlie')
+sf.init(["alice", "bob", "charlie"], address="local", log_to_driver=False)
+alice, bob, charlie = sf.PYU("alice"), sf.PYU("bob"), sf.PYU("charlie")
 
 
-dataset_path = './data'
-partys = ['alice', 'bob']
+dataset_path = "./data"
+partys = ["alice", "bob"]
 
 for p in partys:
-    party_images_path = join(dataset_path, p, 'DUTS-TE-Image')
-    party_masks_path = join(dataset_path, p, 'DUTS-TE-Mask')
+    party_images_path = join(dataset_path, p, "DUTS-TE-Image")
+    party_masks_path = join(dataset_path, p, "DUTS-TE-Mask")
 
     os.makedirs(party_images_path, exist_ok=True)
     os.makedirs(party_masks_path, exist_ok=True)
 
 
-images_path = join(DATA_DIR, 'DUTS-TE-Image')
-masks_path = join(DATA_DIR, 'DUTS-TE-Mask')
+images_path = join(DATA_DIR, "DUTS-TE-Image")
+masks_path = join(DATA_DIR, "DUTS-TE-Mask")
 
 
 index = 0
@@ -372,15 +372,15 @@ for image_name in sorted(os.listdir(images_path)):
     name, ext = os.path.splitext(image_name)
 
     image_path = join(images_path, image_name)
-    mask_path = join(masks_path, name + '.png')
+    mask_path = join(masks_path, name + ".png")
 
     if (not os.path.exists(image_path)) or (not os.path.exists(mask_path)):
         continue
 
     party_id = index % partys_len
 
-    target_images_path = join(dataset_path, partys[party_id], 'DUTS-TE-Image')
-    target_masks_path = join(dataset_path, partys[party_id], 'DUTS-TE-Mask')
+    target_images_path = join(dataset_path, partys[party_id], "DUTS-TE-Image")
+    target_masks_path = join(dataset_path, partys[party_id], "DUTS-TE-Mask")
 
     shutil.copy(image_path, target_images_path)
     # if you want to watch the process of copying the image to each party, uncomment the following line
@@ -438,7 +438,7 @@ data_builder_dict = {
 }
 
 
-def create_fl_basnet_model(input_shape, out_classes, name='basnet_model'):
+def create_fl_basnet_model(input_shape, out_classes, name="basnet_model"):
     def create_model():
         from tensorflow import keras
 
@@ -460,7 +460,7 @@ device_list = [alice, bob]
 aggregator = SecureAggregator(charlie, [alice, bob])
 input_shape = [IMAGE_SIZE, IMAGE_SIZE, 3]
 out_classes = OUT_CLASSES
-model = create_fl_basnet_model(input_shape, out_classes, name='basnet_model')
+model = create_fl_basnet_model(input_shape, out_classes, name="basnet_model")
 
 
 fed_model = FLModel(
@@ -495,50 +495,50 @@ history = fed_model.fit(
 
 print(history.global_history.keys())
 # Draw loss values for training & validation
-plt.plot(history.global_history['loss'])
-plt.plot(history.global_history['val_loss'])
-plt.title('FLModel loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["loss"])
+plt.plot(history.global_history["val_loss"])
+plt.title("FLModel loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 
 # Draw loss values for training & validation
-plt.plot(history.global_history['activation_46_loss'])
-plt.plot(history.global_history['val_activation_46_loss'])
-plt.title('FLModel activation_46_loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["activation_46_loss"])
+plt.plot(history.global_history["val_activation_46_loss"])
+plt.title("FLModel activation_46_loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 
 # Draw loss values for training & validation
-plt.plot(history.global_history['activation_53_loss'])
-plt.plot(history.global_history['val_activation_53_loss'])
-plt.title('FLModel activation_53_loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["activation_53_loss"])
+plt.plot(history.global_history["val_activation_53_loss"])
+plt.title("FLModel activation_53_loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 
 # Draw loss values for training & validation
-plt.plot(history.global_history['activation_46_mae'])
-plt.plot(history.global_history['val_activation_46_mae'])
-plt.title('FLModel activation_46_mae')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["activation_46_mae"])
+plt.plot(history.global_history["val_activation_46_mae"])
+plt.title("FLModel activation_46_mae")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 
 # Draw loss values for training & validation
-plt.plot(history.global_history['activation_53_mae'])
-plt.plot(history.global_history['val_activation_53_mae'])
-plt.title('FLModel activation_46_mae')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["activation_53_mae"])
+plt.plot(history.global_history["val_activation_53_mae"])
+plt.title("FLModel activation_46_mae")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()

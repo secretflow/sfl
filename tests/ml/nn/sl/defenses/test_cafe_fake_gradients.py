@@ -20,14 +20,14 @@ import pytest
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from secretflow.data.ndarray import FedNdarray, PartitionWay
 from torch.utils.data import Dataset
 from torchmetrics import Accuracy, Precision
 
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.cafe_torch import CAFEAttack
-from secretflow_fl.ml.nn.sl.defenses.cafe_fake_gradients import CAFEFakeGradients
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.cafe_torch import CAFEAttack
+from sfl.ml.nn.sl.defenses.cafe_fake_gradients import CAFEFakeGradients
 
 from ..attack.model_def import CafeServer, LocalEmbedding
 
@@ -86,10 +86,10 @@ def do_test_sl_and_lia(alice, bob, carol):
         optim_fn=optim_fn,
         metrics=[
             metric_wrapper(
-                Accuracy, task="multiclass", num_classes=10, average='micro'
+                Accuracy, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(
-                Precision, task="multiclass", num_classes=10, average='micro'
+                Precision, task="multiclass", num_classes=10, average="micro"
             ),
         ],
     )
@@ -100,10 +100,10 @@ def do_test_sl_and_lia(alice, bob, carol):
         optim_fn=optim_fn,
         metrics=[
             metric_wrapper(
-                Accuracy, task="multiclass", num_classes=10, average='micro'
+                Accuracy, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(
-                Precision, task="multiclass", num_classes=10, average='micro'
+                Precision, task="multiclass", num_classes=10, average="micro"
             ),
         ],
         clients_num=2,
@@ -121,15 +121,15 @@ def do_test_sl_and_lia(alice, bob, carol):
         compressor=None,
         simulation=True,
         random_seed=1234,
-        backend='torch',
-        strategy='split_nn',
+        backend="torch",
+        strategy="split_nn",
     )
 
     cafe_attack = CAFEAttack(
         attack_party=carol,
         label_party=carol,
         victim_hidden_size=[10],
-        exec_device='cpu',
+        exec_device="cpu",
         real_data_for_save=data_for_save,
         number_of_workers=2,
     )

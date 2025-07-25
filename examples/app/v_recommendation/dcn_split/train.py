@@ -59,7 +59,7 @@ def sf_train(clients, server, epochs, train_dataset, batch_size):
 
             total += loss.item()
             logging.warning(
-                '[Training Epoch: {}] Batch: {}, Loss: {}'.format(epoch, batch_id, loss)
+                "[Training Epoch: {}] Batch: {}, Loss: {}".format(epoch, batch_id, loss)
             )
             # global_weights = server.get_weights()  # 从服务器获取全局权重
             setting = []
@@ -78,9 +78,9 @@ def sf_train(clients, server, epochs, train_dataset, batch_size):
         print("-------------------end-----------------------------")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sf.shutdown()
-    sf.init(["alice", "bob", "server"], address='local', num_gpus=0)
+    sf.init(["alice", "bob", "server"], address="local", num_gpus=0)
     alice_pyu = sf.PYU("alice")
     bob_pyu = sf.PYU("bob")
     server_pyu = sf.PYU("server")
@@ -90,75 +90,75 @@ if __name__ == '__main__':
     ################################################################
 
     deepcrossbase_config = {
-        'deep_layers': [256, 32],  # 设置Deep模块的隐层大小
-        'num_cross_layers': 4,  # cross模块的层数
-        'batch_size': 32,
-        'lr': 1e-3,
-        'l2_regularization': 1e-4,
-        'device_id': 0,
-        'use_cuda': False,
-        'train_file': 'data/train_set1.csv',
-        'fea_file': 'data/max_fea_col.npy',
-        'validate_file': 'data/val_set1.csv',
-        'test_file': 'data/test_set1.csv',
-        'model_name': 'deepcrossbase.model',
+        "deep_layers": [256, 32],  # 设置Deep模块的隐层大小
+        "num_cross_layers": 4,  # cross模块的层数
+        "batch_size": 32,
+        "lr": 1e-3,
+        "l2_regularization": 1e-4,
+        "device_id": 0,
+        "use_cuda": False,
+        "train_file": "data/train_set1.csv",
+        "fea_file": "data/max_fea_col.npy",
+        "validate_file": "data/val_set1.csv",
+        "test_file": "data/test_set1.csv",
+        "model_name": "deepcrossbase.model",
     }
     deepcrossfuse_config = {
-        'deep_layers': [256, 256, 32],  # 设置Deep模块的隐层大小
-        'dnn_input_dim': 64,  # Deep模块输入的大小
-        'lr': 1e-3,
-        'l2_regularization': 1e-4,
-        'device_id': 0,
-        'use_cuda': False,
-        'train_file': 'data/train_set1.csv',
-        'validate_file': 'data/val_set1.csv',
-        'test_file': 'data/test_set1.csv',
-        'model_name': 'deepcrossfuse.model',
+        "deep_layers": [256, 256, 32],  # 设置Deep模块的隐层大小
+        "dnn_input_dim": 64,  # Deep模块输入的大小
+        "lr": 1e-3,
+        "l2_regularization": 1e-4,
+        "device_id": 0,
+        "use_cuda": False,
+        "train_file": "data/train_set1.csv",
+        "validate_file": "data/val_set1.csv",
+        "test_file": "data/test_set1.csv",
+        "model_name": "deepcrossfuse.model",
     }
     columns_for_alice = [
-        'I1',
-        'I3',
-        'I5',
-        'I7',
-        'I9',
-        'I11',
-        'I13',
-        'C1',
-        'C3',
-        'C5',
-        'C7',
-        'C9',
-        'C11',
-        'C13',
-        'C15',
-        'C17',
-        'C19',
-        'C21',
-        'C23',
-        'C25',
+        "I1",
+        "I3",
+        "I5",
+        "I7",
+        "I9",
+        "I11",
+        "I13",
+        "C1",
+        "C3",
+        "C5",
+        "C7",
+        "C9",
+        "C11",
+        "C13",
+        "C15",
+        "C17",
+        "C19",
+        "C21",
+        "C23",
+        "C25",
     ]
 
     columns_for_bob = [
-        'I2',
-        'I4',
-        'I6',
-        'I8',
-        'I10',
-        'I12',
-        'C2',
-        'C4',
-        'C6',
-        'C8',
-        'C10',
-        'C12',
-        'C14',
-        'C16',
-        'C18',
-        'C20',
-        'C22',
-        'C24',
-        'C26',
-        'Label',
+        "I2",
+        "I4",
+        "I6",
+        "I8",
+        "I10",
+        "I12",
+        "C2",
+        "C4",
+        "C6",
+        "C8",
+        "C10",
+        "C12",
+        "C14",
+        "C16",
+        "C18",
+        "C20",
+        "C22",
+        "C24",
+        "C26",
+        "Label",
     ]
 
     client_num = 2
@@ -172,8 +172,8 @@ if __name__ == '__main__':
         dense_features_cols_bob,
         sparse_features_cols_bob,
     ) = getTrainData(
-        deepcrossbase_config['train_file'],
-        deepcrossbase_config['fea_file'],
+        deepcrossbase_config["train_file"],
+        deepcrossbase_config["fea_file"],
         columns_for_alice,
         columns_for_bob,
     )
@@ -208,4 +208,4 @@ if __name__ == '__main__':
 
     server = Server(server_model, deepcrossfuse_config, device=server_pyu)
 
-    sf_train(clients, server, 30, train_dataset, deepcrossbase_config['batch_size'])
+    sf_train(clients, server, 30, train_dataset, deepcrossbase_config["batch_size"])

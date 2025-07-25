@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from secretflow_fl.ml.boost.homo_boost.tree_core.feature_histogram import (
+from sfl.ml.boost.homo_boost.tree_core.feature_histogram import (
     FeatureHistogram,
     HistogramBag,
 )

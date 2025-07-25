@@ -14,15 +14,8 @@
 
 import pytest
 
-from secretflow_fl.component.ml.nn.core.sandbox import (
-    dynamic_sandbox,
-    runner,
-    static_sandbox,
-)
-from secretflow_fl.component.ml.nn.core.sandbox.whitelists import (
-    applications,
-    tensorflow_wrapper,
-)
+from sfl.component.ml.nn.core.sandbox import dynamic_sandbox, runner, static_sandbox
+from sfl.component.ml.nn.core.sandbox.whitelists import applications, tensorflow_wrapper
 
 from .model_def import MODELS_CODE
 

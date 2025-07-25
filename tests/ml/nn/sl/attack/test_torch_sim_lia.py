@@ -13,17 +13,17 @@
 # limitations under the License.
 
 
+import logging
+
 import numpy as np
-
-
 import torch.nn as nn
 import torch.optim as optim
-from torchmetrics import Accuracy
-import logging
 from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.sim_lia_torch import SimilarityLabelInferenceAttack
+from torchmetrics import Accuracy
+
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.sim_lia_torch import SimilarityLabelInferenceAttack
 
 
 def do_test_sl_and_sim_lia(alice, bob, config):

@@ -18,8 +18,8 @@ from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader, TensorDataset
 
-from secretflow_fl.ml.nn.core.torch import BaseModule, TorchModel
-from secretflow_fl.ml.nn.fl.backend.torch.strategy.scaffold import Scaffold
+from sfl.ml.nn.core.torch import BaseModule, TorchModel
+from sfl.ml.nn.fl.backend.torch.strategy.scaffold import Scaffold
 
 
 class My_Model(BaseModule):

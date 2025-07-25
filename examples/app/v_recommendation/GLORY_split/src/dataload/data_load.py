@@ -25,7 +25,7 @@ import pickle
 from dataload.dataset import *  # 导入自定义数据集模块
 
 
-def load_data(cfg, mode='train', model=None, local_rank=0):
+def load_data(cfg, mode="train", model=None, local_rank=0):
     """
     加载训练、验证或测试数据。
 
@@ -49,7 +49,7 @@ def load_data(cfg, mode='train', model=None, local_rank=0):
     news_input = pickle.load(open(Path(data_dir[mode]) / "nltk_token_news.bin", "rb"))
 
     # ------------- 加载行为数据 -------------
-    if mode == 'train':
+    if mode == "train":
         # 训练模式下，加载行为数据
         target_file = (
             Path(data_dir[mode]) / f"behaviors_np{cfg.npratio}_{local_rank}.tsv"
@@ -109,7 +109,7 @@ def load_data(cfg, mode='train', model=None, local_rank=0):
                 dataset, batch_size=int(cfg.batch_size / cfg.gpu_num), pin_memory=True
             )
         return dataloader
-    elif mode in ['val', 'test']:
+    elif mode in ["val", "test"]:
         # 转换新闻数据为嵌入
         news_dataset = NewsDataset(news_input)
         news_dataloader = DataLoader(
@@ -173,7 +173,7 @@ def load_data(cfg, mode='train', model=None, local_rank=0):
                 entity_neighbors = None
 
             # 验证模式下，使用图数据集
-            if mode == 'val':
+            if mode == "val":
                 dataset = ValidGraphDataset(
                     filename=Path(data_dir[mode])
                     / f"behaviors_np{cfg.npratio}_{local_rank}.tsv",
@@ -192,7 +192,7 @@ def load_data(cfg, mode='train', model=None, local_rank=0):
 
         else:
             # 不使用图结构时，使用普通的验证数据集
-            if mode == 'val':
+            if mode == "val":
                 dataset = ValidDataset(
                     filename=Path(data_dir[mode]) / f"behaviors_{local_rank}.tsv",
                     news_index=news_index,

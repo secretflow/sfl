@@ -29,7 +29,7 @@ from pathlib import Path
 def init_logger(log_dir, log_file):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(message)s")
     file_handler = logging.FileHandler(Path(log_dir) / log_file)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -53,13 +53,13 @@ def test(model, bahe_model, val_loader):
     with torch.no_grad():
         for batch in tqdm(val_loader, desc="Testing"):
             # 获取数据
-            user_node = batch['user_node'].long()
-            item_node = batch['i_node'].long()
-            seq_d1 = batch['seq_d1'].long()
-            seq_d2 = batch['seq_d2'].long()
-            domain_id = batch['domain_id'].long()
-            label = batch['label'].float()  # [batch_size]
-            behavior_texts = batch['behavior_texts']
+            user_node = batch["user_node"].long()
+            item_node = batch["i_node"].long()
+            seq_d1 = batch["seq_d1"].long()
+            seq_d2 = batch["seq_d2"].long()
+            domain_id = batch["domain_id"].long()
+            label = batch["label"].float()  # [batch_size]
+            behavior_texts = batch["behavior_texts"]
 
             # 获取用户嵌入
             user_embedding = bahe_model(behavior_texts)
@@ -96,13 +96,13 @@ def train(model, bahe_model, train_loader, val_loader, optimizer, args):
         ):
             # 获取数据
             # 获取数据并确保类型正确
-            user_node = batch['user_node'].long()
-            item_node = batch['i_node'].long()
-            seq_d1 = batch['seq_d1'].long()
-            seq_d2 = batch['seq_d2'].long()
-            domain_id = batch['domain_id'].long()
-            label = batch['label'].float()
-            behavior_texts = batch['behavior_texts']
+            user_node = batch["user_node"].long()
+            item_node = batch["i_node"].long()
+            seq_d1 = batch["seq_d1"].long()
+            seq_d2 = batch["seq_d2"].long()
+            domain_id = batch["domain_id"].long()
+            label = batch["label"].float()
+            behavior_texts = batch["behavior_texts"]
             # 打印维度信息（调试用）
             print(f"Sequence shapes - seq_d1: {seq_d1.shape}, seq_d2: {seq_d2.shape}")
             print(f"Item node shape: {item_node.shape}")
@@ -143,11 +143,11 @@ def train(model, bahe_model, train_loader, val_loader, optimizer, args):
             best_auc = val_auc
             torch.save(
                 {
-                    'bert4rec_state_dict': model.state_dict(),
-                    'bahe_state_dict': bahe_model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'epoch': epoch,
-                    'best_auc': best_auc,
+                    "bert4rec_state_dict": model.state_dict(),
+                    "bahe_state_dict": bahe_model.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "epoch": epoch,
+                    "best_auc": best_auc,
                 },
                 Path(args.model_dir) / "best_model.pt",
             )
@@ -172,32 +172,32 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dataset_path", type=str, default="amazon_dataset", help="Path to dataset"
     )
-    parser.add_argument('-ds', '--dataset_type', type=str, default='amazon')
-    parser.add_argument('-dm', '--domain_type', type=str, default='cloth_sport')
+    parser.add_argument("-ds", "--dataset_type", type=str, default="amazon")
+    parser.add_argument("-dm", "--domain_type", type=str, default="cloth_sport")
 
     parser.add_argument(
-        '--long_length',
+        "--long_length",
         type=int,
         default=7,
-        help='the length for setting long-tail node',
+        help="the length for setting long-tail node",
     )
     parser.add_argument(
-        '--neg_nums', type=int, default=199, help='sample negative numbers'
+        "--neg_nums", type=int, default=199, help="sample negative numbers"
     )
     parser.add_argument(
-        '--overlap_ratio',
+        "--overlap_ratio",
         type=float,
         default=0.25,
-        help='overlap ratio for choose dataset ',
+        help="overlap ratio for choose dataset ",
     )
     # overlap_ratio = 0.25 表示25%的用户是跨域用户（即在两个域都有行为的用户）
-    parser.add_argument('--epoch', type=int, default=50, help='# of epoch')
-    parser.add_argument('--bs', type=int, default=256, help='# images in batch')
-    parser.add_argument('--hid_dim', type=int, default=32, help='hidden layer dim')
-    parser.add_argument('--isInC', type=bool, default=False, help='add inc ')
-    parser.add_argument('--isItC', type=bool, default=False, help='add itc')
-    parser.add_argument('--ts1', type=float, default=0.5, help='mask rate for encoder')
-    parser.add_argument('--ts2', type=float, default=0.5, help='mask rate for decoder')
+    parser.add_argument("--epoch", type=int, default=50, help="# of epoch")
+    parser.add_argument("--bs", type=int, default=256, help="# images in batch")
+    parser.add_argument("--hid_dim", type=int, default=32, help="hidden layer dim")
+    parser.add_argument("--isInC", type=bool, default=False, help="add inc ")
+    parser.add_argument("--isItC", type=bool, default=False, help="add itc")
+    parser.add_argument("--ts1", type=float, default=0.5, help="mask rate for encoder")
+    parser.add_argument("--ts2", type=float, default=0.5, help="mask rate for decoder")
     args = parser.parse_args()
     user_length = 895510  # 63275#6814 cdr23 #63275 cdr12
     item_length_d1 = 8240
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     item_length = 447410  # item_length_d1 + item_length_d2 + 1 + 20000#1739+2 #13713 cdr23 #1739 + 2#item_length_d1 + item_length_d2 + 1 + 20000#1739 + 1 +200 # 1 = pad item #item_length_d1 + item_length_d2 + 1 + 20000
 
     # 设备设置
-    device = torch.device('cpu')
+    device = torch.device("cpu")
 
     # 加载数据集
 
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
     # 初始化模型
     bahe_model = BAHE(
-        albert_model_name='albert-base-v2',
+        albert_model_name="albert-base-v2",
         embed_dim=args.emb_dim,
         num_heads=4,
         ff_dim=512,

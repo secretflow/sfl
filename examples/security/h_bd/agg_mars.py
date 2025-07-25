@@ -50,21 +50,21 @@ def CLP(params_list: List[np.ndarray]) -> np.ndarray:
 
         # Detect convolutional layer (4D weights)
         if param.ndim == 4:
-            param_types.append(('conv', current_idx))
+            param_types.append(("conv", current_idx))
             current_idx += 1
 
         # Detect BN layer group (4 consecutive 1D params)
         elif param.ndim == 1 and current_idx + 3 < len(params_list):
             next_params = params_list[current_idx : current_idx + 4]
             if all(p.ndim == 1 for p in next_params):
-                param_types.append(('bn', current_idx))
+                param_types.append(("bn", current_idx))
                 current_idx += 4
             else:
                 current_idx += 1
 
         # Detect fully-connected layer (2D weights)
         elif param.ndim == 2:
-            param_types.append(('fc', current_idx))
+            param_types.append(("fc", current_idx))
             current_idx += 1
 
         else:
@@ -72,13 +72,13 @@ def CLP(params_list: List[np.ndarray]) -> np.ndarray:
 
     # Process each layer based on detected types
     for i, (ptype, idx) in enumerate(param_types):
-        if ptype == 'conv':
+        if ptype == "conv":
             # ------ Convolutional Layer Processing ------
             conv_weight = params_list[idx]
 
             # Find subsequent BN parameters
             bn_weight = bn_bias = bn_var = None
-            if i + 1 < len(param_types) and param_types[i + 1][0] == 'bn':
+            if i + 1 < len(param_types) and param_types[i + 1][0] == "bn":
                 bn_idx = param_types[i + 1][1]
                 bn_weight = params_list[bn_idx]
                 bn_bias = params_list[bn_idx + 1]
@@ -110,7 +110,7 @@ def CLP(params_list: List[np.ndarray]) -> np.ndarray:
                 threshold = np.quantile(channel_lips, 1 - u)
                 all_lips.extend([lip for lip in channel_lips if lip >= threshold])
 
-        elif ptype == 'bn':
+        elif ptype == "bn":
             # ------ BatchNorm Layer Processing ------
             weight = params_list[idx]
             running_var = params_list[idx + 3]
@@ -124,7 +124,7 @@ def CLP(params_list: List[np.ndarray]) -> np.ndarray:
             threshold = np.quantile(lips, 1 - u)
             all_lips.extend(lips[lips >= threshold].tolist())
 
-        elif ptype == 'fc':
+        elif ptype == "fc":
             # ------ Fully-Connected Layer Processing ------
             fc_weight = params_list[idx]
 

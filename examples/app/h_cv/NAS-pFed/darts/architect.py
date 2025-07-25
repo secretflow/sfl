@@ -56,7 +56,7 @@ class Architect(object):
         theta = _concat(self.model.parameters()).data
         try:
             moment = _concat(
-                network_optimizer.state[v]['momentum_buffer']
+                network_optimizer.state[v]["momentum_buffer"]
                 for v in self.model.parameters()
             ).mul_(self.network_momentum)
         except:
@@ -370,10 +370,10 @@ class Architect(object):
             for k, v in model_dict.items():
                 logging.info("multi-gpu")
                 logging.info("k = %s, v = %s" % (k, v))
-                if 'module' not in k:
-                    k = 'module.' + k
+                if "module" not in k:
+                    k = "module." + k
                 else:
-                    k = k.replace('features.module.', 'module.features.')
+                    k = k.replace("features.module.", "module.features.")
                 new_state_dict[k] = v
         else:
             new_state_dict = model_dict

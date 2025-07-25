@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from secretflow_fl.ml.nn.fl.backend.tensorflow.strategy.fed_avg_g import FedAvgG
+from sfl.ml.nn.fl.backend.tensorflow.strategy.fed_avg_g import FedAvgG
 
 from ..model_def import mnist_conv_model
 

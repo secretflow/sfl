@@ -14,15 +14,15 @@
 
 
 import numpy as np
+import secretflow as sf
 import torch.nn as nn
 import torch.optim as optim
+from secretflow.data.ndarray import FedNdarray, PartitionWay
 from torchmetrics import Accuracy, Precision
 
-import secretflow as sf
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.defenses.confusional_autoencoder import CAEDefense
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.defenses.confusional_autoencoder import CAEDefense
 
 from ..attack.model_def import BottomModelForCifar10, TopModelForCifar10
 

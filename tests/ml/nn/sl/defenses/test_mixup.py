@@ -16,21 +16,16 @@ import logging
 
 import numpy as np
 import torch
+from secretflow.data.ndarray import FedNdarray, PartitionWay
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_dnn_torch import DnnBase
-from secretflow_fl.ml.nn.applications.sl_resnet_torch import NaiveSumSoftmax
-from secretflow_fl.ml.nn.core.torch import (
-    TorchModel,
-    loss_wrapper,
-    metric_wrapper,
-    optim_wrapper,
-)
-from secretflow_fl.ml.nn.sl.defenses.mixup import Mixuplayer, Mixuploss
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_dnn_torch import DnnBase
+from sfl.ml.nn.applications.sl_resnet_torch import NaiveSumSoftmax
+from sfl.ml.nn.core.torch import TorchModel, loss_wrapper, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.defenses.mixup import Mixuplayer, Mixuploss
 
 
 class TabDatasetLeft(Dataset):

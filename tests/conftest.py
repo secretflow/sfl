@@ -117,7 +117,7 @@ def pytest_configure(config: pytest.Config):
     # os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded,
     # so this will likely lead to a deadlock.
     if multiprocessing.get_start_method(allow_none=True) is None:
-        multiprocessing.set_start_method('spawn')
+        multiprocessing.set_start_method("spawn")
 
     config.addinivalue_line(
         "markers",
@@ -322,7 +322,7 @@ def _rand_id(count: int = 4) -> str:
     import random
 
     characters = string.ascii_lowercase + string.digits
-    res = ''.join(random.choice(characters) for _ in range(count))
+    res = "".join(random.choice(characters) for _ in range(count))
     return res
 
 

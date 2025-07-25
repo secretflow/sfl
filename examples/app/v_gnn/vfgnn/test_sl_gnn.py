@@ -28,13 +28,13 @@ import time
 
 import dgl
 import numpy as np
+import secretflow as sf
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torchmetrics
 
-import secretflow as sf
 from examples.app.v_gnn.vfgnn.gnn_utils import (
     GraphEvalLoader,
     GraphTrainLoader,
@@ -50,9 +50,9 @@ from examples.app.v_gnn.vfgnn.sl_vfgnn_model import (
     evaluate_sage_target,
     evaluate_vfgnn_target,
 )
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.utils import plot_with_tsne
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.utils import plot_with_tsne
 
 
 def local_train(dataset, args):
@@ -85,17 +85,17 @@ def local_train(dataset, args):
 
     for i in range(args.n_party + 1):
         name = "full" if i == args.n_party else "Party-" + str(i)
-        print(f'Training on {name} dataset')
+        print(f"Training on {name} dataset")
 
         # save metrics
         if name not in metrics:
             metrics[name] = dict()
-            if 'train_acc' not in metrics[name]:
-                metrics[name]['train_acc'] = np.array([])
-            if 'eval_acc' not in metrics[name]:
-                metrics[name]['eval_acc'] = np.array([])
-            if 'test_acc' not in metrics[name]:
-                metrics[name]['test_acc'] = np.array([])
+            if "train_acc" not in metrics[name]:
+                metrics[name]["train_acc"] = np.array([])
+            if "eval_acc" not in metrics[name]:
+                metrics[name]["eval_acc"] = np.array([])
+            if "test_acc" not in metrics[name]:
+                metrics[name]["test_acc"] = np.array([])
 
         if i == args.n_party:  # full dataset
             edge_adj = edge
@@ -129,7 +129,7 @@ def local_train(dataset, args):
 
         # random neighbour sampler
         sampler = dgl.dataloading.MultiLayerNeighborSampler(
-            [int(fanout) for fanout in args.fan_out.split(',')]
+            [int(fanout) for fanout in args.fan_out.split(",")]
         )
         dataloader = dgl.dataloading.NodeDataLoader(
             graph,
@@ -171,8 +171,8 @@ def local_train(dataset, args):
                 # batch_inputs, batch_labels = load_subtensor(train_g, seeds, input_nodes, device)
                 blocks = [block.int().to(args.device) for block in blocks]
 
-                batch_inputs = blocks[0].srcdata['features']
-                batch_labels = blocks[-1].dstdata['labels']
+                batch_inputs = blocks[0].srcdata["features"]
+                batch_labels = blocks[-1].dstdata["labels"]
 
                 # Compute loss and prediction
                 batch_pred, embs = model(blocks, batch_inputs)
@@ -192,12 +192,12 @@ def local_train(dataset, args):
                     # gpu_mem_alloc = th.cuda.max_memory_allocated(
                     # ) / 1000000 if th.cuda.is_available() else 0
                     print(
-                        'Epoch {:05d} | Step {:05d} | Loss {:.4f} | Train Acc {:.4f} | Speed (samples/sec) {:.4f}'.format(
+                        "Epoch {:05d} | Step {:05d} | Loss {:.4f} | Train Acc {:.4f} | Speed (samples/sec) {:.4f}".format(
                             epoch, step, loss.item(), acc.item(), np.mean(iter_tput[3:])
                         )
                     )
-                    metrics[name]['train_acc'] = np.append(
-                        metrics[name]['train_acc'], acc
+                    metrics[name]["train_acc"] = np.append(
+                        metrics[name]["train_acc"], acc
                     )
 
                 tic_step = time.time()
@@ -210,8 +210,8 @@ def local_train(dataset, args):
                 eval_acc, pred, embs = evaluate_sage_target(
                     model,
                     graph,
-                    graph.ndata['features'],
-                    graph.ndata['labels'],
+                    graph.ndata["features"],
+                    graph.ndata["labels"],
                     val_nid,
                     args.batch_size,
                     args.device,
@@ -219,20 +219,20 @@ def local_train(dataset, args):
                 test_acc, pred, embs = evaluate_sage_target(
                     model,
                     graph,
-                    graph.ndata['features'],
-                    graph.ndata['labels'],
+                    graph.ndata["features"],
+                    graph.ndata["labels"],
                     test_nid,
                     args.batch_size,
                     args.device,
                 )
-                print('Eval Acc {:.4f}'.format(eval_acc))
-                print('Test Acc: {:.4f}'.format(test_acc))
+                print("Eval Acc {:.4f}".format(eval_acc))
+                print("Test Acc: {:.4f}".format(test_acc))
 
-                metrics[name]['eval_acc'] = np.append(
-                    metrics[name]['eval_acc'], eval_acc
+                metrics[name]["eval_acc"] = np.append(
+                    metrics[name]["eval_acc"], eval_acc
                 )
-                metrics[name]['test_acc'] = np.append(
-                    metrics[name]['test_acc'], test_acc
+                metrics[name]["test_acc"] = np.append(
+                    metrics[name]["test_acc"], test_acc
                 )
 
                 if epoch == args.num_epochs - args.eval_every:
@@ -241,14 +241,14 @@ def local_train(dataset, args):
                     """
                     plot_with_tsne(
                         torch.tensor(pred[test_nid]),
-                        torch.tensor(graph.ndata['labels'][test_nid]),
+                        torch.tensor(graph.ndata["labels"][test_nid]),
                         "tsne-GraphSAGE",
                     )
 
-        print('Avg epoch time: {}'.format(avg / (epoch - 4)))
+        print("Avg epoch time: {}".format(avg / (epoch - 4)))
     for i in range(args.n_party + 1):
         name = "full" if i == args.n_party else "Party-" + str(i)
-        print(f' === {dataset} : {name} ===')
+        print(f" === {dataset} : {name} ===")
         print(f'\033[1;31m Eval acc: {metrics[name]["eval_acc"]} \033[0m')
         print(f'\033[1;31m Test acc: {metrics[name]["test_acc"]} \033[0m')
 
@@ -281,7 +281,7 @@ def local_vfgnn_train(dataset, args):
 
     # save metrics
     metrics = dict()
-    metrics_names = ['train_acc', 'eval_acc', 'test_acc']
+    metrics_names = ["train_acc", "eval_acc", "test_acc"]
     for metrics_name in metrics_names:
         if metrics_name not in metrics:
             metrics[metrics_name] = np.array([])
@@ -322,7 +322,7 @@ def local_vfgnn_train(dataset, args):
         in_graphs.append(graph)
 
         sampler = dgl.dataloading.MultiLayerNeighborSampler(
-            [int(fanout) for fanout in args.fan_out.split(',')]
+            [int(fanout) for fanout in args.fan_out.split(",")]
         )
 
         dataloader = dgl.dataloading.NodeDataLoader(
@@ -382,12 +382,12 @@ def local_vfgnn_train(dataset, args):
 
                 blocks_list.append(blocks)
 
-                batch_inputs = blocks[0].srcdata['features']
+                batch_inputs = blocks[0].srcdata["features"]
                 inputs_list.append(batch_inputs)
 
             # Load the input features as well as output labels
             # batch_inputs, batch_labels = load_subtensor(train_g, seeds, input_nodes, device)
-            batch_labels = blocks_list[-1][-1].dstdata['labels']
+            batch_labels = blocks_list[-1][-1].dstdata["labels"]
 
             # Compute the forward propagation
             batch_pred, embs = model(blocks_list, inputs_list)
@@ -406,11 +406,11 @@ def local_vfgnn_train(dataset, args):
                     torch.argmax(batch_pred, dim=1) == torch.argmax(batch_labels, dim=1)
                 ).float().sum() / len(batch_pred)
                 print(
-                    'Epoch {:05d} | Step {:05d} | Loss {:.4f} | Train Acc {:.4f} | Speed (samples/sec) {:.4f}'.format(
+                    "Epoch {:05d} | Step {:05d} | Loss {:.4f} | Train Acc {:.4f} | Speed (samples/sec) {:.4f}".format(
                         epoch, step, loss.item(), acc.item(), np.mean(iter_tput[3:])
                     )
                 )
-                metrics['train_acc'] = np.append(metrics['train_acc'], acc)
+                metrics["train_acc"] = np.append(metrics["train_acc"], acc)
 
             tic_step = time.time()
 
@@ -435,11 +435,11 @@ def local_vfgnn_train(dataset, args):
                 args.batch_size,
                 args.device,
             )
-            print('Eval Acc {:.4f}'.format(eval_acc))
-            print('Test Acc: {:.4f}'.format(test_acc))
+            print("Eval Acc {:.4f}".format(eval_acc))
+            print("Test Acc: {:.4f}".format(test_acc))
 
-            metrics['eval_acc'] = np.append(metrics['eval_acc'], eval_acc)
-            metrics['test_acc'] = np.append(metrics['test_acc'], test_acc)
+            metrics["eval_acc"] = np.append(metrics["eval_acc"], eval_acc)
+            metrics["test_acc"] = np.append(metrics["test_acc"], test_acc)
 
             if epoch == args.num_epochs - args.eval_every:
                 """
@@ -447,7 +447,7 @@ def local_vfgnn_train(dataset, args):
                 """
                 plot_with_tsne(torch.stack(pred), torch.stack(label), "tsne-VFGNN")
 
-    print('Avg epoch time: {}'.format(avg / (epoch - 4)))
+    print("Avg epoch time: {}".format(avg / (epoch - 4)))
     print(f'\033[1;31m Eval acc: {metrics["eval_acc"]} \033[0m')
     print(f'\033[1;31m Test acc: {metrics["test_acc"]} \033[0m')
 
@@ -457,7 +457,7 @@ def vfgnn_train(dataset, args):
     sf.shutdown()
 
     parties = [f"party-{i}" for i in range(args.n_party)]
-    sf.init(parties=parties, address='local', logging_level='error')
+    sf.init(parties=parties, address="local", logging_level="error")
 
     pyu_devices = [sf.PYU(party) for party in parties]
 
@@ -485,8 +485,8 @@ def vfgnn_train(dataset, args):
     """
     Additioanl Step: Test the effect of introducing DP
     """
-    from secretflow_fl.security.privacy import DPStrategy
-    from secretflow_fl.security.privacy.mechanism.torch import GaussianEmbeddingDP
+    from sfl.security.privacy import DPStrategy
+    from sfl.security.privacy.mechanism.torch import GaussianEmbeddingDP
 
     # Define DP operations
     gaussian_embedding_dp = GaussianEmbeddingDP(
@@ -508,7 +508,7 @@ def vfgnn_train(dataset, args):
     """
     Additioanl Step: Compressor effect
     """
-    from secretflow_fl.utils.compressor import TopkSparse
+    from sfl.utils.compressor import TopkSparse
 
     top_k_compressor = TopkSparse(0.3)
 
@@ -534,17 +534,17 @@ def vfgnn_train(dataset, args):
                     torchmetrics.Accuracy,
                     task="multiclass",
                     num_classes=args.n_classes,
-                    average='micro',
+                    average="micro",
                 ),
                 metric_wrapper(
                     torchmetrics.Precision,
                     task="multiclass",
                     num_classes=args.n_classes,
-                    average='micro',
+                    average="micro",
                 ),
             ],
             in_feats=(
-                in_feat if args.init_mode == 'identity' else args.init_model_num_hidden
+                in_feat if args.init_mode == "identity" else args.init_model_num_hidden
             ),
             n_classes=args.n_classes,
             base_model_num_hidden=args.base_model_num_hidden,
@@ -568,15 +568,15 @@ def vfgnn_train(dataset, args):
             metrics=[
                 metric_wrapper(
                     torchmetrics.Accuracy,
-                    task='multiclass',
+                    task="multiclass",
                     num_classes=args.n_classes,
-                    average='micro',
+                    average="micro",
                 ),
                 metric_wrapper(
                     torchmetrics.Precision,
                     task="multiclass",
                     num_classes=args.n_classes,
-                    average='micro',
+                    average="micro",
                 ),
                 metric_wrapper(
                     torchmetrics.AUROC,
@@ -616,7 +616,7 @@ def vfgnn_train(dataset, args):
         },
         device_y=pyu_devices[0],
         model_fuse=fuse_model_def,
-        backend='torch',
+        backend="torch",
         dp_strategy_dict=dp_strategy_dict,
         compressor=top_k_compressor,
     )
@@ -625,7 +625,7 @@ def vfgnn_train(dataset, args):
     Step-3:
         Fit the model by `epochs`
     """
-    print(f'===== Fit the model =====')
+    print(f"===== Fit the model =====")
 
     def create_dataset_builder(
         fanout=[10, 15],
@@ -658,7 +658,7 @@ def vfgnn_train(dataset, args):
     Step-4:
         Evaluate the trained model using test dataset
     """
-    print(f'===== Evaluate the model =====')
+    print(f"===== Evaluate the model =====")
 
     def create_dataset_builder_infer(
         fanout=[10, 15],
@@ -689,7 +689,7 @@ def vfgnn_train(dataset, args):
     Step-5:
         Predict the test dataset
     """
-    print(f'===== Prediction on the model =====')
+    print(f"===== Prediction on the model =====")
     from secretflow.data.ndarray import FedNdarray, PartitionWay
 
     idx_infer_arr = FedNdarray(
@@ -712,7 +712,7 @@ def vfgnn_train(dataset, args):
     Step-6:
         Save/load the model
     """
-    print(f'===== Save/Load the model =====')
+    print(f"===== Save/Load the model =====")
     # sl_model.save_model("./base_mode.pth", "./fuse_model.pth")
 
     # sl_model.load_model("./base_mode.pth", "./fuse_model.pth")
@@ -721,8 +721,8 @@ def vfgnn_train(dataset, args):
     Step-7:
         Export the model
     """
-    print(f'===== Export the model =====')
-    print(f'Currently not support export model to Torch, ONNX')
+    print(f"===== Export the model =====")
+    print(f"Currently not support export model to Torch, ONNX")
     # sl_model.export_model("~/base_mode", "~/fuse_model", save_format='onnx')
 
 
@@ -730,88 +730,88 @@ def parse_args():
     argparser = argparse.ArgumentParser("VFGNN training")
     # argparser.add_argument('--gpu', type=int, default=1,
     #                     help="GPU device ID. Use -1 for CPU training")
-    argparser.add_argument('--target-model', type=str, default='gat')
+    argparser.add_argument("--target-model", type=str, default="gat")
     argparser.add_argument(
-        '--dataset',
+        "--dataset",
         type=str,
-        nargs='+',
-        default=['cora'],
+        nargs="+",
+        default=["cora"],
         help="['cora', 'pubmed', 'citeseer']",
     )
-    argparser.add_argument('--num-epochs', type=int, default=30)
-    argparser.add_argument('--num-hidden', type=int, default=256)
-    argparser.add_argument('--num-layers', type=int, default=3)
-    argparser.add_argument('--fan-out', type=str, default='10,25')
-    argparser.add_argument('--batch-size', type=int, default=256)
-    argparser.add_argument('--val-batch-size', type=int, default=256)
-    argparser.add_argument('--log-every', type=int, default=10)
-    argparser.add_argument('--eval-every', type=int, default=50)
-    argparser.add_argument('--lr', type=float, default=0.001)
-    argparser.add_argument('--dropout', type=float, default=0.5)
+    argparser.add_argument("--num-epochs", type=int, default=30)
+    argparser.add_argument("--num-hidden", type=int, default=256)
+    argparser.add_argument("--num-layers", type=int, default=3)
+    argparser.add_argument("--fan-out", type=str, default="10,25")
+    argparser.add_argument("--batch-size", type=int, default=256)
+    argparser.add_argument("--val-batch-size", type=int, default=256)
+    argparser.add_argument("--log-every", type=int, default=10)
+    argparser.add_argument("--eval-every", type=int, default=50)
+    argparser.add_argument("--lr", type=float, default=0.001)
+    argparser.add_argument("--dropout", type=float, default=0.5)
     argparser.add_argument(
-        '--num-workers',
+        "--num-workers",
         type=int,
         default=8,
         help="Number of sampling processes. Use 0 for no extra process.",
     )
     argparser.add_argument(
-        '--inductive', action='store_true', help="Inductive learning setting"
+        "--inductive", action="store_true", help="Inductive learning setting"
     )
-    argparser.add_argument('--graphgallery', action='store_true', default=False)
-    argparser.add_argument('--save-pred', type=str, default='')
-    argparser.add_argument('--head', type=int, default=4)
-    argparser.add_argument('--wd', type=float, default=0)
+    argparser.add_argument("--graphgallery", action="store_true", default=False)
+    argparser.add_argument("--save-pred", type=str, default="")
+    argparser.add_argument("--head", type=int, default=4)
+    argparser.add_argument("--wd", type=float, default=0)
 
     argparser.add_argument(
-        '--mode',
+        "--mode",
         type=str,
-        default='vfgnn_train',
+        default="vfgnn_train",
         help="['local_train', 'local_vfgnn_train', 'vfgnn_train']",
     )
-    argparser.add_argument('--n-party', type=int, default=2)
-    argparser.add_argument('--device', type=str, default='cpu')
+    argparser.add_argument("--n-party", type=int, default=2)
+    argparser.add_argument("--device", type=str, default="cpu")
     argparser.add_argument(
-        '--local_aggregate',
+        "--local_aggregate",
         type=str,
-        default='mean',
+        default="mean",
         help="['mean', 'gcn', 'pool', 'lstm']",
     )
     argparser.add_argument(
-        '--global_aggregate',
+        "--global_aggregate",
         type=str,
-        default='mean',
+        default="mean",
         help="['mean', 'concat', 'regression']",
     )
     argparser.add_argument(
-        '--init_mode', type=str, help='["identity, regression"]', default='identity'
+        "--init_mode", type=str, help='["identity, regression"]', default="identity"
     )
     argparser.add_argument(
-        '--init_model_num_hidden', type=int, help='[128, 256]', default=256
+        "--init_model_num_hidden", type=int, help="[128, 256]", default=256
     )
 
-    argparser.add_argument('--base_model_layers', type=int, default=2)
-    argparser.add_argument('--fuse_model_layers', type=int, default=1)
+    argparser.add_argument("--base_model_layers", type=int, default=2)
+    argparser.add_argument("--fuse_model_layers", type=int, default=1)
     argparser.add_argument(
-        '--base_model_num_hidden', type=int, help="[32, 64, 128, 256]", default=128
+        "--base_model_num_hidden", type=int, help="[32, 64, 128, 256]", default=128
     )
     argparser.add_argument(
-        '--fuse_model_num_hidden', type=int, help="[32, 64, 128, 256]", default=128
+        "--fuse_model_num_hidden", type=int, help="[32, 64, 128, 256]", default=128
     )
-    argparser.add_argument('--base_model_act', type=str, default='tanh')
-    argparser.add_argument('--fuse_model_act', type=str, default='sigmoid')
+    argparser.add_argument("--base_model_act", type=str, default="tanh")
+    argparser.add_argument("--fuse_model_act", type=str, default="sigmoid")
 
     argparser.add_argument(
-        '--depth', type=int, help='The depth of the model structure', default='4'
+        "--depth", type=int, help="The depth of the model structure", default="4"
     )
 
     # attack parameters
     # [LSA, LinkTeller, Our-attack targeted on SL]
-    argparser.add_argument('--attack', action='store_true', default=False)
+    argparser.add_argument("--attack", action="store_true", default=False)
     argparser.add_argument(
-        '--attack-mode',
+        "--attack-mode",
         type=str,
         help='["LSA", "LinkTeller"]',
-        default='LSA',
+        default="LSA",
     )
 
     # defense parameters
@@ -822,20 +822,20 @@ def parse_args():
 
 def main():
     args = parse_args()
-    n_class_dcit = {'cora': 7, 'pubmed': 3, 'citeseer': 6}
-    if args.mode == 'local_train':
+    n_class_dcit = {"cora": 7, "pubmed": 3, "citeseer": 6}
+    if args.mode == "local_train":
         logging.info("local sage train")
         for ds in args.dataset:
             # manually set the class number
             args.n_classes = n_class_dcit[ds]
             local_train(ds, args)
-    elif args.mode == 'local_vfgnn_train':
+    elif args.mode == "local_vfgnn_train":
         logging.info("local vfgnn train")
         for ds in args.dataset:
             # manually set the class number
             args.n_classes = n_class_dcit[ds]
             local_vfgnn_train(ds, args)
-    elif args.mode == 'vfgnn_train':
+    elif args.mode == "vfgnn_train":
         logging.info("vfgnn train")
         for ds in args.dataset:
             # manually set the class number
@@ -843,5 +843,5 @@ def main():
             vfgnn_train(ds, args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

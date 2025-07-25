@@ -35,9 +35,9 @@ def _test_mean(devices):
         )
 
         model.compile(
-            optimizer='adam',
+            optimizer="adam",
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-            metrics=['accuracy'],
+            metrics=["accuracy"],
         )
 
         return model.get_weights()

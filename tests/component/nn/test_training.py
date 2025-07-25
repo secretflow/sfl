@@ -17,14 +17,14 @@ from tempfile import mkdtemp
 
 import pandas as pd
 import pytest
-import tensorflow as tf
-
 import secretflow as sf
+import tensorflow as tf
 from secretflow.data import partition
 from secretflow.data.vertical import VDataFrame
-from secretflow_fl.component.ml.nn.sl.compile import compile
-from secretflow_fl.component.ml.nn.sl.training import predictor, saver, trainer
-from secretflow_fl.component.ml.nn.sl.training.tensorflow import data, model
+
+from sfl.component.ml.nn.sl.compile import compile
+from sfl.component.ml.nn.sl.training import predictor, saver, trainer
+from sfl.component.ml.nn.sl.training.tensorflow import data, model
 
 from .model_def import (
     LOSS_CLASS_CODE,

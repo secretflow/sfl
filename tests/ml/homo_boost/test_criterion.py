@@ -16,7 +16,7 @@ import math
 
 import pytest
 
-from secretflow_fl.ml.boost.homo_boost.tree_core.criterion import XgboostCriterion
+from sfl.ml.boost.homo_boost.tree_core.criterion import XgboostCriterion
 
 reg_lambda = 0.3
 

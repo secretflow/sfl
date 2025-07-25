@@ -17,8 +17,8 @@ import os
 import torch
 from torchvision.utils import save_image
 
-from secretflow_fl.ml.nn.callbacks.attack import AttackCallback
-from secretflow_fl.ml.nn.fl.backend.torch.fl_base import BaseTorchModel
+from sfl.ml.nn.callbacks.attack import AttackCallback
+from sfl.ml.nn.fl.backend.torch.fl_base import BaseTorchModel
 
 from .utils import DLGinverse, train_malicious_params
 
@@ -113,24 +113,24 @@ class GIAvMP_attacker:
     def construct_malicious_params(self, aux_dataset=None):
 
         # init the global params
-        self.global_net = self.attack_configs['model']()
+        self.global_net = self.attack_configs["model"]()
         global_params = [
             v.detach().clone().numpy() for v in list(self.global_net.parameters())
         ]
 
         # load malicious params
-        if not self.attack_configs['trainMP']:
+        if not self.attack_configs["trainMP"]:
 
-            if self.attack_configs['model'].__name__ == 'FCNNmodel':
+            if self.attack_configs["model"].__name__ == "FCNNmodel":
 
                 fc_mp = torch.load(
-                    self.attack_configs['path_to_malicious_params'],
-                    map_location=torch.device('cpu'),
+                    self.attack_configs["path_to_malicious_params"],
+                    map_location=torch.device("cpu"),
                 )
 
                 # insert the malicious params into the global params
-                global_params[0] = fc_mp['linear0.weight'].numpy()
-                global_params[1] = fc_mp['linear0.bias'].numpy()
+                global_params[0] = fc_mp["linear0.weight"].numpy()
+                global_params[1] = fc_mp["linear0.bias"].numpy()
 
         # train malicious params
         else:
@@ -148,7 +148,7 @@ class GIAvMP_attacker:
     # reconstruct raw data
     def reconstruct_raw_data(self):
         # create the directory to save the recovered images
-        os.makedirs(self.attack_configs['path_to_res'], exist_ok=True)
+        os.makedirs(self.attack_configs["path_to_res"], exist_ok=True)
 
         # get the raw images for validating the attack performance
         raw_images = []
@@ -163,7 +163,7 @@ class GIAvMP_attacker:
         grad = [g - v for g, v in zip(self.global_params_before, self.victim_params)]
 
         # GIAvMP for FCNN model
-        if self.attack_configs['model'].__name__ == 'FCNNmodel':
+        if self.attack_configs["model"].__name__ == "FCNNmodel":
             # recover images from the neurons of the 1st FC layer with analytic method
             recovered_images = []
             for i in range(len(grad[1])):
@@ -171,7 +171,7 @@ class GIAvMP_attacker:
                     data = torch.zeros(grad[0][i].shape)
                 else:
                     data = grad[0][i] / grad[1][i]
-                data = data.reshape(self.attack_configs['data_size'])
+                data = data.reshape(self.attack_configs["data_size"])
                 recovered_images.append(torch.Tensor(data))
 
             recovered_images = torch.stack(recovered_images)
@@ -181,7 +181,7 @@ class GIAvMP_attacker:
             save_image(
                 tensor=recovered_images.cpu().detach(),
                 fp=os.path.join(
-                    self.attack_configs['path_to_res'], 'recovered_images.png'
+                    self.attack_configs["path_to_res"], "recovered_images.png"
                 ),
             )
 
@@ -216,12 +216,12 @@ class GIAvMP_attacker:
             save_image(
                 tensor=concatenated_images.cpu().detach(),
                 fp=os.path.join(
-                    self.attack_configs['path_to_res'], 'raw_and_recovered_images.png'
+                    self.attack_configs["path_to_res"], "raw_and_recovered_images.png"
                 ),
             )
 
         # GIAvMP for CNN model
-        elif self.attack_configs['model'].__name__ == 'CNNmodel':
+        elif self.attack_configs["model"].__name__ == "CNNmodel":
             # recover features from the neurons of the 1st FC layer with analytic method
             recovered_features = []
             for i in range(len(grad[6])):

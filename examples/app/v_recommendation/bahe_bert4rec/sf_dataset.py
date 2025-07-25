@@ -51,10 +51,10 @@ class DualDomainSeqDataset(data.Dataset):
         # 读取CSV文件
         df = pd.read_csv(csv_path)
         # 只保留对应域的数据
-        df = df[df['domain_id'] == domain_id]
-        self.user_nodes = df['user_id'].values
-        self.seq_d1 = df['seq_d1'].values
-        self.seq_d2 = df['seq_d2'].values
+        df = df[df["domain_id"] == domain_id]
+        self.user_nodes = df["user_id"].values
+        self.seq_d1 = df["seq_d1"].values
+        self.seq_d2 = df["seq_d2"].values
 
         # 构建商品池
         self.item_pool_d1 = self.__build_i_set__(self.seq_d1)
@@ -185,17 +185,17 @@ class DualDomainSeqDataset(data.Dataset):
 
         label = np.array([domain_id], dtype=np.float32)  # 直接用 0 或 1 表示标签
         sample = {
-            'user_node': np.array([user_node], dtype=np.int64),
-            'i_node': np.array([item], dtype=np.int64),
-            'seq_d1': np.array([seq_d1_tmp], dtype=np.int64),
-            'seq_d2': np.array([seq_d2_tmp], dtype=np.int64),
-            'long_tail_mask_d1': np.array([long_tail_mask_d1], dtype=np.float32),
-            'long_tail_mask_d2': np.array([long_tail_mask_d2], dtype=np.float32),
-            'domain_id': np.array([domain_id], dtype=np.int64),
-            'overlap_label': np.array([overlap_label], dtype=np.float32),
-            'label': np.array(label, dtype=np.float32),
-            'neg_samples': np.array(neg_samples, dtype=np.int64),
-            'behavior_texts': behavior_texts,
+            "user_node": np.array([user_node], dtype=np.int64),
+            "i_node": np.array([item], dtype=np.int64),
+            "seq_d1": np.array([seq_d1_tmp], dtype=np.int64),
+            "seq_d2": np.array([seq_d2_tmp], dtype=np.int64),
+            "long_tail_mask_d1": np.array([long_tail_mask_d1], dtype=np.float32),
+            "long_tail_mask_d2": np.array([long_tail_mask_d2], dtype=np.float32),
+            "domain_id": np.array([domain_id], dtype=np.int64),
+            "overlap_label": np.array([overlap_label], dtype=np.float32),
+            "label": np.array(label, dtype=np.float32),
+            "neg_samples": np.array(neg_samples, dtype=np.int64),
+            "behavior_texts": behavior_texts,
         }
 
         return sample
@@ -204,45 +204,45 @@ class DualDomainSeqDataset(data.Dataset):
 def collate_fn_enhance(batch):
     # 将所有张量转换为Long类型
     user_node = torch.cat(
-        [torch.LongTensor(sample['user_node']) for sample in batch], dim=0
+        [torch.LongTensor(sample["user_node"]) for sample in batch], dim=0
     )
-    i_node = torch.cat([torch.LongTensor(sample['i_node']) for sample in batch], dim=0)
-    seq_d1 = torch.cat([torch.LongTensor(sample['seq_d1']) for sample in batch], dim=0)
-    seq_d2 = torch.cat([torch.LongTensor(sample['seq_d2']) for sample in batch], dim=0)
+    i_node = torch.cat([torch.LongTensor(sample["i_node"]) for sample in batch], dim=0)
+    seq_d1 = torch.cat([torch.LongTensor(sample["seq_d1"]) for sample in batch], dim=0)
+    seq_d2 = torch.cat([torch.LongTensor(sample["seq_d2"]) for sample in batch], dim=0)
     long_tail_mask_d1 = torch.cat(
-        [torch.Tensor(sample['long_tail_mask_d1']) for sample in batch], dim=0
+        [torch.Tensor(sample["long_tail_mask_d1"]) for sample in batch], dim=0
     )
     long_tail_mask_d2 = torch.cat(
-        [torch.Tensor(sample['long_tail_mask_d2']) for sample in batch], dim=0
+        [torch.Tensor(sample["long_tail_mask_d2"]) for sample in batch], dim=0
     )
     label = torch.stack(
-        [torch.Tensor(sample['label']) for sample in batch], dim=0
+        [torch.Tensor(sample["label"]) for sample in batch], dim=0
     ).squeeze(1)
     domain_id = torch.cat(
-        [torch.LongTensor(sample['domain_id']) for sample in batch], dim=0
+        [torch.LongTensor(sample["domain_id"]) for sample in batch], dim=0
     )
     overlap_label = torch.cat(
-        [torch.Tensor(sample['overlap_label']) for sample in batch], dim=0
+        [torch.Tensor(sample["overlap_label"]) for sample in batch], dim=0
     )
     neg_samples = torch.stack(
-        [torch.LongTensor(sample['neg_samples']) for sample in batch], dim=0
+        [torch.LongTensor(sample["neg_samples"]) for sample in batch], dim=0
     )
 
     # 收集所有behavior_texts
-    behavior_texts = [sample['behavior_texts'] for sample in batch]
+    behavior_texts = [sample["behavior_texts"] for sample in batch]
 
     data = {
-        'user_node': user_node,
-        'i_node': i_node,
-        'seq_d1': seq_d1,
-        'seq_d2': seq_d2,
-        'long_tail_mask_d1': long_tail_mask_d1,
-        'long_tail_mask_d2': long_tail_mask_d2,
-        'label': label,
-        'domain_id': domain_id,
-        'overlap_label': overlap_label,
-        'neg_samples': neg_samples,
-        'behavior_texts': behavior_texts,
+        "user_node": user_node,
+        "i_node": i_node,
+        "seq_d1": seq_d1,
+        "seq_d2": seq_d2,
+        "long_tail_mask_d1": long_tail_mask_d1,
+        "long_tail_mask_d2": long_tail_mask_d2,
+        "label": label,
+        "domain_id": domain_id,
+        "overlap_label": overlap_label,
+        "neg_samples": neg_samples,
+        "behavior_texts": behavior_texts,
     }
     return data
 
@@ -260,7 +260,7 @@ class BobDataset(DualDomainSeqDataset):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # 过滤出域1数据（domain_id=0）
-        self.data = self.data[self.data['domain_id'] == 0]
+        self.data = self.data[self.data["domain_id"] == 0]
 
 
 # Alice端数据集（域2）
@@ -268,4 +268,4 @@ class AliceDataset(DualDomainSeqDataset):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # 过滤出域2数据（domain_id=1）
-        self.data = self.data[self.data['domain_id'] == 1]
+        self.data = self.data[self.data["domain_id"] == 1]

@@ -16,10 +16,10 @@
 
 import numpy as np
 import tensorflow as tf
-
 from secretflow.data import FedNdarray, PartitionWay
 from secretflow.device import reveal
-from secretflow_fl.ml.nn import SLModel
+
+from sfl.ml.nn import SLModel
 
 # Prepare dataset
 np.random.seed(7)

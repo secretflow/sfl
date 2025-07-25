@@ -18,8 +18,8 @@ from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader, TensorDataset
 from torchmetrics import Accuracy
 
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.experimental.fl.backend.torch.strategy.fed_per import FedPer
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.experimental.fl.backend.torch.strategy.fed_per import FedPer
 
 from ..model_def import ConvNet
 

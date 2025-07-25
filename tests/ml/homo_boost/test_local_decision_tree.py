@@ -19,9 +19,9 @@ import pandas as pd
 import pytest
 import xgboost as xgb
 
-from secretflow_fl.ml.boost.homo_boost.tree_core.decision_tree import DecisionTree
-from secretflow_fl.ml.boost.homo_boost.tree_core.loss_function import LossFunction
-from secretflow_fl.ml.boost.homo_boost.tree_param import TreeParam
+from sfl.ml.boost.homo_boost.tree_core.decision_tree import DecisionTree
+from sfl.ml.boost.homo_boost.tree_core.loss_function import LossFunction
+from sfl.ml.boost.homo_boost.tree_param import TreeParam
 
 
 def gen_data(data_num, feature_num, use_random=True, data_bin_num=10):

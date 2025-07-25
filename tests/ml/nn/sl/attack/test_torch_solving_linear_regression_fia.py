@@ -16,18 +16,18 @@ import tempfile
 
 import numpy as np
 import pandas as pd
+import secretflow as sf
 import torch
 import torch.nn as nn
+from secretflow.data.split import train_test_split
+from secretflow.utils.simulation.data.dataframe import create_df
 from torch.utils.data import DataLoader, TensorDataset
 from torchmetrics import AUROC
 
-import secretflow as sf
-from secretflow.data.split import train_test_split
-from secretflow.utils.simulation.data.dataframe import create_df
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.agglayer.agg_method import Concat
-from secretflow_fl.ml.nn.sl.attacks.solving_linear_regression_fia_torch import (
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.agglayer.agg_method import Concat
+from sfl.ml.nn.sl.attacks.solving_linear_regression_fia_torch import (
     SolvingLinearRegressionAttack,
 )
 

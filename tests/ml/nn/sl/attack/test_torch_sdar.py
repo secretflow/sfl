@@ -20,16 +20,16 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as torch_data
+from secretflow.data.ndarray import FedNdarray, PartitionWay
+from secretflow.utils.simulation.datasets import _CACHE_DIR
 from torch import optim
 from torchmetrics import AUROC, Accuracy, Precision
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow.utils.simulation.datasets import _CACHE_DIR
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.sdar_torch import SDARAttack
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.sdar_torch import SDARAttack
 from tests.fl.ml.nn.sl.attack.model_def import (
     Decoder,
     DecoderDiscriminator,
@@ -68,10 +68,10 @@ def get_model():
             optim_fn=g_optim_fn,
             metrics=[
                 metric_wrapper(
-                    Accuracy, task="multiclass", num_classes=10, average='micro'
+                    Accuracy, task="multiclass", num_classes=10, average="micro"
                 ),
                 metric_wrapper(
-                    Precision, task="multiclass", num_classes=10, average='micro'
+                    Precision, task="multiclass", num_classes=10, average="micro"
                 ),
                 metric_wrapper(AUROC, task="multiclass", num_classes=10),
             ],
@@ -151,7 +151,7 @@ class OriginalDataset(torch_data.Dataset):
         return img, label
 
 
-def get_data_builder(dataset_name='cifar10'):
+def get_data_builder(dataset_name="cifar10"):
     def data_builder():
         loader = CIFAR10
         data_dir = os.path.join(_CACHE_DIR, dataset_name)
@@ -280,7 +280,7 @@ def do_test_sl_and_sdar(alice, bob):
         decoder_d_model_wrapper=decoder_d,
         reconstruct_loss_builder=torch.nn.MSELoss,
         data_builder=get_data_builder(),
-        exec_device='cpu',
+        exec_device="cpu",
     )
     sl_model = SLModel(
         base_model_dict={alice: f_model},

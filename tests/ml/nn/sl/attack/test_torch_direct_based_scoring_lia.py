@@ -15,18 +15,18 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
-from torchmetrics import AUROC, Accuracy
-
 from secretflow.data.split import train_test_split
 from secretflow.preprocessing import StandardScaler
 from secretflow.utils.simulation.data.dataframe import create_df
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.direction_based_scoring_torch import (
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+from torchmetrics import AUROC, Accuracy
+
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.direction_based_scoring_torch import (
     DirectionBasedScoringAttack,
 )
-from secretflow_fl.utils.simulation.datasets_fl import load_criteo_unpartitioned
+from sfl.utils.simulation.datasets_fl import load_criteo_unpartitioned
 
 from .model_def import WideDeepBottomAlice, WideDeepBottomBob, WideDeepFuse
 

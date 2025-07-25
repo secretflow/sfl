@@ -15,20 +15,20 @@
 import numpy as np
 import pytest
 import torch
+from secretflow.data.ndarray import FedNdarray, PartitionWay
+from secretflow.device import reveal
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import AUROC, Accuracy, Precision
 
-from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow.device import reveal
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_resnet_torch import (
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_resnet_torch import (
     BasicBlock,
     NaiveSumSoftmax,
     ResNetBase,
 )
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.sl.attacks.villain_attack_torch import VillainAttack
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.sl.attacks.villain_attack_torch import VillainAttack
 
 
 class ImageDatasetLeft(Dataset):
@@ -88,7 +88,7 @@ def create_classifier():
     return classifier
 
 
-@pytest.mark.skip(reason='FIXME: broken OSCP code, throw error')
+@pytest.mark.skip(reason="FIXME: broken OSCP code, throw error")
 def test_villain_attack(sf_simulation_setup_devices):
     target_class = 6
     data_num = 40
@@ -108,10 +108,10 @@ def test_villain_attack(sf_simulation_setup_devices):
         optim_fn=optim_fn,
         metrics=[
             metric_wrapper(
-                Accuracy, task="multiclass", num_classes=10, average='micro'
+                Accuracy, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(
-                Precision, task="multiclass", num_classes=10, average='micro'
+                Precision, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(AUROC, task="multiclass", num_classes=10),
         ],
@@ -126,10 +126,10 @@ def test_villain_attack(sf_simulation_setup_devices):
         optim_fn=optim_fn,
         metrics=[
             metric_wrapper(
-                Accuracy, task="multiclass", num_classes=10, average='micro'
+                Accuracy, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(
-                Precision, task="multiclass", num_classes=10, average='micro'
+                Precision, task="multiclass", num_classes=10, average="micro"
             ),
             metric_wrapper(AUROC, task="multiclass", num_classes=10),
         ],
@@ -151,8 +151,8 @@ def test_villain_attack(sf_simulation_setup_devices):
         model_fuse=fuse_model,
         simulation=True,
         random_seed=1234,
-        backend='torch',
-        strategy='split_nn',
+        backend="torch",
+        strategy="split_nn",
     )
 
     train_data = np.random.rand(data_num, 3, 32, 32)

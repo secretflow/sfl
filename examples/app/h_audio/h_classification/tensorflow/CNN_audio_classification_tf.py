@@ -44,14 +44,14 @@ from os.path import join
 
 import numpy as np
 import seaborn as sns
+import secretflow as sf
 import tensorflow as tf
 from IPython import display
 from matplotlib import pyplot as plt
+from secretflow.security.aggregation import SecureAggregator
 from tensorflow.keras import layers, models
 
-import secretflow as sf
-from secretflow.security.aggregation import SecureAggregator
-from secretflow_fl.ml.nn import FLModel
+from sfl.ml.nn import FLModel
 
 # Set the seed value for experiment reproducibility.
 seed = 42
@@ -62,22 +62,22 @@ np.random.seed(seed)
 # ### 导入迷你版 Speech Commands 数据集
 
 
-DATASET_PATH = 'data/mini_speech_commands'
+DATASET_PATH = "data/mini_speech_commands"
 
 data_dir = pathlib.Path(DATASET_PATH)
 if not data_dir.exists():
     tf.keras.utils.get_file(
-        'mini_speech_commands.zip',
+        "mini_speech_commands.zip",
         origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
         extract=True,
-        cache_dir='.',
-        cache_subdir='data',
+        cache_dir=".",
+        cache_subdir="data",
     )
 
 
 commands = np.array(tf.io.gfile.listdir(str(data_dir)))
-commands = commands[(commands != 'README.md') & (commands != '.DS_Store')]
-print('Commands:', commands)
+commands = commands[(commands != "README.md") & (commands != ".DS_Store")]
+print("Commands:", commands)
 
 
 train_ds, val_ds = tf.keras.utils.audio_dataset_from_directory(
@@ -86,7 +86,7 @@ train_ds, val_ds = tf.keras.utils.audio_dataset_from_directory(
     validation_split=0.2,
     seed=0,
     output_sequence_length=16000,
-    subset='both',
+    subset="both",
 )
 
 label_names = np.array(train_ds.class_names)
@@ -151,10 +151,10 @@ for i in range(3):
     waveform = example_audio[i]
     spectrogram = get_spectrogram(waveform)
 
-    print('Label:', label)
-    print('Waveform shape:', waveform.shape)
-    print('Spectrogram shape:', spectrogram.shape)
-    print('Audio playback')
+    print("Label:", label)
+    print("Waveform shape:", waveform.shape)
+    print("Spectrogram shape:", spectrogram.shape)
+    print("Audio playback")
     display.display(display.Audio(waveform, rate=16000))
 
 
@@ -176,11 +176,11 @@ def plot_spectrogram(spectrogram, ax):
 fig, axes = plt.subplots(2, figsize=(12, 8))
 timescale = np.arange(waveform.shape[0])
 axes[0].plot(timescale, waveform.numpy())
-axes[0].set_title('Waveform')
+axes[0].set_title("Waveform")
 axes[0].set_xlim([0, 16000])
 
 plot_spectrogram(spectrogram.numpy(), axes[1])
-axes[1].set_title('Spectrogram')
+axes[1].set_title("Spectrogram")
 plt.suptitle(label.title())
 plt.show()
 
@@ -227,7 +227,7 @@ test_spectrogram_ds = test_spectrogram_ds.cache().prefetch(tf.data.AUTOTUNE)
 
 
 input_shape = example_spectrograms.shape[1:]
-print('Input shape:', input_shape)
+print("Input shape:", input_shape)
 num_labels = len(label_names)
 
 # Instantiate the `tf.keras.layers.Normalization` layer.
@@ -243,12 +243,12 @@ model = models.Sequential(
         layers.Resizing(32, 32),
         # Normalize.
         norm_layer,
-        layers.Conv2D(32, 3, activation='relu'),
-        layers.Conv2D(64, 3, activation='relu'),
+        layers.Conv2D(32, 3, activation="relu"),
+        layers.Conv2D(64, 3, activation="relu"),
         layers.MaxPooling2D(),
         layers.Dropout(0.25),
         layers.Flatten(),
-        layers.Dense(128, activation='relu'),
+        layers.Dense(128, activation="relu"),
         layers.Dropout(0.5),
         layers.Dense(num_labels),
     ]
@@ -260,7 +260,7 @@ model.summary()
 model.compile(
     optimizer=tf.keras.optimizers.Adam(),
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=['accuracy'],
+    metrics=["accuracy"],
 )
 
 
@@ -276,22 +276,22 @@ history = model.fit(
 metrics = history.history
 plt.figure(figsize=(16, 6))
 plt.subplot(1, 2, 1)
-plt.plot(history.epoch, metrics['loss'], metrics['val_loss'])
-plt.legend(['loss', 'val_loss'])
+plt.plot(history.epoch, metrics["loss"], metrics["val_loss"])
+plt.legend(["loss", "val_loss"])
 plt.ylim([0, max(plt.ylim())])
-plt.xlabel('Epoch')
-plt.ylabel('Loss [CrossEntropy]')
+plt.xlabel("Epoch")
+plt.ylabel("Loss [CrossEntropy]")
 
 plt.subplot(1, 2, 2)
 plt.plot(
     history.epoch,
-    100 * np.array(metrics['accuracy']),
-    100 * np.array(metrics['val_accuracy']),
+    100 * np.array(metrics["accuracy"]),
+    100 * np.array(metrics["val_accuracy"]),
 )
-plt.legend(['accuracy', 'val_accuracy'])
+plt.legend(["accuracy", "val_accuracy"])
 plt.ylim([0, 100])
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy [%]')
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy [%]")
 
 
 # ### 评估模型性能
@@ -315,17 +315,17 @@ y_true = tf.concat(list(test_spectrogram_ds.map(lambda s, lab: lab)), axis=0)
 confusion_mtx = tf.math.confusion_matrix(y_true, y_pred)
 plt.figure(figsize=(10, 8))
 sns.heatmap(
-    confusion_mtx, xticklabels=label_names, yticklabels=label_names, annot=True, fmt='g'
+    confusion_mtx, xticklabels=label_names, yticklabels=label_names, annot=True, fmt="g"
 )
-plt.xlabel('Prediction')
-plt.ylabel('Label')
+plt.xlabel("Prediction")
+plt.ylabel("Label")
 plt.show()
 
 
 # #### 在声音文件上进行推理
 
 
-x = data_dir / 'no/01bb6a2a_nohash_0.wav'
+x = data_dir / "no/01bb6a2a_nohash_0.wav"
 x = tf.io.read_file(str(x))
 x, sample_rate = tf.audio.decode_wav(
     x,
@@ -338,9 +338,9 @@ x = get_spectrogram(x)
 x = x[tf.newaxis, ...]
 
 prediction = model(x)
-x_labels = ['no', 'yes', 'down', 'go', 'left', 'up', 'right', 'stop']
+x_labels = ["no", "yes", "down", "go", "left", "up", "right", "stop"]
 plt.bar(x_labels, tf.nn.softmax(prediction[0]))
-plt.title('No')
+plt.title("No")
 plt.show()
 
 display.display(display.Audio(waveform, rate=16000))
@@ -358,9 +358,9 @@ display.display(display.Audio(waveform, rate=16000))
 # 我们假定联邦学习的数据拥有方是 **alice** 和 **bob**
 
 
-dataset_name = 'mini_speech_commands'
-dataset_path = os.path.join('.', 'data', dataset_name)
-parties_list = ['alice', 'bob']
+dataset_name = "mini_speech_commands"
+dataset_path = os.path.join(".", "data", dataset_name)
+parties_list = ["alice", "bob"]
 parties_path_list = []
 
 
@@ -370,10 +370,10 @@ parties_path_list = []
 os.path.abspath(dataset_path)
 
 
-split_dataset_path = os.path.join('.', 'fl-data', dataset_name)
+split_dataset_path = os.path.join(".", "fl-data", dataset_name)
 
 for party in parties_list:
-    party_path = os.path.join('.', 'fl-data', dataset_name, party)
+    party_path = os.path.join(".", "fl-data", dataset_name, party)
     os.makedirs(party_path, exist_ok=True)
     parties_path_list.append(party_path)
 
@@ -387,10 +387,10 @@ parties_path_list
 commands = os.listdir(dataset_path)
 
 
-if 'README.md' in commands:
-    commands.remove('README.md')
-elif '.DS_Store' in commands:
-    commands.remove('.DS_Store')
+if "README.md" in commands:
+    commands.remove("README.md")
+elif ".DS_Store" in commands:
+    commands.remove(".DS_Store")
 
 
 # 可以看到数据集拥有 8 个标签，所以我们分别在对应的参与方数据文件夹下建立对应的子文件夹
@@ -411,7 +411,7 @@ for command in commands:
     for wav_name in os.listdir(command_path):
         wav_path = join(command_path, wav_name)
         target_dir_path = join(
-            '.', 'fl-data', dataset_name, parties_list[index % parties_num], command
+            ".", "fl-data", dataset_name, parties_list[index % parties_num], command
         )
         shutil.copy(wav_path, target_dir_path)
         # if you want to watch the progress of copying the files, please uncomment the following line
@@ -426,20 +426,20 @@ for command in commands:
     for party_path in parties_path_list:
         command_path = join(party_path, command)
         file_num = len(os.listdir(command_path))
-        print(f'{command_path} : {file_num}')
+        print(f"{command_path} : {file_num}")
 
 
 # ### 隐语环境初始化
 
 
 # Check the version of your SecretFlow
-print('The version of SecretFlow: {}'.format(sf.__version__))
+print("The version of SecretFlow: {}".format(sf.__version__))
 
 # In case you have a running secretflow runtime already.
 sf.shutdown()
-sf.init(['alice', 'bob', 'charlie'], address="local", log_to_driver=False)
+sf.init(["alice", "bob", "charlie"], address="local", log_to_driver=False)
 
-alice, bob, charlie = sf.PYU('alice'), sf.PYU('bob'), sf.PYU('charlie')
+alice, bob, charlie = sf.PYU("alice"), sf.PYU("bob"), sf.PYU("charlie")
 
 
 # ### 封装 DataBuilder
@@ -461,7 +461,7 @@ def create_dataset_builder(
             validation_split=0.2,
             seed=0,
             output_sequence_length=16000,
-            subset='both',
+            subset="both",
         )
         # dataset split
         train_dataset = dataset[0]
@@ -506,7 +506,7 @@ data_builder_dict = {
 # 得益于隐语优异的设计，我们只需要将单机模式下定义的网络结构，进行适当的封装即可，这里为了便于演示，我们去除原来的网络结构中依赖数据集的正则化层`norm_layer.adapt(data=train_spectrogram_ds.map(map_func=lambda spec, label: spec))`
 
 
-def create_audio_classification_model(input_shape, num_classes, name='model'):
+def create_audio_classification_model(input_shape, num_classes, name="model"):
     def create_model():
         # Create model
 
@@ -523,12 +523,12 @@ def create_audio_classification_model(input_shape, num_classes, name='model'):
                 layers.Resizing(32, 32),
                 # Normalize.
                 # delete: norm_layer,
-                layers.Conv2D(32, 3, activation='relu'),
-                layers.Conv2D(64, 3, activation='relu'),
+                layers.Conv2D(32, 3, activation="relu"),
+                layers.Conv2D(64, 3, activation="relu"),
                 layers.MaxPooling2D(),
                 layers.Dropout(0.25),
                 layers.Flatten(),
-                layers.Dense(128, activation='relu'),
+                layers.Dense(128, activation="relu"),
                 layers.Dropout(0.5),
                 layers.Dense(num_classes),
             ]
@@ -538,7 +538,7 @@ def create_audio_classification_model(input_shape, num_classes, name='model'):
         model.compile(
             optimizer=tf.keras.optimizers.Adam(),
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-            metrics=['accuracy'],
+            metrics=["accuracy"],
         )
         return model
 
@@ -597,22 +597,22 @@ history = fed_model.fit(
 # ### 可视化训练结果
 print(history.global_history.keys())
 # Draw accuracy values for training & validation
-plt.plot(history.global_history['accuracy'])
-plt.plot(history.global_history['val_accuracy'])
-plt.title('FLModel accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["accuracy"])
+plt.plot(history.global_history["val_accuracy"])
+plt.title("FLModel accuracy")
+plt.ylabel("Accuracy")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 
 # Draw loss for training & validation
-plt.plot(history.global_history['loss'])
-plt.plot(history.global_history['val_loss'])
-plt.title('FLModel loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Valid'], loc='upper left')
+plt.plot(history.global_history["loss"])
+plt.plot(history.global_history["val_loss"])
+plt.title("FLModel loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Valid"], loc="upper left")
 plt.show()
 
 

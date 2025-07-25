@@ -19,13 +19,8 @@ from tempfile import mkdtemp
 import tensorflow as tf
 from tensorflow.python.trackable import autotrackable
 
-from secretflow_fl.component.ml.nn.sl.compile import compile
-from secretflow_fl.component.ml.nn.sl.compile.tensorflow import (
-    loss,
-    metric,
-    model,
-    optimizer,
-)
+from sfl.component.ml.nn.sl.compile import compile
+from sfl.component.ml.nn.sl.compile.tensorflow import loss, metric, model, optimizer
 
 from .model_def import LOSS_CLASS_CODE, LOSS_FUNC_CODE, MODELS_CODE
 

@@ -26,26 +26,26 @@ class ClickEncoder(nn.Module):
         self.use_entity = cfg.model.use_entity
         if self.use_entity:
             self.atte = Sequential(
-                'a,b,c',
+                "a,b,c",
                 [
                     (
                         lambda a, b, c: torch.stack([a, b, c], dim=-2).view(
                             -1, 3, self.news_dim
                         ),
-                        'a,b,c -> x',
+                        "a,b,c -> x",
                     ),
                     AttentionPooling(self.news_dim, cfg.model.attention_hidden_dim),
                 ],
             )
         else:
             self.atte = Sequential(
-                'a,b',
+                "a,b",
                 [
                     (
                         lambda a, b: torch.stack([a, b], dim=-2).view(
                             -1, 2, self.news_dim
                         ),
-                        'a,b -> x',
+                        "a,b -> x",
                     ),
                     AttentionPooling(self.news_dim, cfg.model.attention_hidden_dim),
                 ],

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from secretflow_fl.ml.nn import SLModel
-from secretflow_fl.ml.nn.applications.sl_mmoe_tf import MMoEBase, MMoEFuse
-from secretflow_fl.utils.simulation.datasets_fl import load_ml_1m
+from sfl.ml.nn import SLModel
+from sfl.ml.nn.applications.sl_mmoe_tf import MMoEBase, MMoEFuse
+from sfl.utils.simulation.datasets_fl import load_ml_1m
 
 NUM_USERS = 6040
 NUM_MOVIES = 3952

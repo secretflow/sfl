@@ -31,11 +31,11 @@ def tensorDCT(weight_tensor):
     weight_tensor_cpu = weight_tensor
     # Perform DCT on each row
     dct_rows = torch.tensor(
-        [dct(row, type=2, norm='ortho') for row in weight_tensor_cpu]
+        [dct(row, type=2, norm="ortho") for row in weight_tensor_cpu]
     )
     # Perform DCT on each column
     dct_matrix = torch.tensor(
-        [dct(col.detach().numpy(), type=2, norm='ortho') for col in dct_rows.T]
+        [dct(col.detach().numpy(), type=2, norm="ortho") for col in dct_rows.T]
     ).T
     # The obtained DCT matrix has low-frequency components in the upper left corner
     return dct_matrix
@@ -117,7 +117,7 @@ def clustering(F_list):
 class FreqAggregator(PlainAggregator):
 
     def __init__(self, device: PYU):
-        assert isinstance(device, PYU), f'Accepts PYU only but got {type(device)}.'
+        assert isinstance(device, PYU), f"Accepts PYU only but got {type(device)}."
         self.device = device
 
     def average(self, data: List[DeviceObject], axis=None, weights=None) -> PYUObject:
@@ -131,7 +131,7 @@ class FreqAggregator(PlainAggregator):
         Returns:
             a device object holds the weighted average.
         """
-        assert data, 'Data to aggregate should not be None or empty!'
+        assert data, "Data to aggregate should not be None or empty!"
         data = [d.to(self.device) for d in data]
         if isinstance(weights, (list, tuple)):
             weights = [

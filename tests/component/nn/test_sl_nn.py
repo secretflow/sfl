@@ -128,18 +128,18 @@ def get_pred_param(alice_path, bob_path, train_res, predict_path):
 def get_meta_and_dump_data(alice_path, bob_path, storage_config):
     local_fs_wd = storage_config.local_fs.wd
 
-    ds = pd.read_csv(dataset('bank_marketing'), sep=';')
+    ds = pd.read_csv(dataset("bank_marketing"), sep=";")
     encoder = LabelEncoder()
-    ds['job'] = encoder.fit_transform(ds['job'])
-    ds['marital'] = encoder.fit_transform(ds['marital'])
-    ds['education'] = encoder.fit_transform(ds['education'])
-    ds['default'] = encoder.fit_transform(ds['default'])
-    ds['housing'] = encoder.fit_transform(ds['housing'])
-    ds['loan'] = encoder.fit_transform(ds['loan'])
-    ds['contact'] = encoder.fit_transform(ds['contact'])
-    ds['poutcome'] = encoder.fit_transform(ds['poutcome'])
-    ds['month'] = encoder.fit_transform(ds['month'])
-    ds['y'] = encoder.fit_transform(ds['y'])
+    ds["job"] = encoder.fit_transform(ds["job"])
+    ds["marital"] = encoder.fit_transform(ds["marital"])
+    ds["education"] = encoder.fit_transform(ds["education"])
+    ds["default"] = encoder.fit_transform(ds["default"])
+    ds["housing"] = encoder.fit_transform(ds["housing"])
+    ds["loan"] = encoder.fit_transform(ds["loan"])
+    ds["contact"] = encoder.fit_transform(ds["contact"])
+    ds["poutcome"] = encoder.fit_transform(ds["poutcome"])
+    ds["month"] = encoder.fit_transform(ds["month"])
+    ds["y"] = encoder.fit_transform(ds["y"])
 
     scaler = MinMaxScaler()
     for f in ds.columns:

@@ -20,15 +20,15 @@ from venv import logger
 import numpy as np
 import pytest
 import tensorflow as tf
+from secretflow.device import reveal
 from torch import nn, optim
 from torchmetrics import Accuracy, Precision
 
 from examples.security.h_bd.agg_flame import FlameAggregator
-from secretflow.device import reveal
-from secretflow_fl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from secretflow_fl.ml.nn.fl.compress import COMPRESS_STRATEGY
-from secretflow_fl.security.aggregation import SparsePlainAggregator
-from secretflow_fl.utils.simulation.datasets_fl import load_cifar10_horiontal
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
+from sfl.security.aggregation import SparsePlainAggregator
+from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
 from tests.fl.ml.nn.fl.attack.backdoor_fl_torch import BackdoorAttack
 
 # from secretflow_fl.ml.nn import FLModel
@@ -54,7 +54,7 @@ def _torch_model_with_cifar10(
     strategy,
     backend,
     callbacks,
-    **kwargs
+    **kwargs,
 ):
     device_list = [devices.alice, devices.bob, devices.carol, devices.davy]
     server = devices.carol
@@ -101,9 +101,9 @@ def _torch_model_with_cifar10(
         test_data, test_label, batch_size=128, random_seed=1234
     )
     print(history, global_metric)
-    logger.warning('history')
+    logger.warning("history")
     logger.warning(history)
-    logger.warning('global_metric')
+    logger.warning("global_metric")
     logger.warning(global_metric)
     bd_metric, local_metric = fl_model.evaluate_bd(
         test_data,
@@ -113,9 +113,9 @@ def _torch_model_with_cifar10(
         attack_party=callbacks[0].attack_party,
         target_label=callbacks[0].target_label,
     )
-    logger.warning('bd_metric')
+    logger.warning("bd_metric")
     logger.warning(bd_metric)
-    logger.warning('local_metric')
+    logger.warning("local_metric")
     logger.warning(local_metric)
     print(bd_metric, local_metric)
 
@@ -186,7 +186,7 @@ def test_torch_model(sf_simulation_setup_devices):
         attack_party=alice, poison_rate=0.01, target_label=1, eta=1.0, attack_epoch=1
     )
     # Test fed_avg_w with mnist
-    logging.info('test_print' * 20)
+    logging.info("test_print" * 20)
     _torch_model_with_cifar10(
         devices=sf_simulation_setup_devices,
         model_def=model_def,
