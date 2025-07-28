@@ -99,7 +99,6 @@ commands:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
             pytest --testmon --env <<parameters.mode>> -n <<parameters.concurrent_num>> --junitxml=results.xml -v -x --capture=no --cov=sfl/  --cov-report=xml:coverage.xml  << parameters.target_folder >>
             ret=$?
