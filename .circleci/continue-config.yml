@@ -87,13 +87,16 @@ commands:
           name: Restore pytest testmondata
           key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_
       - restore_cache:
-          name: restore pip cache
-          key: pip-{{ arch }}-{{ .Branch }}-{{ checksum "uv.lock" }}
+          name: restore uv cache
+          keys:
+            - v1-uv-cache-{{ checksum "pyproject.toml" }}
+            - v1-uv-cache-
       - run:
           name: "Run tests"
           command: |
             set +e
             conda init
+            source .venv/bin/activate
             pytest --testmon --env <<parameters.mode>> -n <<parameters.concurrent_num>> --junitxml=results.xml -v -x --capture=no --cov=sfl/  --cov-report=xml:coverage.xml  << parameters.target_folder >>
             ret=$?
             set -e
@@ -175,8 +178,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: restore pip cache
-          key: &pip-cache pip-{{ arch }}-{{ .Branch }}-{{ checksum "uv.lock" }}
+          name: restore uv cache
+          keys:
+            - v1-uv-cache-{{ checksum "pyproject.toml" }}
+            - v1-uv-cache-
       - run:
           name: build shared library
           command: |
@@ -191,15 +196,16 @@ jobs:
             conda init
             conda install -y -c conda-forge uv
             uv venv
+            source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
       - persist_to_workspace:
           root: .
           paths:
             - artifacts
       - save_cache:
-          key: *pip-cache
+          key: v1-uv-cache-{{ checksum "pyproject.toml" }}
           paths:
-            - /root/miniconda3/lib/python3.10/site-packages
+            - "~/.cache/uv"
   macos_build:
     executor: macos_executor
     steps:
@@ -217,14 +223,17 @@ jobs:
             source $HOME/miniconda/bin/activate
             conda init zsh bash
       - restore_cache:
-          name: restore pip cache
-          key: &pip-cache pip-{{ arch }}-{{ .Branch }}-{{ checksum "uv.lock" }}
+          name: restore uv cache
+          keys:
+            - v1-uv-cache-{{ checksum "pyproject.toml" }}
+            - v1-uv-cache-
       - run:
           name: Install python dependencies
           command: |
             conda init
             conda install -y -c conda-forge uv
             uv venv
+            source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
       - run:
           name: "build shared library"
@@ -238,9 +247,9 @@ jobs:
           paths:
             - artifacts
       - save_cache:
-          key: *pip-cache
+          key: v1-uv-cache-{{ checksum "pyproject.toml" }}
           paths:
-            - /Users/distiller/miniconda/lib/python3.10/site-packages
+            - "~/.cache/uv" # uv 默认的缓存路径
   linux_prod_basic_test:
     parameters:
       resource_class:
