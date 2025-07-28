@@ -4,7 +4,7 @@
 
 ---
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/secretflow/secretflow/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/secretflow/secretflow/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/secretflow/sfl/tree/main.svg?style=svg&circle-token=CCIPRJ_QQvGvjdbtMsdb1PRSxp25q_6e6f90e05adc88829183994f0ee26f0f3a37cefa)](https://dl.circleci.com/status-badge/redirect/gh/secretflow/sfl/tree/main)
 
 <p align="center">
 <a href="./README.zh-CN.md">简体中文</a>｜<a href="./README.md">English</a>
