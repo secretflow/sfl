@@ -55,6 +55,7 @@ dependencies = [
 dev = [
     "uv",
     "pytest",
+    "pytest-testmon",
     "psutil",
     # added for FreqFed
     "hdbscan",
