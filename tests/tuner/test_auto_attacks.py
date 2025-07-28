@@ -17,7 +17,7 @@ import logging
 import pytest
 
 from sfl import tune
-from tests.fl.ml.nn.sl.attack.test_torch_fia import do_test_sl_and_fia
+from tests.ml.nn.sl.attack.test_torch_fia import do_test_sl_and_fia
 
 
 @pytest.mark.parametrize(

@@ -67,7 +67,7 @@ dataset = {
     },
 }
 
-from secretflow_fl.ic.runner import run
+from sfl.ic.runner import run
 
 run(config=config, dataset=dataset, logging_level='debug')
 
@@ -122,7 +122,7 @@ dataset = {
     },
 }
 
-from secretflow_fl.ic.runner import run
+from sfl.ic.runner import run
 
 run(config=config, dataset=dataset, logging_level='debug')
 ```

@@ -29,8 +29,8 @@ class BaseModule(T.BaseModule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         warnings.warn(
-            """Use of secretflow_fl.ml.nn.utils.BaseModule is deprecated.
-                Please use secretflow_fl.ml.nn.core.torch.BaseModule instead.""",
+            """Use of sfl.ml.nn.utils.BaseModule is deprecated.
+                Please use sfl.ml.nn.core.torch.BaseModule instead.""",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -47,8 +47,8 @@ class TorchModel(T.TorchModel):
     ):
         super().__init__(model_fn, loss_fn, optim_fn, metrics, **kwargs)
         warnings.warn(
-            """Use of secretflow_fl.ml.nn.utils.TorchModel is deprecated.
-                Please use secretflow_fl.ml.nn.core.torch.TorchModel instead.""",
+            """Use of sfl.ml.nn.utils.TorchModel is deprecated.
+                Please use sfl.ml.nn.core.torch.TorchModel instead.""",
             DeprecationWarning,
             stacklevel=2,
         )

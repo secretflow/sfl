@@ -34,7 +34,7 @@ from sfl.preprocessing.encoder_fl import OneHotEncoder
 from sfl.security.aggregation import SparsePlainAggregator
 from sfl.security.privacy import DPStrategyFL, GaussianModelDP
 from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
-from tests.fl.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
+from tests.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
 
 _temp_dir = tempfile.mkdtemp()
 

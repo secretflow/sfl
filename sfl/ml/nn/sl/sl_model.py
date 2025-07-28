@@ -350,7 +350,7 @@ class SLModel:
             batch_size: Number of samples per gradient update.
             epochs: Number of epochs to train the model
             verbose: 0, 1. Verbosity mode
-            callbacks: List of Callback or Dict[device, Callback]. Callback can be secretflow_fl.ml.nn.callbacks:
+            callbacks: List of Callback or Dict[device, Callback]. Callback can be sfl.ml.nn.callbacks:
             validation_data: of Data on which to validate, it could be:
             - A tuple of (test_data, test_label) with the data of type VDataFrame or FedNdarray.
             - A tuple of (test_data, test_label, valid_sample_weight)
@@ -829,7 +829,7 @@ class SLModel:
             verbose: Verbosity mode. 0 = silent, 1 = progress bar.
             dataset_builder: Callable function, its input is `x` or `[x, y]` if y is set, it should return dataset.
             random_seed: Seed for prgs, will only affect shuffle
-            callbacks: List of `secretflow_fl.ml.nn.callbacks.Callback` instances.
+            callbacks: List of `sfl.ml.nn.callbacks.Callback` instances.
         Returns:
             metrics: federate evaluate result
         """
