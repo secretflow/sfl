@@ -190,6 +190,7 @@ jobs:
           command: |
             conda init
             conda install -y -c conda-forge uv
+            uv venv
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
       - persist_to_workspace:
           root: .
@@ -223,6 +224,7 @@ jobs:
           command: |
             conda init
             conda install -y -c conda-forge uv
+            uv venv
             uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
       - run:
           name: "build shared library"
