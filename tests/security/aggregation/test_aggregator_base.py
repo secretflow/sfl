@@ -25,11 +25,11 @@ class AggregatorBase:
         b = env.bob(lambda: np.array([[11.0, 12.0, 13.0], [14, 15.0, 16.0]]))()
 
         # WHEN
-        sum = sf.reveal(aggregator.sum([a, b], axis=0))
+        sum_val = sf.reveal(aggregator.sum([a, b], axis=0))
 
         # THEN
         np.testing.assert_almost_equal(
-            sum, np.array([[12.0, 14.0, 16.0], [18.0, 20.0, 22.0]]), decimal=5
+            sum_val, np.array([[12.0, 14.0, 16.0], [18.0, 20.0, 22.0]]), decimal=5
         )
 
     def test_sum_on_list_should_ok(self, env_and_aggregator):
