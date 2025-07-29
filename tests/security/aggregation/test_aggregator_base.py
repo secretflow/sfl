@@ -49,14 +49,14 @@ class AggregatorBase:
         )()
 
         # WHEN
-        sum = sf.reveal(aggregator.sum([a, b], axis=0))
+        sum_val = sf.reveal(aggregator.sum([a, b], axis=0))
 
         # THEN
         np.testing.assert_almost_equal(
-            sum[0], np.array([[12, 14, 16], [18, 20, 22]]), decimal=5
+            sum_val[0], np.array([[12, 14, 16], [18, 20, 22]]), decimal=5
         )
         np.testing.assert_almost_equal(
-            sum[1], np.array([[52, 54, 56], [58, 60, 62]]), decimal=5
+            sum_val[1], np.array([[52, 54, 56], [58, 60, 62]]), decimal=5
         )
 
     def test_average_on_single_without_weights_should_ok(self, env_and_aggregator):
