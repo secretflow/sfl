@@ -46,11 +46,10 @@ workflows:
           config-path: .circleci/continue-config.yml
           tag: "3.9"
           mapping: |
-            WORKSPACE                     base               true
+            MODULE.bazel                  base               true
+            .bazeliskrc                   base               true
             .bazelrc                      base               true
-            requirements.txt              base               true
-            dev-requirements.txt          base               true
-            circleci/continue-config.yml  base               true
+            pyproject.toml                base               true
             .circleci/continue-config.yml base               true
             sfl/.*                        sfl                true
             libsfl/.*                     libsfl             true
