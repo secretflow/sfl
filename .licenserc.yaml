@@ -47,7 +47,7 @@ header: # <1>
     - "**/*.pyi"
     - "LICENSE"
     - "NOTICE"
-    - ".bazelversion"
+    - ".bazeliskrc"
     - ".clang-format"
     - ".coveragerc"
     - ".gitattributes"
