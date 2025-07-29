@@ -1,0 +1,9 @@
+module(
+    name = "sfl",
+    version = "0.1.0",
+    compatibility_level = 1,
+)
+
+bazel_dep(name = "yacl", version = "0.4.5b10-nightly-20250110")
+bazel_dep(name = "pybind11_bazel", version = "2.13.6")
+bazel_dep(name = "rules_python", version = "1.2.0")
