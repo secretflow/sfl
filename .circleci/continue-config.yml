@@ -89,7 +89,7 @@ commands:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "pyproject.toml" }}
+            - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
           name: "Run tests"
@@ -183,7 +183,7 @@ jobs:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "pyproject.toml" }}
+            - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
           name: build shared library
@@ -206,7 +206,7 @@ jobs:
           paths:
             - artifacts
       - save_cache:
-          key: v1-uv-cache-{{ checksum "pyproject.toml" }}
+          key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
             - "~/.cache/uv"
   macos_build:
@@ -228,7 +228,7 @@ jobs:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "pyproject.toml" }}
+            - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
           name: Install python dependencies
@@ -250,9 +250,9 @@ jobs:
           paths:
             - artifacts
       - save_cache:
-          key: v1-uv-cache-{{ checksum "pyproject.toml" }}
+          key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
-            - "~/.cache/uv" # uv 默认的缓存路径
+            - "~/.cache/uv" # uv default cache path
   linux_prod_basic_test:
     parameters:
       resource_class:
