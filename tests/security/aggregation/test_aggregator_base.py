@@ -107,11 +107,11 @@ class AggregatorBase:
         b = env.bob(lambda: np.array([[11, 12, 13], [14, 15, 16]]))()
 
         # WHEN
-        sum = sf.reveal(aggregator.average([a, b], axis=0, weights=[2, 3]))
+        avg_val = sf.reveal(aggregator.average([a, b], axis=0, weights=[2, 3]))
 
         # THEN
         np.testing.assert_almost_equal(
-            sum, np.array([[7, 8, 9], [10, 11, 12]]), decimal=4
+            avg_val, np.array([[7, 8, 9], [10, 11, 12]]), decimal=4
         )
 
     def test_average_on_list_with_weights_should_ok(self, env_and_aggregator):
