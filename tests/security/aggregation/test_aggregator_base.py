@@ -152,9 +152,9 @@ class AggregatorBase:
         weights = np.array([[[5, 7, 2]], [[5, 3, 8]]])
 
         # WHEN
-        sum = sf.reveal(aggregator.average([a, b], axis=0, weights=weights))
+        avg_val = sf.reveal(aggregator.average([a, b], axis=0, weights=weights))
 
         # THEN
         np.testing.assert_almost_equal(
-            sum, np.average([arr0, arr1], axis=0, weights=weights), decimal=4
+            avg_val, np.average([arr0, arr1], axis=0, weights=weights), decimal=4
         )
