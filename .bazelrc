@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+common --registry=https://raw.githubusercontent.com/secretflow/bazel-registry/main
+common --registry=https://bcr.bazel.build
+common --registry=https://baidu.github.io/babylon/registry
+
 common --experimental_repo_remote_exec
 
 build --incompatible_new_actions_api=false
