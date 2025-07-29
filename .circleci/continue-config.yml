@@ -92,6 +92,12 @@ commands:
             - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
+          name: "Fix testmon cache permissions"
+          command: |
+            if [ -f .testmondata ]; then
+              chmod -R +w .testmondata
+            fi
+      - run:
           name: "Run tests"
           command: |
             set +e
