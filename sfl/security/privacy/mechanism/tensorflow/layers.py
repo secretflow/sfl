@@ -64,7 +64,7 @@ class GaussianEmbeddingDP(BudgetAccountant, tf.keras.layers.Layer):
         embed_clipped = tf.reshape(embed_flat_clipped, inputs.shape)
         # add noise
         if self.is_secure_generator:
-            import sfl.security.privacy._lib.random as random
+            import sfl.security.privacy.random as random
 
             noise = random.secure_normal_real(
                 0, self.noise_multiplier * self.l2_norm_clip, size=inputs.shape

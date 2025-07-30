@@ -81,7 +81,7 @@ class GaussianModelDP:
 
                 # add noise
                 if self.is_secure_generator:
-                    import sfl.security.privacy._lib.random as random
+                    import sfl.security.privacy.random as random
 
                     noise = random.secure_normal_real(
                         0,
@@ -108,7 +108,7 @@ class GaussianModelDP:
 
                 # add noise
                 if self.is_secure_generator:
-                    import sfl.security.privacy._lib.random as random
+                    import sfl.security.privacy.random as random
 
                     noise = random.secure_normal_real(
                         0,
