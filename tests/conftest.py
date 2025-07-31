@@ -224,6 +224,10 @@ def _run_mpc_worker(
     node_params: dict,
     fixtures: list[Callable],
 ):
+    import sfl
+    import sys
+    sys.modules["secretflow_fl"] = sys.modules["sfl"]
+    
     node_params["self_party"] = self_party
     request = node_params
 
