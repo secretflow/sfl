@@ -17,7 +17,7 @@ import pytest
 import statistics
 import numpy as np
 
-from sfl.security.random import (
+from sfl.security.random.distrbutions import (
     UniformReal,
     BernoulliNegExp,
     SecureNormalReal,

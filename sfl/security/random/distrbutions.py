@@ -16,6 +16,7 @@ import math
 import secrets
 import numpy as np
 from typing import Union, Optional, List, Tuple
+import sys
 
 
 class UniformReal:
@@ -33,7 +34,7 @@ class UniformReal:
     def __init__(self, from_: float, to: float):
         if from_ > to:
             raise ValueError("from must be less than or equal to to")
-        if to - from_ > float('inf'):
+        if to - from_ > sys.float_info.max:
             raise ValueError("Range too large")
         self.from_ = from_
         self.to_ = to

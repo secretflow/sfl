@@ -13,12 +13,6 @@
 # limitations under the License.
 
 from .distrbutions import (
-    UniformReal,
-    BernoulliNegExp,
-    SecureNormalReal,
-    NormalDiscrete,
-    SecureLaplaceReal,
-    SecureBinomial,
     uniform_real,
     normal_real,
     discrete_normal,
@@ -28,12 +22,6 @@ from .distrbutions import (
 )
 
 __all__ = [
-    "UniformReal",
-    "BernoulliNegExp",
-    "SecureNormalReal",
-    "NormalDiscrete",
-    "SecureLaplaceReal",
-    "SecureBinomial",
     "uniform_real",
     "normal_real",
     "discrete_normal",
