@@ -69,10 +69,6 @@ dev = [
     "tabulate",
 ]
 
-[[tool.uv.index]]
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true
-
 [project.urls]
 Homepage = "https://github.com/secretflow/sfl"
 Repository = "https://github.com/secretflow/sfl"
@@ -171,5 +167,4 @@ add-ignore = [
     "D412", # No blank lines allowed between a section header and its content
 ]
 
-[tool.uv.pip]
-index-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
