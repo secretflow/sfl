@@ -14,6 +14,8 @@
 
 import math
 import secrets
+import numpy as np
+from typing import Union, Optional, List, Tuple
 
 
 class UniformReal:
@@ -268,32 +270,115 @@ class SecureBinomial:
         return successes
 
 
-# Convenience functions for direct usage
-def uniform_real(from_: float, to: float) -> float:
-    """Generate a random float from uniform distribution [from, to)."""
-    return UniformReal(from_, to)()
+def _generate_array(dist, size: Union[int, Tuple[int, ...], List[int]]) -> np.ndarray:
+    """Generate numpy array with given size."""
+    if isinstance(size, int):
+        size = (size,)
+    elif isinstance(size, list):
+        size = tuple(size)
+    
+    total_elements = int(np.prod(size))
+    samples = [dist() for _ in range(total_elements)]
+    return np.array(samples).reshape(size)
 
 
-def normal_real(mean: float, stdv: float) -> float:
-    """Generate a random float from normal distribution."""
-    return SecureNormalReal(mean, stdv)()
+# Enhanced convenience functions with size parameter
+def uniform_real(from_: float, to: float, size: Optional[Union[int, Tuple[int, ...], List[int]]] = None) -> Union[float, np.ndarray]:
+    """Generate random floats from uniform distribution [from, to).
+    
+    Args:
+        from_: Lower bound of the uniform distribution
+        to: Upper bound of the uniform distribution
+        size: Output shape. If None, returns a single float.
+    
+    Returns:
+        float or numpy.ndarray: Random samples from uniform distribution
+    """
+    dist = UniformReal(from_, to)
+    if size is None:
+        return dist()
+    return _generate_array(dist, size)
 
 
-def discrete_normal(mean: int, stdv: float) -> int:
-    """Generate a random integer from discrete normal distribution."""
-    return NormalDiscrete(mean, stdv)()
+def normal_real(mean: float, stdv: float, size: Optional[Union[int, Tuple[int, ...], List[int]]] = None) -> Union[float, np.ndarray]:
+    """Generate random floats from normal distribution.
+    
+    Args:
+        mean: Mean of the normal distribution
+        stdv: Standard deviation of the normal distribution
+        size: Output shape. If None, returns a single float.
+    
+    Returns:
+        float or numpy.ndarray: Random samples from normal distribution
+    """
+    dist = SecureNormalReal(mean, stdv)
+    if size is None:
+        return dist()
+    return _generate_array(dist, size)
 
 
-def laplace_real(mean: float, stdv: float) -> float:
-    """Generate a random float from Laplace distribution."""
-    return SecureLaplaceReal(mean, stdv)()
+def discrete_normal(mean: int, stdv: float, size: Optional[Union[int, Tuple[int, ...], List[int]]] = None) -> Union[int, np.ndarray]:
+    """Generate random integers from discrete normal distribution.
+    
+    Args:
+        mean: Mean of the discrete normal distribution
+        stdv: Standard deviation of the discrete normal distribution
+        size: Output shape. If None, returns a single int.
+    
+    Returns:
+        int or numpy.ndarray: Random samples from discrete normal distribution
+    """
+    dist = NormalDiscrete(mean, stdv)
+    if size is None:
+        return dist()
+    return _generate_array(dist, size)
 
 
-def bernoulli_neg_exp(gamma: float) -> int:
-    """Generate a sample from Bernoulli(exp(-gamma)) distribution."""
-    return BernoulliNegExp(gamma)()
+def laplace_real(mean: float, stdv: float, size: Optional[Union[int, Tuple[int, ...], List[int]]] = None) -> Union[float, np.ndarray]:
+    """Generate random floats from Laplace distribution.
+    
+    Args:
+        mean: Mean of the Laplace distribution
+        stdv: Scale parameter of the Laplace distribution
+        size: Output shape. If None, returns a single float.
+    
+    Returns:
+        float or numpy.ndarray: Random samples from Laplace distribution
+    """
+    dist = SecureLaplaceReal(mean, stdv)
+    if size is None:
+        return dist()
+    return _generate_array(dist, size)
 
 
-def binomial(n: int, p: float) -> int:
-    """Generate a sample from secure binomial distribution."""
-    return SecureBinomial(n, p)()
+def bernoulli_neg_exp(gamma: float, size: Optional[Union[int, Tuple[int, ...], List[int]]] = None) -> Union[int, np.ndarray]:
+    """Generate samples from Bernoulli(exp(-gamma)) distribution.
+    
+    Args:
+        gamma: Parameter to sample from Bernoulli(exp(-gamma))
+        size: Output shape. If None, returns a single int.
+    
+    Returns:
+        int or numpy.ndarray: Random samples from Bernoulli distribution
+    """
+    dist = BernoulliNegExp(gamma)
+    if size is None:
+        return dist()
+    return _generate_array(dist, size)
+
+
+def binomial(n: int, p: float, size: Optional[Union[int, Tuple[int, ...], List[int]]] = None) -> Union[int, np.ndarray]:
+    """Generate samples from secure binomial distribution.
+    
+    Args:
+        n: Number of trials
+        p: Probability of success
+        size: Output shape. If None, returns a single int.
+    
+    Returns:
+        int or numpy.ndarray: Random samples from binomial distribution
+    """
+    dist = SecureBinomial(n, p)
+    if size is None:
+        return dist()
+    return _generate_array(dist, size)

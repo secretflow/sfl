@@ -15,15 +15,15 @@
 import numpy as np
 import pytest
 from scipy import stats
-from scipy.stats import energy_distance
-import warnings
-from typing import Dict, Tuple, List
+from typing import Dict, Union, Tuple, List, Optional
 
 from sfl.security.random import (
     uniform_real,
     normal_real,
     laplace_real,
     binomial,
+    discrete_normal,
+    bernoulli_neg_exp,
 )
 
 # Test configuration variables
@@ -39,11 +39,6 @@ LAPLACE_MEAN = 0.0
 LAPLACE_SCALE = 1.0
 BINOMIAL_N = 20
 BINOMIAL_P = 0.5
-
-
-def generate_samples(func, n_samples: int) -> np.ndarray:
-    """Generate samples using functional interface."""
-    return np.array([func() for _ in range(n_samples)])
 
 
 def comprehensive_distribution_test(sample1: np.ndarray, sample2: np.ndarray, 
@@ -187,7 +182,7 @@ class TestComprehensiveValidation:
     
     def test_uniform_distribution(self):
         """Test uniform distribution against numpy."""
-        our_samples = generate_samples(lambda: uniform_real(UNIFORM_LOW, UNIFORM_HIGH), SAMPLE_SIZE)
+        our_samples = uniform_real(UNIFORM_LOW, UNIFORM_HIGH, size=SAMPLE_SIZE)
         numpy_samples = np.random.uniform(UNIFORM_LOW, UNIFORM_HIGH, SAMPLE_SIZE)
         
         result = comprehensive_distribution_test(our_samples, numpy_samples, ALPHA)
@@ -197,7 +192,7 @@ class TestComprehensiveValidation:
     
     def test_normal_distribution(self):
         """Test normal distribution against numpy."""
-        our_samples = generate_samples(lambda: normal_real(NORMAL_MEAN, NORMAL_STD), SAMPLE_SIZE)
+        our_samples = normal_real(NORMAL_MEAN, NORMAL_STD, size=SAMPLE_SIZE)
         numpy_samples = np.random.normal(NORMAL_MEAN, NORMAL_STD, SAMPLE_SIZE)
         
         result = comprehensive_distribution_test(our_samples, numpy_samples, ALPHA)
@@ -207,7 +202,7 @@ class TestComprehensiveValidation:
     
     def test_laplace_distribution(self):
         """Test laplace distribution against numpy."""
-        our_samples = generate_samples(lambda: laplace_real(LAPLACE_MEAN, LAPLACE_SCALE), SAMPLE_SIZE)
+        our_samples = laplace_real(LAPLACE_MEAN, LAPLACE_SCALE, size=SAMPLE_SIZE)
         numpy_samples = np.random.laplace(LAPLACE_MEAN, LAPLACE_SCALE, SAMPLE_SIZE)
         
         result = comprehensive_distribution_test(our_samples, numpy_samples, ALPHA)
@@ -217,7 +212,7 @@ class TestComprehensiveValidation:
     
     def test_binomial_distribution(self):
         """Test binomial distribution against numpy."""
-        our_samples = generate_samples(lambda: binomial(BINOMIAL_N, BINOMIAL_P), SAMPLE_SIZE)
+        our_samples = binomial(BINOMIAL_N, BINOMIAL_P, size=SAMPLE_SIZE)
         numpy_samples = np.random.binomial(BINOMIAL_N, BINOMIAL_P, SAMPLE_SIZE)
         
         result = comprehensive_distribution_test(our_samples, numpy_samples, ALPHA)
@@ -225,27 +220,67 @@ class TestComprehensiveValidation:
         assert not result['distributions_are_different'], \
             f"Binomial distributions differ: {result['overall_conclusion']}"
     
-    def test_all_distributions_comprehensive(self):
-        """Comprehensive test for all distributions."""
-        distributions = [
-            ("Uniform", lambda: uniform_real(UNIFORM_LOW, UNIFORM_HIGH), 
-             lambda: np.random.uniform(UNIFORM_LOW, UNIFORM_HIGH, SAMPLE_SIZE)),
-            ("Normal", lambda: normal_real(NORMAL_MEAN, NORMAL_STD), 
-             lambda: np.random.normal(NORMAL_MEAN, NORMAL_STD, SAMPLE_SIZE)),
-            ("Laplace", lambda: laplace_real(LAPLACE_MEAN, LAPLACE_SCALE), 
-             lambda: np.random.laplace(LAPLACE_MEAN, LAPLACE_SCALE, SAMPLE_SIZE)),
-            ("Binomial", lambda: binomial(BINOMIAL_N, BINOMIAL_P), 
-             lambda: np.random.binomial(BINOMIAL_N, BINOMIAL_P, SAMPLE_SIZE)),
-        ]
+    def test_discrete_normal_distribution(self):
+        """Test discrete normal distribution."""
+        our_samples = discrete_normal(0, 2.0, size=SAMPLE_SIZE)
+        numpy_samples = np.round(np.random.normal(0, 2.0, SAMPLE_SIZE)).astype(int)
         
-        for name, our_func, numpy_func in distributions:
-            our_samples = generate_samples(our_func, SAMPLE_SIZE)
-            numpy_samples = numpy_func()
+        result = comprehensive_distribution_test(our_samples, numpy_samples, ALPHA)
+        
+        assert not result['distributions_are_different'], \
+            f"Discrete normal distributions differ: {result['overall_conclusion']}"
+    
+    def test_bernoulli_neg_exp_distribution(self):
+        """Test Bernoulli negative exponential distribution."""
+        our_samples = bernoulli_neg_exp(0.5, size=SAMPLE_SIZE)
+        numpy_samples = np.random.binomial(1, np.exp(-0.5), SAMPLE_SIZE)
+        
+        result = comprehensive_distribution_test(our_samples, numpy_samples, ALPHA)
+        
+        assert not result['distributions_are_different'], \
+            f"Bernoulli neg exp distributions differ: {result['overall_conclusion']}"
+    
+    def test_array_generation_consistency(self):
+        """Test that array generation produces consistent results."""
+        # Test that array generation is equivalent to multiple single calls
+        size = 100
+        
+        # Generate via array
+        arr = uniform_real(0.0, 1.0, size=size)
+        
+        # Generate via multiple calls
+        single_calls = [uniform_real(0.0, 1.0) for _ in range(size)]
+        
+        # Both should have same shape characteristics
+        assert len(arr) == len(single_calls)
+        assert arr.dtype == np.float64
+        assert all(isinstance(x, float) for x in single_calls)
+    
+    def test_array_shapes(self):
+        """Test various array shapes."""
+        shapes = [5, (3, 4), [2, 3, 4]]
+        
+        for shape in shapes:
+            expected_shape = shape if isinstance(shape, tuple) else tuple([shape] if isinstance(shape, int) else shape)
             
-            result = comprehensive_distribution_test(our_samples, numpy_samples, ALPHA)
+            # Test all distributions with different shapes
+            arr = uniform_real(0.0, 1.0, size=shape)
+            assert arr.shape == expected_shape
             
-            assert not result['distributions_are_different'], \
-                f"{name} distributions differ: {result['overall_conclusion']}"
+            arr = normal_real(0.0, 1.0, size=shape)
+            assert arr.shape == expected_shape
+            
+            arr = discrete_normal(0, 1.0, size=shape)
+            assert arr.shape == expected_shape
+            
+            arr = laplace_real(0.0, 1.0, size=shape)
+            assert arr.shape == expected_shape
+            
+            arr = bernoulli_neg_exp(0.5, size=shape)
+            assert arr.shape == expected_shape
+            
+            arr = binomial(10, 0.5, size=shape)
+            assert arr.shape == expected_shape
 
 
 if __name__ == "__main__":
@@ -255,5 +290,3 @@ if __name__ == "__main__":
     print("Running comprehensive distribution validation...")
     test.test_all_distributions_comprehensive()
     print("✅ All distributions passed comprehensive validation!")
-    
-    print("🎉 All comprehensive validation tests passed!")
