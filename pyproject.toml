@@ -67,6 +67,7 @@ dev = [
     "hdbscan",
     "matplotlib",
     "tabulate",
+    "black>=25.1.0",
 ]
 
 [project.urls]

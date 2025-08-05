@@ -192,6 +192,7 @@ def _determine_overall_conclusion(results: Dict, alpha: float):
 
 def retry_test(max_retries=MAX_RETRIES, delay=RETRY_DELAY):
     """Decorator to retry flaky tests with random probability failures."""
+
     def decorator(test_func):
         @wraps(test_func)
         def wrapper(*args, **kwargs):
@@ -202,13 +203,19 @@ def retry_test(max_retries=MAX_RETRIES, delay=RETRY_DELAY):
                 except AssertionError as e:
                     last_exception = e
                     if attempt < max_retries:
-                        print(f"Test {test_func.__name__} failed (attempt {attempt + 1}/{max_retries + 1}), retrying...")
+                        print(
+                            f"Test {test_func.__name__} failed (attempt {attempt + 1}/{max_retries + 1}), retrying..."
+                        )
                         time.sleep(delay)
                     else:
-                        print(f"Test {test_func.__name__} failed after {max_retries + 1} attempts")
+                        print(
+                            f"Test {test_func.__name__} failed after {max_retries + 1} attempts"
+                        )
                         raise
             return None
+
         return wrapper
+
     return decorator
 
 
@@ -339,7 +346,7 @@ if __name__ == "__main__":
     test = TestComprehensiveValidation()
 
     print("Running comprehensive distribution validation...")
-    
+
     # Run all test methods
     test_methods = [
         test.test_uniform_distribution,
@@ -351,12 +358,12 @@ if __name__ == "__main__":
         test.test_array_generation_consistency,
         test.test_array_shapes,
     ]
-    
+
     for test_method in test_methods:
         try:
             test_method()
             print(f"✅ {test_method.__name__} passed")
         except Exception as e:
             print(f"❌ {test_method.__name__} failed: {e}")
-    
+
     print("✅ All distributions passed comprehensive validation!")
