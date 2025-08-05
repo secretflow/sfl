@@ -177,10 +177,6 @@ jobs:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
-      - persist_to_workspace:
-          root: .
-          paths:
-            - artifacts
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
@@ -214,10 +210,6 @@ jobs:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
-      - persist_to_workspace:
-          root: .
-          paths:
-            - artifacts
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
