@@ -1,4 +1,4 @@
-# Copyright 2024 Ant Group Co., Ltd.
+# Copyright 2025 Ant Group Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ from sfl.security.random import (
 )
 
 # Test configuration variables
-SAMPLE_SIZE = 5000
+SAMPLE_SIZE = 50000
 ALPHA = 0.01
 MEAN_TOLERANCE = 0.05
 STD_TOLERANCE = 0.05
