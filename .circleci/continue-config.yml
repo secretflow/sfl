@@ -61,20 +61,20 @@ commands:
         type: string
         default: "sim"
     steps:
-      # - restore_cache:
-      #     name: Restore pytest testmondata
-      #     key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_
+      - restore_cache:
+          name: Restore pytest testmondata
+          key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_{{ .Revision }}
       - restore_cache:
           name: restore uv cache
           keys:
             - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
-      # - run:
-      #     name: "Fix testmon cache permissions"
-      #     command: |
-      #       if [ -f .testmondata ]; then
-      #         chmod -R +w .testmondata
-      #       fi
+      - run:
+          name: "Fix testmon cache permissions"
+          command: |
+            if [ -f .testmondata ]; then
+              chmod -R +w .testmondata
+            fi
       - run:
           name: "Run tests"
           command: |
@@ -93,11 +93,11 @@ commands:
             exit $ret
       - store_test_results:
           path: ./results.xml
-      # - save_cache:
-      #     key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_{{ .Revision }}
-      #     paths:
-      #       - .testmondata
-      #     when: always
+      - save_cache:
+          key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_{{ .Revision }}
+          paths:
+            - .testmondata
+          when: always
   run_prod_basic_test:
     steps:
       - kill_countdown
