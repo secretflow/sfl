@@ -46,9 +46,6 @@ workflows:
           config-path: .circleci/continue-config.yml
           tag: "3.9"
           mapping: |
-            MODULE.bazel                  base               true
-            .bazeliskrc                   base               true
-            .bazelrc                      base               true
             pyproject.toml                base               true
             .circleci/continue-config.yml base               true
             sfl/.*                        sfl                true
