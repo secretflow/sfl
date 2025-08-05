@@ -225,7 +225,7 @@ def _run_mpc_worker(
     fixtures: list[Callable],
 ):
     import sfl
-    
+
     node_params["self_party"] = self_party
     request = node_params
 

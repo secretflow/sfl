@@ -48,25 +48,6 @@ commands:
             bash ~/miniconda.sh -b -p $HOME/miniconda
             source $HOME/miniconda/bin/activate
             conda init zsh bash
-  restore_artifacts_macos:
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: copy library
-          command: |
-            cp artifacts/_lib_macos.so  sfl/security/privacy/
-            mv sfl/security/privacy/_lib_macos.so sfl/security/privacy/_lib.so
-  restore_artifacts_linux:
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: copy library
-          command: |
-            arch=$(uname -i)
-            cp artifacts/_lib_$arch.so  sfl/security/privacy/
-            mv sfl/security/privacy/_lib_$arch.so sfl/security/privacy/_lib.so
   pytest_wrapper:
     parameters:
       target_folder:
@@ -196,10 +177,6 @@ jobs:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
-      - persist_to_workspace:
-          root: .
-          paths:
-            - artifacts
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
@@ -233,10 +210,6 @@ jobs:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
-      - persist_to_workspace:
-          root: .
-          paths:
-            - artifacts
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
@@ -250,7 +223,6 @@ jobs:
       resource_class: << parameters.resource_class >>
     steps:
       - checkout
-      - restore_artifacts_linux
       - run_prod_basic_test
   linux_sim_others_test:
     parameters:
@@ -261,7 +233,6 @@ jobs:
       resource_class: << parameters.resource_class >>
     steps:
       - checkout
-      - restore_artifacts_linux
       - run_sim_others_test
   linux_sim_tune_test:
     parameters:
@@ -272,7 +243,6 @@ jobs:
       resource_class: << parameters.resource_class >>
     steps:
       - checkout
-      - restore_artifacts_linux
       - run_sim_tune_test
   linux_sim_ml_nn_fl_test:
     parameters:
@@ -283,7 +253,6 @@ jobs:
       resource_class: << parameters.resource_class >>
     steps:
       - checkout
-      - restore_artifacts_linux
       - run_sim_ml_nn_fl_test
   linux_sim_ml_nn_sl_basic_test:
     parameters:
@@ -294,7 +263,6 @@ jobs:
       resource_class: << parameters.resource_class >>
     steps:
       - checkout
-      - restore_artifacts_linux
       - run_sim_ml_nn_sl_basic_test
   linux_sim_ml_nn_sl_applications_test:
     parameters:
@@ -305,7 +273,6 @@ jobs:
       resource_class: << parameters.resource_class >>
     steps:
       - checkout
-      - restore_artifacts_linux
       - run_sim_ml_nn_sl_applications_test
   linux_sim_ml_nn_sl_model_test:
     parameters:
@@ -316,59 +283,52 @@ jobs:
       resource_class: << parameters.resource_class >>
     steps:
       - checkout
-      - restore_artifacts_linux
       - run_sim_ml_nn_sl_model_test
   macos_prod_basic_test:
     executor: macos_executor
     steps:
       - checkout
       - macos_pre_setup
-      - restore_artifacts_macos
       - run_prod_basic_test
   macos_sim_others_test:
     executor: macos_executor
     steps:
       - checkout
       - macos_pre_setup
-      - restore_artifacts_macos
       - run_sim_others_test
   macos_sim_tune_test:
     executor: macos_executor
     steps:
       - checkout
       - macos_pre_setup
-      - restore_artifacts_macos
       - run_sim_tune_test
   macos_sim_ml_nn_fl_test:
     executor: macos_executor
     steps:
       - checkout
       - macos_pre_setup
-      - restore_artifacts_macos
       - run_sim_ml_nn_fl_test
   macos_sim_ml_nn_sl_basic_test:
     executor: macos_executor
     steps:
       - checkout
       - macos_pre_setup
-      - restore_artifacts_macos
       - run_sim_ml_nn_sl_basic_test
   macos_sim_ml_nn_sl_applications_test:
     executor: macos_executor
     steps:
       - checkout
       - macos_pre_setup
-      - restore_artifacts_macos
       - run_sim_ml_nn_sl_applications_test
   macos_sim_ml_nn_sl_model_test:
     executor: macos_executor
     steps:
       - checkout
       - macos_pre_setup
-      - restore_artifacts_macos
       - run_sim_ml_nn_sl_model_test
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+# disable macos & arm build and test for resource saving.
 workflows:
   build_and_test:
     jobs:
@@ -376,11 +336,11 @@ workflows:
           name: linux_build-<<matrix.resource_class>>
           matrix:
             parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
+              resource_class: ["2xlarge+"]
       - linux_prod_basic_test:
           matrix:
             parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
+              resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
       - linux_sim_others_test:
@@ -392,52 +352,52 @@ workflows:
       - linux_sim_tune_test:
           matrix:
             parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
+              resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
       - linux_sim_ml_nn_fl_test:
           matrix:
             parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
+              resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
       - linux_sim_ml_nn_sl_basic_test:
           matrix:
             parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
+              resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
       - linux_sim_ml_nn_sl_applications_test:
           matrix:
             parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
+              resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
       - linux_sim_ml_nn_sl_model_test:
           matrix:
             parameters:
-              resource_class: ["2xlarge+", "arm.2xlarge"]
+              resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-      - macos_build
-      - macos_prod_basic_test:
-          requires:
-            - macos_build
-      - macos_sim_others_test:
-          requires:
-            - macos_build
-      - macos_sim_tune_test:
-          requires:
-            - macos_build
-      - macos_sim_ml_nn_fl_test:
-          requires:
-            - macos_build
-      - macos_sim_ml_nn_sl_basic_test:
-          requires:
-            - macos_build
-      - macos_sim_ml_nn_sl_applications_test:
-          requires:
-            - macos_build
-      - macos_sim_ml_nn_sl_model_test:
-          requires:
-            - macos_build
+      # - macos_build
+      # - macos_prod_basic_test:
+      #     requires:
+      #       - macos_build
+      # - macos_sim_others_test:
+      #     requires:
+      #       - macos_build
+      # - macos_sim_tune_test:
+      #     requires:
+      #       - macos_build
+      # - macos_sim_ml_nn_fl_test:
+      #     requires:
+      #       - macos_build
+      # - macos_sim_ml_nn_sl_basic_test:
+      #     requires:
+      #       - macos_build
+      # - macos_sim_ml_nn_sl_applications_test:
+      #     requires:
+      #       - macos_build
+      # - macos_sim_ml_nn_sl_model_test:
+      #     requires:
+      #       - macos_build
