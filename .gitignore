@@ -357,6 +357,10 @@ temp
 #temp files
 spu_*.png
 pphlo_*.png
+alice_*.json
+bob_*.json
+carol_*.json
+davy_*.json
 
 # temp package dir for setup.py
 temp_package/
