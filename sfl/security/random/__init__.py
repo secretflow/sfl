@@ -12,28 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@yacl//bazel:yacl.bzl", "yacl_cc_library", "yacl_cc_test")
-
-package(default_visibility = ["//visibility:public"])
-
-yacl_cc_library(
-    name = "distributions",
-    hdrs = ["distributions.h"],
-    deps = [
-        "@yacl//yacl/base:exception",
-        "@yacl//yacl/crypto/tools:prg",
-    ],
+from .distrbutions import (
+    uniform_real,
+    normal_real,
+    discrete_normal,
+    laplace_real,
+    bernoulli_neg_exp,
+    binomial,
 )
 
-yacl_cc_test(
-    name = "distributions_test",
-    srcs = ["distributions_test.cc"],
-    linkopts = [
-        "-lm",
-        "-ldl",
-    ],
-    deps = [
-        ":distributions",
-        "@yacl//yacl/crypto/tools:prg",
-    ],
-)
+__all__ = [
+    "uniform_real",
+    "normal_real",
+    "discrete_normal",
+    "laplace_real",
+    "bernoulli_neg_exp",
+    "binomial",
+]

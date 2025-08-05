@@ -49,6 +49,9 @@ dependencies = [
     "RestrictedPython==8.0",
     "multiprocess==0.70.18",
     "secretflow-lite==1.13.0b0",
+    "spu>=0.9.4.dev20250618",
+    "matplotlib>=3.10.3",
+    "polars==0.19.3",
 ]
 
 [project.optional-dependencies]
@@ -163,3 +166,5 @@ add-ignore = [
     "D411", # Missing blank line before section
     "D412", # No blank lines allowed between a section header and its content
 ]
+
+

@@ -8,9 +8,6 @@ parameters:
   sfl:
     type: boolean
     default: false
-  libsfl:
-    type: boolean
-    default: false
   tests:
     type: boolean
     default: false
@@ -192,14 +189,6 @@ jobs:
             - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
-          name: build shared library
-          command: |
-            conda init
-            arch=$(uname -i)
-            mkdir -p artifacts
-            bazel build //libsfl/binding/... -c opt
-            mv bazel-bin/libsfl/binding/_lib.so artifacts/_lib_$arch.so
-      - run:
           name: Install python deps
           command: |
             conda init
@@ -244,13 +233,6 @@ jobs:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
-      - run:
-          name: "build shared library"
-          command: |
-            conda init
-            mkdir -p artifacts
-            bazel build //libsfl/binding/... -c opt
-            mv bazel-bin/libsfl/binding/_lib.so artifacts/_lib_macos.so
       - persist_to_workspace:
           root: .
           paths:

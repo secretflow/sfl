@@ -52,7 +52,6 @@ workflows:
             pyproject.toml                base               true
             .circleci/continue-config.yml base               true
             sfl/.*                        sfl                true
-            libsfl/.*                     libsfl             true
             tests/.*                      tests              true
   publish-workflow:
     when:

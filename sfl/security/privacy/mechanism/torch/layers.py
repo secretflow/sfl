@@ -47,9 +47,9 @@ class GaussianEmbeddingDP(nn.Module, BudgetAccountant):
 
         # add noise
         if self.is_secure_generator:
-            import sfl.security.privacy._lib.random as random
+            import sfl.security.privacy.random as random
 
-            noise = random.secure_normal_real(
+            noise = random.normal_real(
                 0, self.noise_multiplier * self.l2_norm_clip, size=input.shape
             )
         else:
