@@ -63,7 +63,7 @@ commands:
     steps:
       - restore_cache:
           name: Restore pytest testmondata
-          key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_{{ .Revision }}
+          key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_ # prefix match the latest cache
       - restore_cache:
           name: restore uv cache
           keys:
