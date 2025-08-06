@@ -73,7 +73,7 @@ commands:
           name: "Fix testmon cache permissions"
           command: |
             if [ -f .testmondata ]; then
-              chmod -R +w .testmondata
+              chmod +w .testmondata
             fi
       - run:
           name: "Run tests"
