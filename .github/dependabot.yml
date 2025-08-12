@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /examples/app/h_cv/dispfl
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /examples/app/v_recommendation/GLORY_split
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /examples/security/v_lia/ExPLoitAttack
+    schedule:
+      interval: daily
