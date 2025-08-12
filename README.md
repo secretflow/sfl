@@ -4,7 +4,7 @@
 
 ---
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/secretflow/secretflow/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/secretflow/secretflow/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/secretflow/sfl/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/secretflow/sfl/tree/main)
 [![GoodFirstIssue](https://img.shields.io/badge/SecretFlow-Good%20First%20Issue-green)](https://github.com/orgs/secretflow/projects/12/)
 [![Contribution Map](https://img.shields.io/badge/SecretFlow-Contribution%20Map-1677FF)](https://github.com/orgs/secretflow/projects/11/)
 
