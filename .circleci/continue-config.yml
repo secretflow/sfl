@@ -344,8 +344,6 @@ workflows:
           requires:
             - linux_build-<<matrix.resource_class>>
           filters:
-            branches:
-              ignore: main
             paths:
               - "sfl/**"
               - "tests/**"
@@ -358,8 +356,6 @@ workflows:
           requires:
             - linux_build-<<matrix.resource_class>>
           filters:
-            branches:
-              ignore: main
             paths:
               - "sfl/**"
               - "tests/**"
@@ -372,8 +368,6 @@ workflows:
           requires:
             - linux_build-<<matrix.resource_class>>
           filters:
-            branches:
-              ignore: main
             paths:
               - "sfl/tune/**"
               - "tests/tuner/**"
@@ -386,8 +380,6 @@ workflows:
           requires:
             - linux_build-<<matrix.resource_class>>
           filters:
-            branches:
-              ignore: main
             paths:
               - "sfl/ml/nn/fl/**"
               - "tests/ml/nn/fl/**"
@@ -400,8 +392,6 @@ workflows:
           requires:
             - linux_build-<<matrix.resource_class>>
           filters:
-            branches:
-              ignore: main
             paths:
               - "sfl/ml/nn/sl/**"
               - "tests/ml/nn/sl/**"
@@ -414,8 +404,6 @@ workflows:
           requires:
             - linux_build-<<matrix.resource_class>>
           filters:
-            branches:
-              ignore: main
             paths:
               - "sfl/ml/nn/sl/applications/**"
               - "tests/ml/nn/sl/applications/**"
@@ -428,8 +416,6 @@ workflows:
           requires:
             - linux_build-<<matrix.resource_class>>
           filters:
-            branches:
-              ignore: main
             paths:
               - "sfl/ml/nn/sl/sl_model/**"
               - "tests/ml/nn/sl/sl_model/**"
