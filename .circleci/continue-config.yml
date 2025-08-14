@@ -343,42 +343,98 @@ workflows:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
+          filters:
+            branches:
+              ignore: main
+            paths:
+              - "sfl/**"
+              - "tests/**"
+              - "pyproject.toml"
+              - "uv.lock"
       - linux_sim_others_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
+          filters:
+            branches:
+              ignore: main
+            paths:
+              - "sfl/**"
+              - "tests/**"
+              - "pyproject.toml"
+              - "uv.lock"
       - linux_sim_tune_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
+          filters:
+            branches:
+              ignore: main
+            paths:
+              - "sfl/tune/**"
+              - "tests/tuner/**"
+              - "pyproject.toml"
+              - "uv.lock"
       - linux_sim_ml_nn_fl_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
+          filters:
+            branches:
+              ignore: main
+            paths:
+              - "sfl/ml/nn/fl/**"
+              - "tests/ml/nn/fl/**"
+              - "pyproject.toml"
+              - "uv.lock"
       - linux_sim_ml_nn_sl_basic_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
+          filters:
+            branches:
+              ignore: main
+            paths:
+              - "sfl/ml/nn/sl/**"
+              - "tests/ml/nn/sl/**"
+              - "pyproject.toml"
+              - "uv.lock"
       - linux_sim_ml_nn_sl_applications_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
+          filters:
+            branches:
+              ignore: main
+            paths:
+              - "sfl/ml/nn/sl/applications/**"
+              - "tests/ml/nn/sl/applications/**"
+              - "pyproject.toml"
+              - "uv.lock"
       - linux_sim_ml_nn_sl_model_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
+          filters:
+            branches:
+              ignore: main
+            paths:
+              - "sfl/ml/nn/sl/sl_model/**"
+              - "tests/ml/nn/sl/sl_model/**"
+              - "pyproject.toml"
+              - "uv.lock"
       # - macos_build
       # - macos_prod_basic_test:
       #     requires:
