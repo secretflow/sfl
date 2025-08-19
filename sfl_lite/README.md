@@ -31,27 +31,35 @@ Build the next-generation federated learning framework that democratizes distrib
 - **Secure by design**: Built-in security features like differential privacy
 - **Audit trail**: Comprehensive tracking of all operations
 
-## Installation
-
-```bash
-# Install from source
-cd sfl_lite
-pip install -e .
-
-# Install with development dependencies
-pip install -e ".[dev]"
-```
-
 ## Quick Start
 
-```python
-import sfl_lite as sfl
+### 1. Create a new uv environment
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Create a federated learning setup with natural language
-config = sfl.configure("Train a ResNet on 100 clients with differential privacy")
+# Create and activate a new environment with Python 3.10
+uv venv sfl-lite-env --python 3.10
+source sfl-lite-env/bin/activate  # On Windows: sfl-lite-env\Scripts\activate
+```
 
-# Start training
-sfl.train(config)
+### 2. Sync all required packages
+```bash
+# Clone the repository
+git clone https://github.com/secretflow/sfl.git
+cd sfl/sfl_lite
+
+# Sync dependencies
+uv sync --active
+```
+
+### 3. Verify installation
+```bash
+# Test the installation
+python -c "import sfl_lite; print('SFL Lite installed successfully!')"
+
+# Run a simple example
+sfl-lite --help
 ```
 
 ## Development
@@ -64,7 +72,5 @@ pip install -e ".[dev]"
 pytest
 
 # Format code
-black sfl_lite/
 ruff check sfl_lite/
 ```
-
