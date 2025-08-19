@@ -35,7 +35,8 @@ class MPAggregator(Aggregator):
         pass
 
     @mplang.function
-    def sum(self, data: Dict[int, MPObject]) -> MPObject:
+    @staticmethod
+    def sum(data: Dict[int, MPObject]) -> MPObject:
         """Sum of array elements over a given axis.
 
         Args:
@@ -53,7 +54,8 @@ class MPAggregator(Aggregator):
         return smpc.srun(_sum,)(sealed_data)
 
     @mplang.function
-    def average(self, data: Dict[int, MPObject]) -> MPObject:
+    @staticmethod
+    def average(data: Dict[int, MPObject]) -> MPObject:
         """Compute the average of array elements over a given axis.
 
         Args:

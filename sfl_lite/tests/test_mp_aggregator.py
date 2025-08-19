@@ -17,7 +17,6 @@ import mplang
 import mplang.simp as simp
 import mplang.smpc as smpc
 import pytest
-from mplang.core.base import MPObject
 
 from sfl_lite.security.aggregation.mp_aggregator import MPAggregator
 
