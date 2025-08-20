@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-import os
-import sys
 from typing import Callable, Dict, List
 
 import numpy as np
@@ -140,7 +138,6 @@ class PGBAAttackCallback(AttackCallback):
                 )
             return None
 
-        batch = self.batch
         epoch = self.epoch
 
         # perform feature replacements.
@@ -161,7 +158,7 @@ class PGBAAttackCallback(AttackCallback):
                 attack_worker.train_x = [result]
                 return True
 
-            result = self._workers[self.attack_party].apply(
+            self._workers[self.attack_party].apply(
                 modify_batch_data, self.batch
             )
 

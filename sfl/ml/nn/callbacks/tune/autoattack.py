@@ -46,9 +46,9 @@ class AutoAttackCallback(Callback):
         metrics = self.attack_callback.get_attack_metrics()
         if len(metrics) == 0:
             raise RuntimeError(
-                f"Auto attack cannot find any attack metrics."
-                f"Maybe you did not put any metrics into attack_history in your attack callbacks."
-                f"Try use AttackCallback.add_history() after got your metrics."
+                "Auto attack cannot find any attack metrics."
+                "Maybe you did not put any metrics into attack_history in your attack callbacks."
+                "Try use AttackCallback.add_history() after got your metrics."
             )
         return metrics
 

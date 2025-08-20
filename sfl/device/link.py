@@ -293,7 +293,7 @@ class Link(ActorWithComm):
         """
         assert isinstance(dst_device, PYU) or (
             isinstance(dst_device, List) and len(dst_device) > 0
-        ), f"dst_device must be PYU or PYU list"
+        ), "dst_device must be PYU or PYU list"
 
         key = self._create_key(
             self._device, dst_device, name, step_id, self._key_prefix
@@ -333,7 +333,7 @@ class Link(ActorWithComm):
         """
         assert isinstance(src_device, PYU) or (
             isinstance(src_device, List) and len(src_device) > 0
-        ), f"dst_device must be PYU or PYU list"
+        ), "dst_device must be PYU or PYU list"
 
         key = self._create_key(
             src_device, self._device, name, step_id, self._key_prefix

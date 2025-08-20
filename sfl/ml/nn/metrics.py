@@ -19,6 +19,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional
 
+import tensorflow as tf
+
 # The reason we just do not inherit or combine tensorflow metrics
 # is tensorflow metrics are un-serializable but we need send they from worker to server.
 
@@ -169,10 +171,10 @@ class AUC(Metric):
 
     def __add__(self, other: "AUC"):
         assert self.name == other.name
-        assert self.curve == other.curve, f"Curves are different!"
+        assert self.curve == other.curve, "Curves are different!"
         assert len(self.thresholds) == len(other.thresholds) and all(
             i == j for i, j in zip(self.thresholds, other.thresholds)
-        ), f"Thresholds are different!"
+        ), "Thresholds are different!"
         true_positives = self.true_positives + other.true_positives
         true_negatives = self.true_negatives + other.true_negatives
         false_positives = self.false_positives + other.false_positives
@@ -189,7 +191,7 @@ class AUC(Metric):
 
     def result(self):
         # 由于tf.keras.metrics.AUC会默认给thresholds添加{-epsilon, 1+epsilon}两个边界值，因此这里需要去掉两个边界点。
-        metric = tf.keras.metrics.AUC(
+        metric = tf.keras.metrics.AUC( 
             thresholds=self.thresholds[1:-1], curve=self.curve
         )
         metric.true_positives = self.true_positives

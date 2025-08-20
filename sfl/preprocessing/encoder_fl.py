@@ -12,24 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, Dict, Union
+
+import numpy as np
+import pandas as pd
 from secretflow.data.horizontal import HDataFrame
 from secretflow.data.mix import MixDataFrame
 from secretflow.data.vertical import VDataFrame
 from secretflow.device import reveal
 from secretflow.preprocessing.base import _PreprocessBase
 from secretflow.preprocessing.encoder import _check_dataframe
-
-
-import numpy as np
-import pandas as pd
 from sklearn.preprocessing import (
     LabelEncoder as SkLabelEncoder,
+)
+from sklearn.preprocessing import (
     OneHotEncoder as SkOneHotEncoder,
 )
 from sklearn.utils.validation import column_or_1d
-
-
-from typing import Any, Dict, Union
 
 
 class LabelEncoder(_PreprocessBase):
@@ -77,7 +76,7 @@ class LabelEncoder(_PreprocessBase):
         self, df: Union[HDataFrame, VDataFrame], inverse: bool = False
     ) -> Union[HDataFrame, VDataFrame]:
         def _df_transform(
-            _df: Union[pd.DataFrame, "pl.DataFrame"],
+            _df: Union[pd.DataFrame, "pl.DataFrame"],  # noqa: F821
             encoder: SkLabelEncoder,
             inverse: bool,
         ):
@@ -269,7 +268,7 @@ class OneHotEncoder(_PreprocessBase):
         if self.min_frequency or self.max_categories:
             assert isinstance(
                 df, VDataFrame
-            ), f"Args min_frequency/max_categories are only supported in VDataFrame"
+            ), "Args min_frequency/max_categories are only supported in VDataFrame"
 
         self._columns = df.columns
         if isinstance(df, (HDataFrame, VDataFrame)):

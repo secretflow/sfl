@@ -326,7 +326,7 @@ class BSTPlusBase(tf.keras.Model):
                 input_dim=item_voc_size[self.target_fea] + 2,
                 output_dim=item_embedding_dims[self.target_fea],
                 mask_zero=True,
-                name=f"target_item_embedding",
+                name="target_item_embedding",
             )
 
             item_emb_dim = item_embedding_dims[self.target_fea]

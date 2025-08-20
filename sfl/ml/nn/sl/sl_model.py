@@ -42,9 +42,9 @@ from sfl.security.privacy import DPStrategy
 class SLModel:
     def __init__(
         self,
-        base_model_dict: Dict[Device, Callable[[], "tensorflow.keras.Model"]] = {},
+        base_model_dict: Dict[Device, Callable[[], "tensorflow.keras.Model"]] = {},  # noqa: F821
         device_y: PYU = None,
-        model_fuse: Callable[[], "tensorflow.keras.Model"] = None,
+        model_fuse: Callable[[], "tensorflow.keras.Model"] = None,  # noqa: F821
         dp_strategy_dict: Dict[Device, DPStrategy] = None,
         random_seed: int = None,
         backend: str = "tensorflow",
@@ -160,7 +160,7 @@ class SLModel:
                 elif isinstance(y, VDataFrame):
                     y_partitions = y.partitions[device].data
                 else:
-                    assert y.device == device, f"label must be located in device_y"
+                    assert y.device == device, "label must be located in device_y"
                     y_partitions = y
 
                 s_w_partitions = (
@@ -376,7 +376,7 @@ class SLModel:
         # sanity check
         assert (
             isinstance(batch_size, int) and batch_size > 0
-        ), f"batch_size should be integer > 0"
+        ), "batch_size should be integer > 0"
         assert isinstance(validation_freq, int) and validation_freq >= 1
         if dp_spent_step_freq is not None:
             assert isinstance(dp_spent_step_freq, int) and dp_spent_step_freq >= 1
@@ -392,8 +392,8 @@ class SLModel:
         train_x, train_y = x, y
         if isinstance(train_x, Dict):
             assert isinstance(train_y, (str, List, Tuple)), (
-                f"When the input x is type of Dict, the data will read from files, "
-                f"and y must be a label name with type str/List[str]/Tuple[str]."
+                "When the input x is type of Dict, the data will read from files, "
+                "and y must be a label name with type str/List[str]/Tuple[str]."
             )
             steps_per_epoch = self.handle_file(
                 train_x,
@@ -423,7 +423,7 @@ class SLModel:
         if validation_data is not None:
             assert isinstance(validation_data, tuple) and (
                 len(validation_data) == 2 or len(validation_data) == 3
-            ), f"validation_data must be tuple type with (test_x, test_y) or (test_x, test_y, valid_sample_weight)."
+            ), "validation_data must be tuple type with (test_x, test_y) or (test_x, test_y, valid_sample_weight)."
             validation = True
             logging.debug("validation_data provided")
             if len(validation_data) == 2:
@@ -433,11 +433,11 @@ class SLModel:
                 valid_x, valid_y, valid_sample_weight = validation_data
             assert (
                 valid_x is not None and valid_y is not None
-            ), f"Neither x nor y in validation data cannot be None."
+            ), "Neither x nor y in validation data cannot be None."
             if isinstance(valid_x, Dict):
                 assert isinstance(valid_y, (str, List, Tuple)), (
-                    f"When the input x is type of Dict, the data will read from files, "
-                    f"and y must be a label name with type str."
+                    "When the input x is type of Dict, the data will read from files, "
+                    "and y must be a label name with type str."
                 )
                 valid_steps = self.handle_file(
                     valid_x,
@@ -722,7 +722,7 @@ class SLModel:
 
         assert (
             isinstance(batch_size, int) and batch_size > 0
-        ), f"batch_size should be integer > 0"
+        ), "batch_size should be integer > 0"
         if isinstance(x, Dict):
             predict_steps = self.handle_file(
                 x,
@@ -836,7 +836,7 @@ class SLModel:
 
         assert (
             isinstance(batch_size, int) and batch_size > 0
-        ), f"batch_size should be integer > 0"
+        ), "batch_size should be integer > 0"
 
         if random_seed is None:
             random_seed = global_random(self.device_y, 100000)
@@ -938,7 +938,7 @@ class SLModel:
             ), f"Should provide a path for device {device}."
             assert not base_model_path[device].endswith(
                 "/"
-            ), f"model path should be 'a/b/c' not 'a/b/c/'"
+            ), "model path should be 'a/b/c' not 'a/b/c/'"
             base_model_dir, base_model_name = base_model_path[device].rsplit("/", 1)
 
             if is_test:
@@ -993,7 +993,7 @@ class SLModel:
             ), f"Should provide a path for device {device}."
             assert not base_model_path[device].endswith(
                 "/"
-            ), f"model path should be 'a/b/c' not 'a/b/c/'"
+            ), "model path should be 'a/b/c' not 'a/b/c/'"
             base_model_dir, base_model_name = base_model_path[device].rsplit("/", 1)
 
             if is_test:
@@ -1050,7 +1050,7 @@ class SLModel:
             ), f"Should provide a path for device {device}."
             assert not base_model_path[device].endswith(
                 "/"
-            ), f"model path should be 'a/b/c' not 'a/b/c/'"
+            ), "model path should be 'a/b/c' not 'a/b/c/'"
             base_model_dir, base_model_name = base_model_path[device].rsplit("/", 1)
 
             if is_test:

@@ -147,7 +147,7 @@ class SLBaseTFModel(SLBaseModel):
         """
         assert (
             x is not None or y is not None
-        ), f"At least one of feature(x) and label(y) is not None."
+        ), "At least one of feature(x) and label(y) is not None."
         data_tuple = []
         has_x = False
         if x is not None:
@@ -219,7 +219,7 @@ class SLBaseTFModel(SLBaseModel):
         """
         assert (
             x is not None or y is not None
-        ), f"At least one of feature(x) and label(y) is not None."
+        ), "At least one of feature(x) and label(y) is not None."
         if not dataset_builder:
             return -1
         data_tuple = []
@@ -251,8 +251,8 @@ class SLBaseTFModel(SLBaseModel):
         steps_per_epoch = -1
         if isinstance(data_set, ListType):
             assert len(data_set) == 2, (
-                f"If a dataset builder return more than 1 value, "
-                f"it must return 2, one is dataset, another is steps_per_epoch"
+                "If a dataset builder return more than 1 value, "
+                "it must return 2, one is dataset, another is steps_per_epoch"
             )
             steps_per_epoch = data_set[1]
             data_set = data_set[0]
@@ -297,7 +297,7 @@ class SLBaseTFModel(SLBaseModel):
                 batch_size = batch_size_inf
         else:
             raise Exception(
-                f"Unable to get batchsize from dataset, please spcify batchsize in 'fit'"
+                "Unable to get batchsize from dataset, please spcify batchsize in 'fit'"
             )
 
         if isinstance(data_set, tf.data.Dataset):

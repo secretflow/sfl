@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import random
 
-import numpy as np
 import torch
 from secretflow import reveal
 
@@ -129,13 +127,13 @@ class CAFEFakeGradients(Callback):
             fake_grad = min_distance_gradient
             g = [torch.zeros_like(param) for param in flattened_grad]
             for i in range(len(flattened_grad)):
-                l = 0
+                idx = 0
                 for k in sorted_indexes[i]:
                     g[i][k] = torch.min(
-                        min_distance_gradient[i][l],
-                        torch.max(flattened_grad[i][k], -min_distance_gradient[i][l]),
+                        min_distance_gradient[i][idx],
+                        torch.max(flattened_grad[i][k], -min_distance_gradient[i][idx]),
                     )
-                    l += 1
+                    idx += 1
             fake_g = [
                 tmp_g.reshape(_shape) for tmp_g, _shape in zip(g, grad_shape_list)
             ]

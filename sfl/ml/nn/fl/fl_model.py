@@ -15,11 +15,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-"""FedModel"""
 import logging
 import math
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import tensorflow
+
+    from sfl.ml.nn.fl.backend.torch.model import TorchModel
+
 from typing import Callable, Dict, List, Tuple, Union
 
 import numpy as np
@@ -41,7 +46,7 @@ class FLModel:
         self,
         server=None,
         device_list: List[PYU] = [],
-        model: Union["TorchModel", Callable[[], "tensorflow.keras.Model"]] = None,
+        model: Union["TorchModel", Callable[[], "tensorflow.keras.Model"]] = None,  # type: ignore
         aggregator=None,
         strategy="fed_avg_w",
         consensus_num=1,
@@ -148,7 +153,7 @@ class FLModel:
                     )
                     self._workers[device].set_weights(weights)
             else:
-                raise Exception(f"aggregator and server_agg_method cannot both be none")
+                raise Exception("aggregator and server_agg_method cannot both be none")
 
         return initial_weight
 
@@ -258,9 +263,9 @@ class FLModel:
             batch_size, (int, dict)
         ), f"Batch size shall be int or dict but got {type(batch_size)}."
         if train_x is not None and train_y is not None:
-            assert type(train_x) == type(
+            assert isinstance(train_x, type(
                 train_y
-            ), "train_x and train_y must be same data type"
+            )), "train_x and train_y must be same data type"
 
         if isinstance(train_x, HDataFrame):
             train_x = train_x.values
@@ -430,7 +435,7 @@ class FLModel:
                 dataset_builder=dataset_builder,
             )
         else:
-            assert type(x) == type(y), "x and y must be same data type"
+            assert isinstance(x, type(y)), "x and y must be same data type"
             if isinstance(x, HDataFrame) and isinstance(y, HDataFrame):
                 train_x, train_y = x.values, y.values
             else:
@@ -738,7 +743,7 @@ class FLModel:
                 dataset_builder=dataset_builder,
             )
         else:
-            assert type(x) == type(y), "x and y must be same data type"
+            assert isinstance(x, type(y)), "x and y must be same data type"
             if isinstance(x, HDataFrame) and isinstance(y, HDataFrame):
                 eval_x, eval_y = x.values, y.values
             else:
@@ -800,7 +805,7 @@ class FLModel:
             assert device in model_path, f"Should provide a path for device {device}."
             assert not model_path[device].endswith(
                 "/"
-            ), f"model path should be 'a/b/c' not 'a/b/c/'"
+            ), "model path should be 'a/b/c' not 'a/b/c/'"
             device_model_path, device_model_name = model_path[device].rsplit("/", 1)
             if is_test:
                 device_model_path = os.path.join(
@@ -864,6 +869,6 @@ class FLModel:
         checks = reveal(res)
         if force_all_participate:
             assert len(set(checks)) == 1, "return of all parties must be same"
-            logging.info(f"load model success")
+            logging.info("load model success")
         else:
-            logging.info(f"load model success")
+            logging.info("load model success")

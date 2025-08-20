@@ -33,3 +33,13 @@ from .search import grid_search
 from .trainable import with_parameters, with_resources
 from .tune_config import TuneConfig
 from .tuner import Tuner
+
+__all__ = [
+    "TuneConfig",
+    "ResultGrid",
+    "grid_search",
+    "with_parameters",
+    "with_resources",
+    "train",
+    "Tuner",
+]

@@ -228,11 +228,11 @@ class BaseModule(ParametersMixin, nn.Module):
         if isinstance(loss, torch.Tensor):
             loss.backward()
         elif isinstance(loss, List):
-            for idx, l in enumerate(loss):
+            for idx, loss_val in enumerate(loss):
                 if idx < len(loss) - 1:
-                    l.backward(retain_graph=True)
+                    loss_val.backward(retain_graph=True)
                 else:
-                    l.backward()
+                    loss_val.backward()
         else:
             raise TypeError(f"unsupported loss type {type(loss)}")
 

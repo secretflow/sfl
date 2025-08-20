@@ -151,10 +151,10 @@ class KBinsDiscretizer(_PreprocessBase):
                 if df.partition_way == PartitionWay.HORIZONTAL:
                     assert (
                         aggregator is not None
-                    ), f"Should privide a aggregator when df is a horizontal partitioned MixDataFrame."
+                    ), "Should privide a aggregator when df is a horizontal partitioned MixDataFrame."
                     assert (
                         comparator is not None
-                    ), f"Should privide a comparator when df is a horizontal partitioned MixDataFrame."
+                    ), "Should privide a comparator when df is a horizontal partitioned MixDataFrame."
                     hdfs = [
                         HDataFrame(aggregator=aggregator, comparator=comparator)
                         for i in range(len(df.partitions[0].partitions))

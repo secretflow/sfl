@@ -148,9 +148,9 @@ class AutoEncoderTrainer:
                 loss.backward()
                 optimizer.step()
 
-                train_acc_p = torch.sum(label_y_hat == label_y) / float(len(label_y))
-                train_acc_n = torch.sum(label_y_dummy != label_y) / float(len(label_y))
-                train_loss = loss.item()
+                torch.sum(label_y_hat == label_y) / float(len(label_y))
+                torch.sum(label_y_dummy != label_y) / float(len(label_y))
+                loss.item()
 
             test_label_y = torch.argmax(test_y, dim=1)
             test_y_hat, test_y_dummy = self.model(test_y)
