@@ -105,7 +105,6 @@ class ConvNet_CIFAR10(BaseModule):
         return x
 
 
-
 class ConvNetBN(BaseModule):
     """Small ConvNet with BN for MNIST."""
 
@@ -317,6 +316,7 @@ def cvae_model():
         return model
 
     return create_model
+
 
 class SimpleCNN(BaseModule):
     def __init__(self, hidden_dims=[120, 84], output_dim=10):

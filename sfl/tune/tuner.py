@@ -256,9 +256,8 @@ class Tuner:
             if isinstance(cluster_resource, List):
                 # https://discuss.ray.io/t/tune-sgd-rllib-distribute-training-across-nodes-with-different-gpus/1522/5
                 def cluster_resources(_):
-                    return PlacementGroupFactory(
-                                    [random.choice(cluster_resource)]
-                                )
+                    return PlacementGroupFactory([random.choice(cluster_resource)])
+
             else:
                 # single gpu type
                 cluster_resources = cluster_resource
@@ -286,12 +285,13 @@ class Tuner:
             # multi choice
             def tune_resources(_):
                 return PlacementGroupFactory(
-                            [
-                                {},
-                                *[random.choice(cr) for cr in cluster_resources],
-                            ],
-                            strategy="PACK",
-                        )
+                    [
+                        {},
+                        *[random.choice(cr) for cr in cluster_resources],
+                    ],
+                    strategy="PACK",
+                )
+
         else:
             # single choice
             tune_resources = tune.PlacementGroupFactory(

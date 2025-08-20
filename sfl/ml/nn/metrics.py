@@ -191,7 +191,7 @@ class AUC(Metric):
 
     def result(self):
         # 由于tf.keras.metrics.AUC会默认给thresholds添加{-epsilon, 1+epsilon}两个边界值，因此这里需要去掉两个边界点。
-        metric = tf.keras.metrics.AUC( 
+        metric = tf.keras.metrics.AUC(
             thresholds=self.thresholds[1:-1], curve=self.curve
         )
         metric.true_positives = self.true_positives

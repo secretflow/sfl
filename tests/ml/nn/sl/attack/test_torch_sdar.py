@@ -35,8 +35,11 @@ from tests.ml.nn.sl.attack.model_def import (
     SimulatorDiscriminator,
 )
 
+
 def INTERMIDIATE_SHAPE(level):
     return (16, 32, 32) if level == 3 else (32, 16, 16) if level < 7 else (64, 8, 8)
+
+
 LEVEL = 4  # depth of split learning
 
 

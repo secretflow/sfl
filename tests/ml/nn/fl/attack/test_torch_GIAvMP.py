@@ -159,6 +159,7 @@ attack_configs = {
     "device": "cpu",
 }
 
+
 @pytest.mark.skip(reason="Test disabled due to large NN model causing resource issues")
 def test_fl_and_GIAvMP(sf_simulation_setup_devices):
     alice = sf_simulation_setup_devices.alice

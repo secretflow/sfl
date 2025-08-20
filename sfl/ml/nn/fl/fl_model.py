@@ -263,9 +263,9 @@ class FLModel:
             batch_size, (int, dict)
         ), f"Batch size shall be int or dict but got {type(batch_size)}."
         if train_x is not None and train_y is not None:
-            assert isinstance(train_x, type(
-                train_y
-            )), "train_x and train_y must be same data type"
+            assert isinstance(
+                train_x, type(train_y)
+            ), "train_x and train_y must be same data type"
 
         if isinstance(train_x, HDataFrame):
             train_x = train_x.values

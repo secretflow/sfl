@@ -219,7 +219,7 @@ class AggLayer(object):
 
     @staticmethod
     def do_decompress(
-        data: Optional[Union[ForwardData, "torch.Tensor", "tf.Tensor"]], # noqa: F821
+        data: Optional[Union[ForwardData, "torch.Tensor", "tf.Tensor"]],  # noqa: F821
         compressor: Compressor,
         backend: str,
         fuse_sparse_masks,

@@ -158,9 +158,7 @@ class PGBAAttackCallback(AttackCallback):
                 attack_worker.train_x = [result]
                 return True
 
-            self._workers[self.attack_party].apply(
-                modify_batch_data, self.batch
-            )
+            self._workers[self.attack_party].apply(modify_batch_data, self.batch)
 
         # insert backdoor samples.
         if epoch >= 2 and self.count >= self.poison_num:

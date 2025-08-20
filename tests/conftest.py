@@ -328,6 +328,7 @@ def _rand_id(count: int = 8) -> str:
     res = "".join(secrets.choice(characters) for _ in range(count))
     return res
 
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_call(item: pytest.Item):
     """
@@ -361,6 +362,7 @@ def pytest_runtest_call(item: pytest.Item):
 
     # Use process ID and timestamp to create more unique test IDs
     import os
+
     unique_suffix = f"{os.getpid()}{int(time.time() * 1000000) % 10000}"
     buildin_params = {
         # "self_party":"", fill in later
@@ -379,7 +381,10 @@ def pytest_runtest_call(item: pytest.Item):
 
     # run mpc test in multiple child processes with limited concurrency
     import os
-    max_parallel_jobs = min(len(parties), int(os.environ.get('SFL_MAX_PARALLEL_JOBS', 4)))
+
+    max_parallel_jobs = min(
+        len(parties), int(os.environ.get("SFL_MAX_PARALLEL_JOBS", 4))
+    )
     with ProcessPoolExecutor(max_workers=max_parallel_jobs) as exec:
         futures = [
             exec.submit(
