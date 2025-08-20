@@ -43,8 +43,8 @@ class SLModel:
     def __init__(
         self,
         base_model_dict: Dict[
-            Device, Callable[[], "tensorflow.keras.Model"] # noqa: F821
-        ] = {},  
+            Device, Callable[[], "tensorflow.keras.Model"]  # noqa: F821
+        ] = {},
         device_y: PYU = None,
         model_fuse: Callable[[], "tensorflow.keras.Model"] = None,  # noqa: F821
         dp_strategy_dict: Dict[Device, DPStrategy] = None,
