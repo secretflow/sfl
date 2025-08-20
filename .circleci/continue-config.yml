@@ -159,9 +159,27 @@ commands:
       - run:
           name: "Fix testmon cache permissions"
           command: |
-            if [ -f .testmondata ]; then
-              chmod +w .testmondata
-            fi
+            # 确保当前目录有写权限
+            chmod +w .
+            # 处理所有可能的testmon数据库文件（包括带前缀的）
+            for testmon_file in .testmondata*; do
+              if [ -f "$testmon_file" ]; then
+                echo "Setting write permission for $testmon_file"
+                chmod +w "$testmon_file"
+                # 检查数据库完整性并清理损坏的文件
+                if ! sqlite3 "$testmon_file" "SELECT 1;" 2>/dev/null; then
+                  echo "Removing corrupted testmon database: $testmon_file"
+                  rm -f "$testmon_file"
+                fi
+              fi
+            done
+            # 处理testmon数据库目录（如果存在）
+            for testmon_dir in .testmondata*.d; do
+              if [ -d "$testmon_dir" ]; then
+                echo "Setting write permission for directory $testmon_dir"
+                chmod -R +w "$testmon_dir"
+              fi
+            done
       - run:
           name: "Run tests"
           command: |
@@ -171,6 +189,13 @@ commands:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            # 再次检查并清理所有可能的损坏testmon数据库
+            for testmon_file in .testmondata*; do
+              if [ -f "$testmon_file" ] && ! sqlite3 "$testmon_file" "SELECT 1;" 2>/dev/null; then
+                echo "Removing corrupted testmon database before running tests: $testmon_file"
+                rm -f "$testmon_file"
+              fi
+            done
             pytest --testmon --env <<parameters.mode>> -n <<parameters.concurrent_num>> --junitxml=results.xml -v -x --capture=no --cov=sfl/  --cov-report=xml:coverage.xml  << parameters.target_folder >>
             ret=$?
             set -e
