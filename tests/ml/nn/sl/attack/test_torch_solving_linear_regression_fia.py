@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import tempfile
 
 import numpy as np
 import pandas as pd
-import secretflow as sf
 import torch
 import torch.nn as nn
 from secretflow.data.split import train_test_split
@@ -26,7 +24,6 @@ from torchmetrics import AUROC
 
 from sfl.ml.nn import SLModel
 from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
-from sfl.ml.nn.sl.agglayer.agg_method import Concat
 from sfl.ml.nn.sl.attacks.solving_linear_regression_fia_torch import (
     SolvingLinearRegressionAttack,
 )

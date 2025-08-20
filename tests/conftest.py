@@ -224,7 +224,6 @@ def _run_mpc_worker(
     node_params: dict,
     fixtures: list[Callable],
 ):
-    import sfl
 
     node_params["self_party"] = self_party
     request = node_params
@@ -256,7 +255,7 @@ def _run_mpc_worker(
     try:
         test_kwargs = _prepare_kwargs(test_func, request)
         test_func(**test_kwargs)
-    except Exception as e:
+    except Exception:
         logging.exception("run mpc test fail.")
         raise
     finally:

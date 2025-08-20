@@ -138,7 +138,7 @@ def do_test_fl_and_GIAvMP(attack_configs: dict, alice, bob):
         callbacks=[GIAvMP_callback],
     )
 
-    return
+    return history
 
 
 # attack configurations

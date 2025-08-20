@@ -42,7 +42,7 @@ def test_grad_lia(sf_simulation_setup_devices):
         }
     )
     vlabel = VDataFrame(
-        partitions={alice: partition(lambda l: l, device=alice, l=label)}
+        partitions={alice: partition(lambda label_df: label_df, device=alice, label_df=label)}
     )
     base_model = TorchModel(
         model_fn=DnnBase,

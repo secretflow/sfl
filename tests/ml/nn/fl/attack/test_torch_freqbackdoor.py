@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import os
 import tempfile
-from ast import main
-from gc import callbacks
 from venv import logger
 
-import numpy as np
-import tensorflow as tf
 
 from examples.security.h_bd.fl_model_freqbd import FLModel_bd
 from examples.security.h_bd.freqbackdoor_fl_torch import BackdoorAttack
@@ -28,15 +23,12 @@ from secretflow.device import reveal
 from secretflow.security.aggregation import PlainAggregator
 from sfl.ml.nn.core.torch import metric_wrapper, optim_wrapper, TorchModel
 from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
-from sfl.preprocessing.encoder_fl import OneHotEncoder
 from sfl.security.aggregation import SparsePlainAggregator
-from sfl.security.privacy import DPStrategyFL, GaussianModelDP
 from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
-from tests.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
+from tests.ml.nn.fl.model_def import SimpleCNN
 from torch import nn, optim
 from torchmetrics import Accuracy, Precision
 
-from tests.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
 
 _temp_dir = tempfile.mkdtemp()
 
