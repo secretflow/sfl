@@ -182,15 +182,49 @@ commands:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
-            # 再次检查并清理所有可能的损坏testmon数据库
-            for testmon_file in .testmondata*; do
-              if [ -f "$testmon_file" ] && ! sqlite3 "$testmon_file" "SELECT 1;" 2>/dev/null; then
-                echo "Removing corrupted testmon database before running tests: $testmon_file"
-                rm -f "$testmon_file"
+
+            # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
+            TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
+            export TESTMON_DATAFILE="$TESTMON_DATAFILE"
+            CACHE_DIR=".ci-cache/testmon"
+            mkdir -p "$CACHE_DIR"
+            # 恢复缓存到 /tmp
+            if [ -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" ]; then
+              cp -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" "$TESTMON_DATAFILE"
+            fi
+            # 确保父目录与文件可写，并清理残留的 wal/shm/journal
+            chmod -R +w "/tmp"
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              chmod +w "$TESTMON_DATAFILE" || true
+              rm -f "${TESTMON_DATAFILE}-wal" "${TESTMON_DATAFILE}-shm" "${TESTMON_DATAFILE}-journal" 2>/dev/null || true
+              # 验证数据库健康，不健康则移除
+              if ! sqlite3 "$TESTMON_DATAFILE" "SELECT 1;" 2>/dev/null; then
+                echo "Removing corrupted testmon database before running tests: $TESTMON_DATAFILE"
+                rm -f "$TESTMON_DATAFILE"
               fi
-            done
-            pytest --testmon --env <<parameters.mode>> -n <<parameters.concurrent_num>> --junitxml=results.xml -v -x --capture=no --cov=sfl/  --cov-report=xml:coverage.xml  << parameters.target_folder >>
+            fi
+
+            # 首次运行或无缓存时，不启用 --testmon 以避免并发初始化写入导致的只读错误
+            PYTEST_TESTMON_ARGS=""
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              PYTEST_TESTMON_ARGS="--testmon --testmondata $TESTMON_DATAFILE"
+            fi
+
+            # 根据是否启用 testmon 决定并发策略，避免并发写 sqlite
+            if [ -n "$PYTEST_TESTMON_ARGS" ]; then
+              XDIST_ARGS="-n 0 --dist no"
+            else
+              XDIST_ARGS="-n <<parameters.concurrent_num>>"
+            fi
+
+            pytest $PYTEST_TESTMON_ARGS $XDIST_ARGS --env <<parameters.mode>> --junitxml=results.xml -v -x --capture=no --cov=sfl/ --cov-report=xml:coverage.xml << parameters.target_folder >>
             ret=$?
+
+            # 将最新的 testmon 数据库持久化到缓存目录
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              cp -f "$TESTMON_DATAFILE" "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite"
+            fi
+
             set -e
             if [ $ret -eq 0 ] || [ $ret -eq 5 ]; then
               exit 0
@@ -201,7 +235,7 @@ commands:
       - save_cache:
           key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_{{ .Revision }}
           paths:
-            - .testmondata
+            - .ci-cache/testmon
           when: always
   run_component_test:
     parameters:
