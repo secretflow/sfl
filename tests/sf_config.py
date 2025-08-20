@@ -54,9 +54,26 @@ def generate_port(start_port: int):
 
 
 def generate_port_by_node_index(node_index: int):
-    node_index = node_index % 200
-    start_port = 61000 + node_index * 20
-    return generate_port(start_port)
+    """Generate ports with better distribution to avoid conflicts in concurrent tests."""
+    import os
+    import time
+    import threading
+    
+    # Use multiple entropy sources for better distribution
+    pid = os.getpid()
+    thread_id = threading.current_thread().ident or 0
+    time_ns = time.time_ns()
+    
+    # Create a unique offset based on multiple factors
+    unique_hash = hash((pid, thread_id, time_ns)) & 0xFFFF
+    
+    # Use a much wider port range (10000-65000) with better distribution
+    base_port = 10000 + (unique_hash % 55000)
+    
+    # Ensure we don't reuse the same starting point too quickly
+    base_port = (base_port + (node_index * 1000)) % 55000 + 10000
+    
+    return generate_port(base_port)
 
 
 ALL_PARTIES = ["alice", "bob", "carol", "davy"]
