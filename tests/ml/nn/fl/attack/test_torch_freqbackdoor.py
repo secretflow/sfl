@@ -76,24 +76,24 @@ def _torch_model_with_cifar10(
         label,
         validation_data=(test_data, test_label),
         epochs=1,
-        batch_size=128,
+        batch_size=32,  # Reduced from 128 to save memory
         aggregate_freq=1,
         dp_spent_step_freq=dp_spent_step_freq,
         callbacks=callbacks,
         attack_party=callbacks[0].attack_party,
         attack_epoch=1,
     )
-    result = fl_model.predict(data, batch_size=128)
+    result = fl_model.predict(data, batch_size=32)  # Reduced from 128
     assert len(reveal(result[device_list[0]])) == 20000
     assert len(reveal(result[device_list[1]])) == 30000
     global_metric, local_metric = fl_model.evaluate(
-        test_data, test_label, batch_size=128, random_seed=1234
+        test_data, test_label, batch_size=32, random_seed=1234  # Reduced from 128
     )
 
     bd_metric, local_metric = fl_model.evaluate_bd(
         test_data,
         test_label,
-        batch_size=128,
+        batch_size=32,  # Reduced from 128
         random_seed=1234,
         attack_party=callbacks[0].attack_party,
         target_label=callbacks[0].target_label,
@@ -132,7 +132,7 @@ def _torch_model_with_cifar10(
     new_fed_model.load_model(model_path=model_path_dict, is_test=False)
     new_fed_model.load_model(model_path=model_path_test, is_test=True)
     reload_metric, _ = new_fed_model.evaluate(
-        test_data, test_label, batch_size=128, random_seed=1234
+        test_data, test_label, batch_size=32, random_seed=1234  # Reduced from 128
     )
 
 
