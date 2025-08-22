@@ -17,10 +17,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from secretflow.device import PYU, reveal
-from sklearn.cluster import SpectralClustering
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import OneHotEncoder
 
 from sfl.ml.nn.callbacks.attack import AttackCallback
 from sfl.ml.nn.sl.backend.torch.sl_base import SLBaseTorchModel

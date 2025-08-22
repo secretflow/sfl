@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import copy
-import logging
 import random
 
 import numpy as np

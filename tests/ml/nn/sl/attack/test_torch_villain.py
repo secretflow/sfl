@@ -16,7 +16,6 @@ import numpy as np
 import pytest
 import torch
 from secretflow.data.ndarray import FedNdarray, PartitionWay
-from secretflow.device import reveal
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import AUROC, Accuracy, Precision

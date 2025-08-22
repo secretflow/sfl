@@ -59,9 +59,9 @@ class ConditionFilter(_PreprocessBase):
             if value_type not in conversion_mapping:
                 raise ValueError(f"value_type {value_type} is not supported")
             if comparator != "IN" and len(bound_value) != 1:
-                raise ValueError(f"bound_value must be a list for IN comparator")
+                raise ValueError("bound_value must be a list for IN comparator")
             if float_epsilon < 0:
-                raise ValueError(f"float_epsilon must be a non-negative number")
+                raise ValueError("float_epsilon must be a non-negative number")
             assert len(bound_value) > 0, "bound value must be non-empty."
         self.field_name = field_name
         self.comparator = comparator

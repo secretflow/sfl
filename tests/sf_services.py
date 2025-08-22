@@ -70,6 +70,7 @@ def minio_server_is_ready(config: dict):
 
 def start_minio_server():
     import os
+    import platform
     import stat
     import subprocess
     import time
@@ -86,12 +87,12 @@ def start_minio_server():
 
     minio_server = os.path.join(minio_path, "minio")
     if not os.path.exists(minio_server) or not os.path.isfile(minio_server):
-        # system = "linux"
-        # arch = "amd64"
-        # if platform.system() == "Darwin":
-        #     system = "darwin"
-        # if platform.machine() == "arm64" or platform.machine() == "aarch64":
-        #     arch = "arm64"
+        system = "linux"
+        arch = "amd64"
+        if platform.system() == "Darwin":
+            system = "darwin"
+        if platform.machine() == "arm64" or platform.machine() == "aarch64":
+            arch = "arm64"
         urllib.request.urlretrieve(
             f"https://dl.min.io/server/minio/release/{system}-{arch}/minio",
             minio_server,
@@ -113,7 +114,7 @@ def start_minio_server():
 
     port = unused_tcp_port()
     if port == 0:
-        raise ValueError(f"no available port for minio.")
+        raise ValueError("no available port for minio.")
 
     set_service_param(SERVICE_KEY_MINIO_PORT, port)
     endpoint = f"127.0.0.1:{port}"

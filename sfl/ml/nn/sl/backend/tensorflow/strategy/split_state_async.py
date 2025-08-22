@@ -51,7 +51,7 @@ class SLStateAsyncTFModel(SLBaseTFModel):
         )
         assert (
             max_fuse_local_steps > 0
-        ), f"state async max_fuse_local_steps should greater than 0"
+        ), "state async max_fuse_local_steps should greater than 0"
         self.loss_thres = loss_thres
         self.split_steps = split_steps
         self.max_fuse_local_steps = max_fuse_local_steps

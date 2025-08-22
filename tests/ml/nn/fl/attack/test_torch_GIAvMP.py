@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
+import pytest
 import torch
 import torch.nn as nn
 from secretflow.security.aggregation import SecureAggregator
@@ -137,7 +138,7 @@ def do_test_fl_and_GIAvMP(attack_configs: dict, alice, bob):
         callbacks=[GIAvMP_callback],
     )
 
-    return
+    return history
 
 
 # attack configurations
@@ -159,6 +160,7 @@ attack_configs = {
 }
 
 
+@pytest.mark.skip(reason="Test disabled due to large NN model causing resource issues")
 def test_fl_and_GIAvMP(sf_simulation_setup_devices):
     alice = sf_simulation_setup_devices.alice
     bob = sf_simulation_setup_devices.bob

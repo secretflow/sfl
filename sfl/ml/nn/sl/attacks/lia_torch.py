@@ -709,7 +709,7 @@ class MaliciousSGD(Optimizer):
             raise ValueError("Nesterov momentum requires a momentum and zero dampening")
         self.first = True
         super(MaliciousSGD, self).__init__(params, defaults)
-        logging.info(f"Use Malicious Optimizer")
+        logging.info("Use Malicious Optimizer")
 
     def __setstate__(self, state):
         super(MaliciousSGD, self).__setstate__(state)

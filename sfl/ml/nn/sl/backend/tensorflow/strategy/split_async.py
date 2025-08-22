@@ -19,7 +19,7 @@
 """Async split learning strategy"""
 
 import copy
-from typing import Callable, List
+from typing import Callable
 
 import tensorflow as tf
 

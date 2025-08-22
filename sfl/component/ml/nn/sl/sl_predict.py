@@ -118,7 +118,7 @@ class SLNNPredict(Component):
 
                 assert (
                     receiver_pyu in pyu_y.partitions
-                ), f"receiver must be the label provider"
+                ), "receiver must be the label provider"
 
                 return pyu_y
 

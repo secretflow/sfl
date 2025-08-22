@@ -11,15 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import logging
 import os
 import tempfile
-from gc import callbacks
 from venv import logger
 
-import numpy as np
 import pytest
-import tensorflow as tf
 from secretflow.device import reveal
 from torch import nn, optim
 from torchmetrics import Accuracy, Precision
@@ -31,12 +28,11 @@ from sfl.security.aggregation import SparsePlainAggregator
 from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
 from tests.ml.nn.fl.attack.backdoor_fl_torch import BackdoorAttack
 from tests.ml.nn.fl.attack.fl_model_bd import FLModel_bd
-from tests.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
+from tests.ml.nn.fl.model_def import SimpleCNN
 
 skip_live = os.getenv("SKIP_LIVE_TESTS", "1") == "1"
 
 _temp_dir = tempfile.mkdtemp()
-import logging
 
 NUM_CLASSES = 10
 INPUT_SHAPE = (32, 32, 3)

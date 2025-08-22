@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import tempfile
 from venv import logger
@@ -31,7 +32,6 @@ from ..attack.fl_model_bd import FLModel_bd
 from ..model_def import SimpleCNN
 
 _temp_dir = tempfile.mkdtemp()
-import logging
 
 NUM_CLASSES = 10
 INPUT_SHAPE = (32, 32, 3)

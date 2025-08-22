@@ -110,7 +110,7 @@ class Transformer(ast.NodeTransformer):
             and len(node.args) > 0
         ):
             raise SyntaxError(
-                f"super with args is not allowed", node.lineno, node.col_offset
+                "super with args is not allowed", node.lineno, node.col_offset
             )
         return self.generic_visit(node)
 

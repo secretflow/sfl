@@ -171,11 +171,6 @@ def do_test_sl_and_lia(config, alice, bob):
     # fake dataset, just for unittest
     train_dataset = CIFARSIMDataset(200)
 
-    # dataloader transformed train_dataset, so we here call dataloader before we get data and label
-    train_loader = torch.utils.data.DataLoader(
-        dataset=train_dataset, batch_size=128, shuffle=False
-    )
-
     model_save_path = lia_path + "/lia_model"
 
     train_data = train_dataset.data.numpy()

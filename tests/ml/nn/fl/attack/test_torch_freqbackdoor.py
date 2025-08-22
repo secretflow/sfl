@@ -12,31 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import os
 import tempfile
-from ast import main
-from gc import callbacks
 from venv import logger
 
-import numpy as np
-import tensorflow as tf
-
-from examples.security.h_bd.fl_model_freqbd import FLModel_bd
-from examples.security.h_bd.freqbackdoor_fl_torch import BackdoorAttack
 from secretflow.device import reveal
 from secretflow.security.aggregation import PlainAggregator
-from sfl.ml.nn.core.torch import metric_wrapper, optim_wrapper, TorchModel
-from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
-from sfl.preprocessing.encoder_fl import OneHotEncoder
-from sfl.security.aggregation import SparsePlainAggregator
-from sfl.security.privacy import DPStrategyFL, GaussianModelDP
-from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
-from tests.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
 from torch import nn, optim
 from torchmetrics import Accuracy, Precision
 
-from tests.ml.nn.fl.model_def import ConvNet_CIFAR10, SimpleCNN
+from examples.security.h_bd.fl_model_freqbd import FLModel_bd
+from examples.security.h_bd.freqbackdoor_fl_torch import BackdoorAttack
+from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
+from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY
+from sfl.security.aggregation import SparsePlainAggregator
+from sfl.utils.simulation.datasets_fl import load_cifar10_horiontal
+from tests.ml.nn.fl.model_def import SimpleCNN
 
 _temp_dir = tempfile.mkdtemp()
 
@@ -84,24 +75,24 @@ def _torch_model_with_cifar10(
         label,
         validation_data=(test_data, test_label),
         epochs=1,
-        batch_size=128,
-        aggregate_freq=1,
+        batch_size=16,  # Reduced from 128 to save memory
+        aggregate_freq=2,  # Increased to reduce memory pressure
         dp_spent_step_freq=dp_spent_step_freq,
         callbacks=callbacks,
         attack_party=callbacks[0].attack_party,
         attack_epoch=1,
     )
-    result = fl_model.predict(data, batch_size=128)
+    result = fl_model.predict(data, batch_size=16)  # Reduced from 128
     assert len(reveal(result[device_list[0]])) == 20000
     assert len(reveal(result[device_list[1]])) == 30000
     global_metric, local_metric = fl_model.evaluate(
-        test_data, test_label, batch_size=128, random_seed=1234
+        test_data, test_label, batch_size=16, random_seed=1234  # Reduced from 128
     )
 
     bd_metric, local_metric = fl_model.evaluate_bd(
         test_data,
         test_label,
-        batch_size=128,
+        batch_size=16,  # Reduced from 128
         random_seed=1234,
         attack_party=callbacks[0].attack_party,
         target_label=callbacks[0].target_label,
@@ -140,7 +131,7 @@ def _torch_model_with_cifar10(
     new_fed_model.load_model(model_path=model_path_dict, is_test=False)
     new_fed_model.load_model(model_path=model_path_test, is_test=True)
     reload_metric, _ = new_fed_model.evaluate(
-        test_data, test_label, batch_size=128, random_seed=1234
+        test_data, test_label, batch_size=16, random_seed=1234
     )
 
 

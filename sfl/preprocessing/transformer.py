@@ -17,12 +17,11 @@ from typing import Any, Callable, Dict, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import FunctionTransformer as SkFunctionTransformer
-
 from secretflow.data.horizontal import HDataFrame
 from secretflow.data.mix import MixDataFrame
 from secretflow.data.vertical import VDataFrame
 from secretflow.preprocessing.base import _PreprocessBase
+from sklearn.preprocessing import FunctionTransformer as SkFunctionTransformer
 
 
 def _check_dataframe(df):
@@ -154,7 +153,7 @@ class LogroundTransformer(_FunctionTransformer):
 
     def __init__(self, decimals: int = 6, bias: float = 0.5):
         def _loground(
-            x: Union[pd.DataFrame, "pl.DataFrame"],
+            x: Union[pd.DataFrame, "pl.DataFrame"],  # noqa: F821
             _decimals: int = 6,
             _bias: float = 0.5,
         ) -> pd.DataFrame:

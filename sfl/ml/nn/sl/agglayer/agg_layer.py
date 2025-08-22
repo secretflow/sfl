@@ -55,7 +55,7 @@ class AggLayer(object):
             device_agg, (PYU, SPU, HEU)
         ), f"Accepts device in [PYU,SPU,HEU]  but got {type(device_agg)}."
         if not agg_method and device_agg != device_y:
-            raise InvalidArgumentError(f"Default mode, device_agg must to be device_y")
+            raise InvalidArgumentError("Default mode, device_agg must to be device_y")
         self.device_agg = device_agg
         self.parties = parties
         self.device_y = device_y
@@ -219,7 +219,7 @@ class AggLayer(object):
 
     @staticmethod
     def do_decompress(
-        data: Optional[Union[ForwardData, "torch.Tensor", "tf.Tensor"]],
+        data: Optional[Union[ForwardData, "torch.Tensor", "tf.Tensor"]],  # noqa: F821
         compressor: Compressor,
         backend: str,
         fuse_sparse_masks,
@@ -266,7 +266,7 @@ class AggLayer(object):
 
     @staticmethod
     def split_to_parties(
-        data: Union[List, "torch.Tensor"], basenet_output_num, parties
+        data: Union[List, "torch.Tensor"], basenet_output_num, parties  # noqa: F821
     ) -> List[PYUObject]:
         assert (
             basenet_output_num is not None

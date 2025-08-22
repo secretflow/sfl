@@ -146,7 +146,7 @@ def do_test_sl_and_sim_lia(alice, bob, config):
     print(history)
 
     pred_bs = 128
-    result = sl_model.predict(fed_data, batch_size=pred_bs, verbose=1)
+    sl_model.predict(fed_data, batch_size=pred_bs, verbose=1)
 
     return sim_lia_callback.get_attack_metrics()
 

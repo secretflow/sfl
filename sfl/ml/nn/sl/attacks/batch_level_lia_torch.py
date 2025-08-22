@@ -146,7 +146,7 @@ class BatchLevelLabelInferenceAttack(AttackCallback):
             worker.attacker.attack_batch_label(real_grad, worker._data_x)
 
         if self.attack:
-            res = self._workers[self.attack_party].apply(lia_attack)
+            self._workers[self.attack_party].apply(lia_attack)
 
     def on_epoch_end(self, epoch=None, logs=None):
         if self.attack:

@@ -15,7 +15,7 @@
 import inspect
 import logging
 import multiprocessing
-import string
+import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Callable
 
@@ -224,7 +224,6 @@ def _run_mpc_worker(
     node_params: dict,
     fixtures: list[Callable],
 ):
-    import sfl
 
     node_params["self_party"] = self_party
     request = node_params
@@ -256,7 +255,7 @@ def _run_mpc_worker(
     try:
         test_kwargs = _prepare_kwargs(test_func, request)
         test_func(**test_kwargs)
-    except Exception as e:
+    except Exception:
         logging.exception("run mpc test fail.")
         raise
     finally:
@@ -320,11 +319,13 @@ def _get_mpc_fixtures(fn: Callable, extras: list[str] = None) -> list[MPCFixture
     return list(fixtures.values())
 
 
-def _rand_id(count: int = 4) -> str:
-    import random
+def _rand_id(count: int = 8) -> str:
+    import secrets
+    import string
 
     characters = string.ascii_lowercase + string.digits
-    res = "".join(random.choice(characters) for _ in range(count))
+    # Use secrets for cryptographically secure random generation
+    res = "".join(secrets.choice(characters) for _ in range(count))
     return res
 
 
@@ -359,11 +360,15 @@ def pytest_runtest_call(item: pytest.Item):
     #     if fix_name != "request":
     #         node_params[fix_name] = item._request.getfixturevalue(fix_name)
 
+    # Use process ID and timestamp to create more unique test IDs
+    import os
+
+    unique_suffix = f"{os.getpid()}{int(time.time() * 1000000) % 10000}"
     buildin_params = {
         # "self_party":"", fill in later
         "parties": parties,
         "nodeid": nodeid,
-        "testid": f"{_rand_id()}{node_index}",
+        "testid": f"{_rand_id()}{node_index}{unique_suffix}",
         "cluster": build_cluster_config(parties, node_index),
     }
     serv_params = get_service_params()
@@ -374,8 +379,13 @@ def pytest_runtest_call(item: pytest.Item):
 
     logging.info(f"start to run test. {nodeid}-{node_index}")
 
-    # run mpc test in multiple child processes
-    with ProcessPoolExecutor(max_workers=len(parties)) as exec:
+    # run mpc test in multiple child processes with limited concurrency
+    import os
+
+    max_parallel_jobs = min(
+        len(parties), int(os.environ.get("SFL_MAX_PARALLEL_JOBS", 4))
+    )
+    with ProcessPoolExecutor(max_workers=max_parallel_jobs) as exec:
         futures = [
             exec.submit(
                 _run_mpc_worker, test_func, nodeid, party, node_params, fixtures
@@ -403,10 +413,20 @@ def pytest_runtest_call(item: pytest.Item):
 
 def prepare_storage_path(party):
     import os
+    import secrets
+    import time
     import uuid
 
-    storage_path = os.path.join(get_storage_root(), party, str(uuid.uuid4()))
-    os.makedirs(storage_path, exist_ok=True)
+    # Add timestamp and process ID to ensure uniqueness
+    unique_id = f"{uuid.uuid4()}_{os.getpid()}_{int(time.time() * 1000000)}"
+    storage_path = os.path.join(get_storage_root(), party, unique_id)
+    try:
+        os.makedirs(storage_path, exist_ok=True)
+    except FileExistsError:
+        # Fallback: add more entropy if directory already exists
+        unique_id = f"{uuid.uuid4()}_{os.getpid()}_{int(time.time() * 1000000)}_{secrets.token_hex(4)}"
+        storage_path = os.path.join(get_storage_root(), party, unique_id)
+        os.makedirs(storage_path, exist_ok=True)
     return storage_path
 
 
@@ -441,7 +461,6 @@ def sf_memory_setup_devices(request):
 @pytest.fixture(scope="function")
 def sf_simulation_setup():
     import multiprocess
-
     import secretflow as sf
     import secretflow.distributed as sfd
     from secretflow.distributed.const import DISTRIBUTION_MODE

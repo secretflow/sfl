@@ -387,7 +387,7 @@ class FeatureInferenceAttacker:
             else:
                 assert batch_num == len(
                     test_loaders[key]
-                ), f"length of all dataloaders should be same"
+                ), "length of all dataloaders should be same"
 
             if key == self.attack_party:
                 attacker_data_loader = iter(test_loaders[key])
