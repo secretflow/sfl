@@ -5,10 +5,97 @@ parameters:
   base:
     type: boolean
     default: false
-  sfl:
+  sfl_component:
     type: boolean
     default: false
-  tests:
+  sfl_device:
+    type: boolean
+    default: false
+  sfl_distributed:
+    type: boolean
+    default: false
+  sfl_ml_boost:
+    type: boolean
+    default: false
+  sfl_ml_nn_fl:
+    type: boolean
+    default: false
+  sfl_ml_nn_sl:
+    type: boolean
+    default: false
+  sfl_ml_nn:
+    type: boolean
+    default: false
+  sfl_ml:
+    type: boolean
+    default: false
+  sfl_preprocessing:
+    type: boolean
+    default: false
+  sfl_security_agg:
+    type: boolean
+    default: false
+  sfl_security_priv:
+    type: boolean
+    default: false
+  sfl_security_rand:
+    type: boolean
+    default: false
+  sfl_security:
+    type: boolean
+    default: false
+  sfl_tune:
+    type: boolean
+    default: false
+  sfl_utils:
+    type: boolean
+    default: false
+  sfl_any:
+    type: boolean
+    default: false
+  test_component:
+    type: boolean
+    default: false
+  test_device:
+    type: boolean
+    default: false
+  test_ml_boost:
+    type: boolean
+    default: false
+  test_ml_nn_fl:
+    type: boolean
+    default: false
+  test_ml_nn_sl:
+    type: boolean
+    default: false
+  test_ml_nn:
+    type: boolean
+    default: false
+  test_ml:
+    type: boolean
+    default: false
+  test_preprocessing:
+    type: boolean
+    default: false
+  test_security_agg:
+    type: boolean
+    default: false
+  test_security_priv:
+    type: boolean
+    default: false
+  test_security_rand:
+    type: boolean
+    default: false
+  test_security:
+    type: boolean
+    default: false
+  test_tuner:
+    type: boolean
+    default: false
+  test_utils:
+    type: boolean
+    default: false
+  test_any:
     type: boolean
     default: false
 
@@ -72,9 +159,20 @@ commands:
       - run:
           name: "Fix testmon cache permissions"
           command: |
-            if [ -f .testmondata ]; then
-              chmod +w .testmondata
-            fi
+            # 确保整个项目目录有写权限
+            chmod -R +w .
+            # 处理所有可能的testmon数据库文件（包括带前缀的）
+            for testmon_file in .*testmondata*; do
+              if [ -f "$testmon_file" ]; then
+                echo "Verifying testmon database: $testmon_file"
+                # 检查数据库完整性并清理损坏的文件
+                if ! sqlite3 "$testmon_file" "SELECT 1;" 2>/dev/null; then
+                  echo "Removing corrupted testmon database: $testmon_file"
+                  rm -f "$testmon_file"
+                fi
+              fi
+            done
+            
       - run:
           name: "Run tests"
           command: |
@@ -84,8 +182,49 @@ commands:
             uv venv
             source .venv/bin/activate
             uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
-            pytest --testmon --env <<parameters.mode>> -n <<parameters.concurrent_num>> --junitxml=results.xml -v -x --capture=no --cov=sfl/  --cov-report=xml:coverage.xml  << parameters.target_folder >>
+
+            # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
+            TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
+            export TESTMON_DATAFILE="$TESTMON_DATAFILE"
+            CACHE_DIR=".ci-cache/testmon"
+            mkdir -p "$CACHE_DIR"
+            # 恢复缓存到 /tmp
+            if [ -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" ]; then
+              cp -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" "$TESTMON_DATAFILE"
+            fi
+            # 确保父目录与文件可写，并清理残留的 wal/shm/journal
+            chmod -R +w "/tmp"
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              chmod +w "$TESTMON_DATAFILE" || true
+              rm -f "${TESTMON_DATAFILE}-wal" "${TESTMON_DATAFILE}-shm" "${TESTMON_DATAFILE}-journal" 2>/dev/null || true
+              # 验证数据库健康，不健康则移除
+              if ! sqlite3 "$TESTMON_DATAFILE" "SELECT 1;" 2>/dev/null; then
+                echo "Removing corrupted testmon database before running tests: $TESTMON_DATAFILE"
+                rm -f "$TESTMON_DATAFILE"
+              fi
+            fi
+
+            # 首次运行或无缓存时，不启用 --testmon 以避免并发初始化写入导致的只读错误
+            PYTEST_TESTMON_ARGS=""
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              PYTEST_TESTMON_ARGS="--testmon --testmondata $TESTMON_DATAFILE"
+            fi
+
+            # 根据是否启用 testmon 决定并发策略，避免并发写 sqlite
+            if [ -n "$PYTEST_TESTMON_ARGS" ]; then
+              XDIST_ARGS="-n 0 --dist no"
+            else
+              XDIST_ARGS="-n <<parameters.concurrent_num>>"
+            fi
+
+            pytest $PYTEST_TESTMON_ARGS $XDIST_ARGS --env <<parameters.mode>> --junitxml=results.xml -v -x --capture=no --cov=sfl/ --cov-report=xml:coverage.xml << parameters.target_folder >>
             ret=$?
+
+            # 将最新的 testmon 数据库持久化到缓存目录
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              cp -f "$TESTMON_DATAFILE" "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite"
+            fi
+
             set -e
             if [ $ret -eq 0 ] || [ $ret -eq 5 ]; then
               exit 0
@@ -96,8 +235,208 @@ commands:
       - save_cache:
           key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_{{ .Revision }}
           paths:
-            - .testmondata
+            - .ci-cache/testmon
           when: always
+  run_component_test:
+    parameters:
+      target_folder:
+        type: string
+      testmon_prefix:
+        type: string
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_component >>
+              - << pipeline.parameters.test_component >>
+          steps:
+            - pytest_wrapper:
+                target_folder: <<parameters.target_folder>>
+                testmon_prefix: <<parameters.testmon_prefix>>
+  run_device_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_device >>
+              - << pipeline.parameters.test_device >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/device/
+                testmon_prefix: device
+  run_distributed_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_distributed >>
+              - << pipeline.parameters.test_device >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/distributed/
+                testmon_prefix: distributed
+  run_ml_boost_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_ml_boost >>
+              - << pipeline.parameters.test_ml_boost >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/ml/boost/
+                testmon_prefix: ml_boost
+  run_ml_nn_fl_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_ml_nn_fl >>
+              - << pipeline.parameters.test_ml_nn_fl >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/ml/nn/fl/
+                testmon_prefix: ml_nn_fl
+  run_ml_nn_sl_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_ml_nn_sl >>
+              - << pipeline.parameters.test_ml_nn_sl >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/ml/nn/sl/
+                testmon_prefix: ml_nn_sl
+  run_ml_nn_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_ml_nn >>
+              - << pipeline.parameters.test_ml_nn >>
+          steps:
+            - pytest_wrapper:
+                target_folder: --ignore=tests/ml/nn/fl/ --ignore=tests/ml/nn/sl/ tests/ml/nn/
+                testmon_prefix: ml_nn
+  run_ml_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_ml >>
+              - << pipeline.parameters.test_ml >>
+          steps:
+            - pytest_wrapper:
+                target_folder: --ignore=tests/ml/nn/ --ignore=tests/ml/boost/ tests/ml/
+                testmon_prefix: ml
+  run_preprocessing_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_preprocessing >>
+              - << pipeline.parameters.test_preprocessing >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/preprocessing/
+                testmon_prefix: preprocessing
+  run_security_agg_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_security_agg >>
+              - << pipeline.parameters.test_security_agg >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/security/aggregation/
+                testmon_prefix: security_agg
+  run_security_priv_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_security_priv >>
+              - << pipeline.parameters.test_security_priv >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/security/privacy/
+                testmon_prefix: security_priv
+  run_security_rand_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_security_rand >>
+              - << pipeline.parameters.test_security_rand >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/security/random/
+                testmon_prefix: security_rand
+  run_security_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_security >>
+              - << pipeline.parameters.test_security >>
+          steps:
+            - pytest_wrapper:
+                target_folder: --ignore=tests/security/aggregation/ --ignore=tests/security/privacy/ --ignore=tests/security/random/ tests/security/
+                testmon_prefix: security
+  run_tuner_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_tune >>
+              - << pipeline.parameters.test_tuner >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/tuner/
+                testmon_prefix: tuner
+  run_utils_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_utils >>
+              - << pipeline.parameters.test_utils >>
+          steps:
+            - pytest_wrapper:
+                target_folder: tests/utils/
+                testmon_prefix: utils
   run_prod_basic_test:
     steps:
       - kill_countdown
@@ -110,50 +449,11 @@ commands:
     steps:
       - kill_countdown
       - pytest_wrapper:
-          target_folder: --ignore=tests/ml/nn tests
+          target_folder: --ignore=tests/component/ --ignore=tests/device/ --ignore=tests/distributed/ --ignore=tests/ml/ --ignore=tests/preprocessing/ --ignore=tests/security/ --ignore=tests/tuner/ --ignore=tests/utils/ tests
           testmon_prefix: sim_others
           mode: "sim"
           concurrent_num: "2"
-  run_sim_tune_test:
-    steps:
-      - kill_countdown
-      - pytest_wrapper:
-          target_folder: tests/tuner
-          testmon_prefix: sim_tune
-          mode: "sim"
-          concurrent_num: "4"
-  run_sim_ml_nn_fl_test:
-    steps:
-      - kill_countdown
-      - pytest_wrapper:
-          target_folder: tests/ml/nn/fl/
-          testmon_prefix: sim_ml_nn_fl
-          mode: "sim"
-          concurrent_num: "1"
-  run_sim_ml_nn_sl_basic_test:
-    steps:
-      - kill_countdown
-      - pytest_wrapper:
-          target_folder: --ignore=tests/ml/nn/sl/extra/ tests/ml/nn/sl/
-          testmon_prefix: sim_ml_nn_sl_basic
-          mode: "sim"
-          concurrent_num: "2"
-  run_sim_ml_nn_sl_applications_test:
-    steps:
-      - kill_countdown
-      - pytest_wrapper:
-          target_folder: tests/ml/nn/sl/applications/
-          testmon_prefix: sim_ml_nn_sl_applications
-          mode: "sim"
-          concurrent_num: "1"
-  run_sim_ml_nn_sl_model_test:
-    steps:
-      - kill_countdown
-      - pytest_wrapper:
-          target_folder: tests/ml/nn/sl/sl_model/
-          testmon_prefix: sim_ml_nn_sl_model
-          mode: "sim"
-          concurrent_num: "2"
+
 jobs:
   linux_build:
     parameters:
@@ -214,6 +514,158 @@ jobs:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
             - "~/.cache/uv" # uv default cache path
+  linux_component_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_component_test:
+          target_folder: tests/component/
+          testmon_prefix: component
+  linux_device_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_device_test
+  linux_distributed_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_distributed_test
+  linux_ml_boost_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_ml_boost_test
+  linux_ml_nn_fl_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_ml_nn_fl_test
+  linux_ml_nn_sl_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_ml_nn_sl_test
+  linux_ml_nn_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_ml_nn_test
+  linux_ml_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_ml_test
+  linux_preprocessing_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_preprocessing_test
+  linux_security_agg_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_security_agg_test
+  linux_security_priv_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_security_priv_test
+  linux_security_rand_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_security_rand_test
+  linux_security_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_security_test
+  linux_tuner_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_tuner_test
+  linux_utils_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_utils_test
   linux_prod_basic_test:
     parameters:
       resource_class:
@@ -234,56 +686,98 @@ jobs:
     steps:
       - checkout
       - run_sim_others_test
-  linux_sim_tune_test:
-    parameters:
-      resource_class:
-        type: string
-    executor:
-      name: linux_executor
-      resource_class: << parameters.resource_class >>
+  macos_component_test:
+    executor: macos_executor
     steps:
       - checkout
-      - run_sim_tune_test
-  linux_sim_ml_nn_fl_test:
-    parameters:
-      resource_class:
-        type: string
-    executor:
-      name: linux_executor
-      resource_class: << parameters.resource_class >>
+      - macos_pre_setup
+      - run_component_test:
+          target_folder: tests/component/
+          testmon_prefix: component
+  macos_device_test:
+    executor: macos_executor
     steps:
       - checkout
-      - run_sim_ml_nn_fl_test
-  linux_sim_ml_nn_sl_basic_test:
-    parameters:
-      resource_class:
-        type: string
-    executor:
-      name: linux_executor
-      resource_class: << parameters.resource_class >>
+      - macos_pre_setup
+      - run_device_test
+  macos_distributed_test:
+    executor: macos_executor
     steps:
       - checkout
-      - run_sim_ml_nn_sl_basic_test
-  linux_sim_ml_nn_sl_applications_test:
-    parameters:
-      resource_class:
-        type: string
-    executor:
-      name: linux_executor
-      resource_class: << parameters.resource_class >>
+      - macos_pre_setup
+      - run_distributed_test
+  macos_ml_boost_test:
+    executor: macos_executor
     steps:
       - checkout
-      - run_sim_ml_nn_sl_applications_test
-  linux_sim_ml_nn_sl_model_test:
-    parameters:
-      resource_class:
-        type: string
-    executor:
-      name: linux_executor
-      resource_class: << parameters.resource_class >>
+      - macos_pre_setup
+      - run_ml_boost_test
+  macos_ml_nn_fl_test:
+    executor: macos_executor
     steps:
       - checkout
-      - run_sim_ml_nn_sl_model_test
+      - macos_pre_setup
+      - run_ml_nn_fl_test
+  macos_ml_nn_sl_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_ml_nn_sl_test
+  macos_ml_nn_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_ml_nn_test
+  macos_ml_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_ml_test
+  macos_preprocessing_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_preprocessing_test
+  macos_security_agg_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_security_agg_test
+  macos_security_priv_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_security_priv_test
+  macos_security_rand_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_security_rand_test
+  macos_security_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_security_test
+  macos_tuner_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_tuner_test
+  macos_utils_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_utils_test
   macos_prod_basic_test:
     executor: macos_executor
     steps:
@@ -296,39 +790,9 @@ jobs:
       - checkout
       - macos_pre_setup
       - run_sim_others_test
-  macos_sim_tune_test:
-    executor: macos_executor
-    steps:
-      - checkout
-      - macos_pre_setup
-      - run_sim_tune_test
-  macos_sim_ml_nn_fl_test:
-    executor: macos_executor
-    steps:
-      - checkout
-      - macos_pre_setup
-      - run_sim_ml_nn_fl_test
-  macos_sim_ml_nn_sl_basic_test:
-    executor: macos_executor
-    steps:
-      - checkout
-      - macos_pre_setup
-      - run_sim_ml_nn_sl_basic_test
-  macos_sim_ml_nn_sl_applications_test:
-    executor: macos_executor
-    steps:
-      - checkout
-      - macos_pre_setup
-      - run_sim_ml_nn_sl_applications_test
-  macos_sim_ml_nn_sl_model_test:
-    executor: macos_executor
-    steps:
-      - checkout
-      - macos_pre_setup
-      - run_sim_ml_nn_sl_model_test
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
-# disable macos & arm build and test for resource saving.
 workflows:
   build_and_test:
     jobs:
@@ -337,6 +801,96 @@ workflows:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
+      - linux_component_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_device_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_distributed_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_ml_boost_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_ml_nn_fl_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_ml_nn_sl_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_ml_nn_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_ml_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_preprocessing_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_security_agg_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_security_priv_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_security_rand_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_security_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_tuner_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      - linux_utils_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
       - linux_prod_basic_test:
           matrix:
             parameters:
@@ -349,55 +903,55 @@ workflows:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-      - linux_sim_tune_test:
-          matrix:
-            parameters:
-              resource_class: ["2xlarge+"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
-      - linux_sim_ml_nn_fl_test:
-          matrix:
-            parameters:
-              resource_class: ["2xlarge+"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
-      - linux_sim_ml_nn_sl_basic_test:
-          matrix:
-            parameters:
-              resource_class: ["2xlarge+"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
-      - linux_sim_ml_nn_sl_applications_test:
-          matrix:
-            parameters:
-              resource_class: ["2xlarge+"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
-      - linux_sim_ml_nn_sl_model_test:
-          matrix:
-            parameters:
-              resource_class: ["2xlarge+"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
       # - macos_build
+      # - macos_component_test:
+      #     requires:
+      #       - macos_build
+      # - macos_device_test:
+      #     requires:
+      #       - macos_build
+      # - macos_distributed_test:
+      #     requires:
+      #       - macos_build
+      # - macos_ml_boost_test:
+      #     requires:
+      #       - macos_build
+      # - macos_ml_nn_fl_test:
+      #     requires:
+      #       - macos_build
+      # - macos_ml_nn_sl_test:
+      #     requires:
+      #       - macos_build
+      # - macos_ml_nn_test:
+      #     requires:
+      #       - macos_build
+      # - macos_ml_test:
+      #     requires:
+      #       - macos_build
+      # - macos_preprocessing_test:
+      #     requires:
+      #       - macos_build
+      # - macos_security_agg_test:
+      #     requires:
+      #       - macos_build
+      # - macos_security_priv_test:
+      #     requires:
+      #       - macos_build
+      # - macos_security_rand_test:
+      #     requires:
+      #       - macos_build
+      # - macos_security_test:
+      #     requires:
+      #       - macos_build
+      # - macos_tuner_test:
+      #     requires:
+      #       - macos_build
+      # - macos_utils_test:
+      #     requires:
+      #       - macos_build
       # - macos_prod_basic_test:
       #     requires:
       #       - macos_build
       # - macos_sim_others_test:
-      #     requires:
-      #       - macos_build
-      # - macos_sim_tune_test:
-      #     requires:
-      #       - macos_build
-      # - macos_sim_ml_nn_fl_test:
-      #     requires:
-      #       - macos_build
-      # - macos_sim_ml_nn_sl_basic_test:
-      #     requires:
-      #       - macos_build
-      # - macos_sim_ml_nn_sl_applications_test:
-      #     requires:
-      #       - macos_build
-      # - macos_sim_ml_nn_sl_model_test:
       #     requires:
       #       - macos_build

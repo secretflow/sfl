@@ -110,7 +110,6 @@ class TestFedGen:
         loss_fn = nn.CrossEntropyLoss
         optim_fn = optim_wrapper(optim.Adam, lr=1e-2)
         kl_div_loss = nn.KLDivLoss(reduction="batchmean")
-        diversity_loss = DiversityLoss(metric="l1")
 
         # Build the model
         builder = TorchModel(

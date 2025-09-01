@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import secretflow as sf
 import torch.optim as optim
 from torch import nn
 from torchmetrics import Accuracy, Precision
@@ -118,7 +117,7 @@ def do_test_fedsmp(configs: dict, alice, bob, carol):
         dp_spent_step_freq=1,
     )
 
-    return
+    return history
 
 
 # configurations

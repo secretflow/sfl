@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import tempfile
 
 import numpy as np
 import torch
@@ -142,9 +141,6 @@ def data_builder(target_data, aux_data, batch_size, train_size):
 
 def do_test_sl_and_fsha(config: dict, alice, bob):
     device_y = alice
-
-    tmp_dir = tempfile.TemporaryDirectory()
-    fsha_path = tmp_dir.name
 
     # example data: 2 * 48
     a = [
@@ -341,10 +337,6 @@ def do_test_sl_and_fsha(config: dict, alice, bob):
     )
 
     batch_size = 64
-    victim_model_save_path = fsha_path + "/sl_model_victim"
-    victim_model_dict = {
-        "bob": [BobSLBaseNet, victim_model_save_path],
-    }
     pilot_optim_fn = optim_wrapper(optim.Adam, lr=0.0001)
     pilot_model = TorchModel(
         model_fn=Pilot,

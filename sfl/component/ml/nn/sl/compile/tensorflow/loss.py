@@ -60,7 +60,7 @@ def compile_loss(builtin: str = None, custom_code: str = None, loss_path: Path =
     if builtin:
         return builtin
 
-    assert custom_code, f"Loss function can not be empty."
+    assert custom_code, "Loss function can not be empty."
 
     compile = build_apis(loss_path)
 

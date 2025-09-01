@@ -17,17 +17,15 @@ This file references code of paper SDAR: Passive Inference Attacks on Split Lear
 """
 
 import logging
-from itertools import chain
 from typing import Callable, Dict, List
 
 import torch
 import torch.nn.functional as F
 from secretflow import reveal
-from secretflow.device import PYU, reveal, wait
-from torchmetrics import Accuracy, Precision
+from secretflow.device import PYU
 
 from sfl.ml.nn.callbacks.attack import AttackCallback
-from sfl.ml.nn.core.torch import BuilderType, module
+from sfl.ml.nn.core.torch import module
 from sfl.ml.nn.sl.backend.torch.sl_base import SLBaseTorchModel
 from sfl.ml.nn.utils import TorchModel
 

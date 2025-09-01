@@ -255,9 +255,9 @@ class Tuner:
             cluster_resource = cluster_resources[0]
             if isinstance(cluster_resource, List):
                 # https://discuss.ray.io/t/tune-sgd-rllib-distribute-training-across-nodes-with-different-gpus/1522/5
-                cluster_resources = lambda _: PlacementGroupFactory(
-                    [random.choice(cluster_resource)]
-                )
+                def cluster_resources(_):
+                    return PlacementGroupFactory([random.choice(cluster_resource)])
+
             else:
                 # single gpu type
                 cluster_resources = cluster_resource
@@ -283,13 +283,15 @@ class Tuner:
         self._check_resources_input(cluster_resources, avaliable_resources)
         if any([isinstance(cr, List) for cr in cluster_resources]):
             # multi choice
-            tune_resources = lambda _: PlacementGroupFactory(
-                [
-                    {},
-                    *[random.choice(cr) for cr in cluster_resources],
-                ],
-                strategy="PACK",
-            )
+            def tune_resources(_):
+                return PlacementGroupFactory(
+                    [
+                        {},
+                        *[random.choice(cr) for cr in cluster_resources],
+                    ],
+                    strategy="PACK",
+                )
+
         else:
             # single choice
             tune_resources = tune.PlacementGroupFactory(
@@ -305,12 +307,12 @@ class Tuner:
         self, avaliable_resources, is_debug=False
     ) -> List[Dict[str, float]]:
         logging.warning(
-            f"Tuner() got arguments cluster_resources=None. "
-            f"The Tuner will defaultly use as many as cluster resources in each experiment."
-            f"That means each experiments of tune will try to occupy all the machine's resources and "
-            f"experiments can only be executed serial."
-            f"To achieve better tuning performance, please refer to the cluster_resources arguments "
-            f"and control the resources by yourself."
+            "Tuner() got arguments cluster_resources=None. "
+            "The Tuner will defaultly use as many as cluster resources in each experiment."
+            "That means each experiments of tune will try to occupy all the machine's resources and "
+            "experiments can only be executed serial."
+            "To achieve better tuning performance, please refer to the cluster_resources arguments "
+            "and control the resources by yourself."
         )
         parties = global_state.parties()
         cluster_resources = []
@@ -393,7 +395,7 @@ class Tuner:
             err_msg = f"Got unknown required resources {missing_resources}, avaliable names contains {avaliable_resources.keys()}. "
             if len([... for ms in missing_resources if "accelerator_type" in ms]) > 0:
                 # user defined resources contains gpu accelerator_type
-                err_msg += f"When using GPUs, make sure you set the correct type name of your gpus in your config file. "
+                err_msg += "When using GPUs, make sure you set the correct type name of your gpus in your config file. "
                 avali_accelerator_types = [
                     rs for rs in avaliable_resources if "accelerator_type" in rs
                 ]

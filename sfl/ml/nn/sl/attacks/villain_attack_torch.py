@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import random
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 
 import jax.numpy as jnp
 import numpy as np
-import secretflow as sf
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from secretflow.device import PYU, PYUObject, proxy
+from secretflow.device import PYU
 from torch.utils.data import DataLoader, TensorDataset
 
 from sfl.ml.nn.callbacks.attack import AttackCallback

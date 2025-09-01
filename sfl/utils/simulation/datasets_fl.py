@@ -82,7 +82,7 @@ def load_cora(
 
     y, tx, ty, allx, ally, graph = tuple(objects)
 
-    with open(os.path.join(data_dir, f"ind.cora.test.index"), "r") as f:
+    with open(os.path.join(data_dir, "ind.cora.test.index"), "r") as f:
         test_idx_reorder = f.readlines()
     test_idx_reorder = list(map(lambda s: int(s.strip()), test_idx_reorder))
     test_idx_range = np.sort(test_idx_reorder)
@@ -217,7 +217,7 @@ def load_pubmed(
 
     y, tx, ty, allx, ally, graph = tuple(objects)
 
-    with open(os.path.join(data_dir, f"ind.pubmed.test.index"), "r") as f:
+    with open(os.path.join(data_dir, "ind.pubmed.test.index"), "r") as f:
         test_idx_reorder = f.readlines()
     test_idx_reorder = list(map(lambda s: int(s.strip()), test_idx_reorder))
     test_idx_range = np.sort(test_idx_reorder)
@@ -355,7 +355,7 @@ def load_citeseer(
 
     x, y, tx, ty, allx, ally, graph = tuple(objects)
 
-    with open(os.path.join(data_dir, f"ind.citeseer.test.index"), "r") as f:
+    with open(os.path.join(data_dir, "ind.citeseer.test.index"), "r") as f:
         test_idx_reorder = f.readlines()
     test_idx_reorder = list(map(lambda s: int(s.strip()), test_idx_reorder))
     test_idx_range = np.sort(test_idx_reorder)
@@ -614,7 +614,7 @@ def load_cifar10(
     import torch.utils.data as torch_data
     from torchvision import datasets, transforms
 
-    assert axis == 1, f"only support axis = 1 split cifar10 yet."
+    assert axis == 1, "only support axis = 1 split cifar10 yet."
     assert len(parts) == 2
     alice, bob = parts[0], parts[1]
     if data_dir is None:

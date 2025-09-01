@@ -285,7 +285,7 @@ class SLBaseTorchModel(SLBaseModel, ABC):
         """
         assert (
             x is not None or y is not None
-        ), f"At least one of feature(x) and label(y) is not None."
+        ), "At least one of feature(x) and label(y) is not None."
         if shuffle and random_seed is not None:
             self.shuffle = shuffle
             random.seed(random_seed)
@@ -354,7 +354,7 @@ class SLBaseTorchModel(SLBaseModel, ABC):
         """
         assert (
             x is not None or y is not None
-        ), f"At least one of feature(x) and label(y) is not None."
+        ), "At least one of feature(x) and label(y) is not None."
         if not dataset_builder:
             return -1
 
@@ -387,8 +387,8 @@ class SLBaseTorchModel(SLBaseModel, ABC):
         steps_per_epoch = -1
         if isinstance(data_set, ListType):
             assert len(data_set) == 2, (
-                f"If a dataset builder return more than 1 value, "
-                f"it must return 2, one is dataset, another is steps_per_epoch"
+                "If a dataset builder return more than 1 value, "
+                "it must return 2, one is dataset, another is steps_per_epoch"
             )
             steps_per_epoch = data_set[1]
             data_set = data_set[0]
@@ -437,7 +437,7 @@ class SLBaseTorchModel(SLBaseModel, ABC):
                 batch_size = batch_size_inf
         else:
             raise Exception(
-                f"Unable to get batchsize from dataset, please spcify batchsize in 'fit'"
+                "Unable to get batchsize from dataset, please spcify batchsize in 'fit'"
             )
 
         if isinstance(data_set, torch.utils.data.DataLoader):
@@ -808,10 +808,10 @@ class SLBaseTorchModel(SLBaseModel, ABC):
             raise Exception("invalid save_format")
 
     def _export_onnx(self, model, model_path, **kwargs):
-        raise NotImplementedError(f"Export to ONNX is not supported")
+        raise NotImplementedError("Export to ONNX is not supported")
 
     def _export_torch(self, model, model_path, **kwargs):
-        raise NotImplementedError(f"Export to Torch is not supported")
+        raise NotImplementedError("Export to Torch is not supported")
 
     def get_privacy_spent(self, step: int, orders=None):
         """Get accountant of dp mechanism.

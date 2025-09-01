@@ -54,7 +54,7 @@ class MixedCompressor(Compressor):
         """
         assert (
             len(self.comressors) == 2
-        ), f"Only support 2 compressors (Sparse + Quantized)"
+        ), "Only support 2 compressors (Sparse + Quantized)"
         if isinstance(self.comressors[0], QuantizedCompressor) and isinstance(
             self.comressors[1], SparseCompressor
         ):

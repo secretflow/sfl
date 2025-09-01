@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import numpy as np
-import pytest
 import time
 from scipy import stats
 from functools import wraps
@@ -209,9 +208,9 @@ def retry_test(max_retries=MAX_RETRIES, delay=RETRY_DELAY):
                         time.sleep(delay)
                     else:
                         print(
-                            f"Test {test_func.__name__} failed after {max_retries + 1} attempts"
+                            f"Test {test_func.__name__} failed after {max_retries + 1} attempts: {str(last_exception)}"
                         )
-                        raise
+                        raise last_exception
             return None
 
         return wrapper

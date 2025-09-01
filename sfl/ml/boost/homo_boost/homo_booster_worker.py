@@ -118,15 +118,15 @@ class HomoBooster(link.Link):
         if "label_key" not in params:
             return
         if obj is not None:
-            raise NotImplementedError(f"Custom object function is not supported")
+            raise NotImplementedError("Custom object function is not supported")
         columns = [x for x in train_hdf.columns]
         if params["hess_key"] in columns:
             raise Exception(
-                f"The value of hess_key must be different from other columns in the data"
+                "The value of hess_key must be different from other columns in the data"
             )
         if params["grad_key"] in columns:
             raise Exception(
-                f"The value of grad_key must be different from other columns in the data"
+                "The value of grad_key must be different from other columns in the data"
             )
 
         columns.remove(params["label_key"])
@@ -184,12 +184,12 @@ class HomoBooster(link.Link):
             score = bst.eval(data=deval)
             score = score.split()[1:]
             score = [tuple(s.split(":")) for s in score]
-            link.send_to_server(name=f"eval_local", value=score, version=0)
+            link.send_to_server(name="eval_local", value=score, version=0)
 
             return score
         if self.role == link.SERVER:
             all_score = link.recv_from_clients(
-                name=f"eval_local",
+                name="eval_local",
                 version=0,
             )
 

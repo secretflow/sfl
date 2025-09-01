@@ -13,10 +13,7 @@
 # limitations under the License.
 
 import os
-import random
-import tempfile
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as torch_data
@@ -38,9 +35,11 @@ from tests.ml.nn.sl.attack.model_def import (
     SimulatorDiscriminator,
 )
 
-INTERMIDIATE_SHAPE = lambda level: (
-    (16, 32, 32) if level == 3 else (32, 16, 16) if level < 7 else (64, 8, 8)
-)
+
+def INTERMIDIATE_SHAPE(level):
+    return (16, 32, 32) if level == 3 else (32, 16, 16) if level < 7 else (64, 8, 8)
+
+
 LEVEL = 4  # depth of split learning
 
 
@@ -233,7 +232,6 @@ def fill_parameters(alice, bob):
             dataset=test_dataset, batch_size=len(test_dataset), shuffle=False
         )
         test_data, test_labels = next(iter(test_loader))
-        len_test_ds = len(test_data)
         test_plain_data = test_data.numpy()
         test_data = FedNdarray(
             partitions={
@@ -256,7 +254,6 @@ def fill_parameters(alice, bob):
             dataset=test_dataset, batch_size=len(test_dataset), shuffle=False
         )
         test_data, test_labels = next(iter(test_loader))
-        len_test_ds = len(test_labels)
         test_plain_label = test_labels.numpy()
         test_label = bob(lambda x: x)(test_plain_label)
         sample_nums = 4

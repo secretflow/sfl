@@ -20,8 +20,6 @@ import math
 import os
 from typing import Callable, Dict, List, Tuple, Union
 
-import numpy as np
-from ray import logger
 from secretflow.data.horizontal import HDataFrame
 from secretflow.data.ndarray import FedNdarray
 from secretflow.device import PYU, reveal, wait
@@ -31,7 +29,6 @@ from secretflow.utils.random import global_random
 from sfl.ml.nn import FLModel
 from sfl.ml.nn.callbacks.callbacklist import CallbackList
 from sfl.ml.nn.fl.compress import COMPRESS_STRATEGY, do_compress
-from sfl.ml.nn.fl.strategy_dispatcher import dispatch_strategy
 from sfl.ml.nn.metrics import Metric, aggregate_metrics
 from sfl.utils.compressor import sparse_encode
 
@@ -43,7 +40,7 @@ class FLModel_bd(FLModel):
         self,
         server=None,
         device_list: List[PYU] = [],
-        model: Union["TorchModel", Callable[[], "tensorflow.keras.Model"]] = None,  # type: ignore
+        model: Union["TorchModel", Callable[[], "tensorflow.keras.Model"]] = None,  # type: ignore  # noqa: F821
         aggregator=None,
         strategy="fed_avg_w",
         consensus_num=1,
@@ -181,7 +178,7 @@ class FLModel_bd(FLModel):
                 dataset_builder=dataset_builder,
             )
         else:
-            assert type(x) == type(y), "x and y must be same data type"
+            assert isinstance(x, type(y)), "x and y must be same data type"
             if isinstance(x, HDataFrame) and isinstance(y, HDataFrame):
                 train_x, train_y = x.values, y.values
             else:
@@ -435,7 +432,7 @@ class FLModel_bd(FLModel):
                 dataset_builder=dataset_builder,
             )
         else:
-            assert type(x) == type(y), "x and y must be same data type"
+            assert isinstance(x, type(y)), "x and y must be same data type"
             if isinstance(x, HDataFrame) and isinstance(y, HDataFrame):
                 eval_x, eval_y = x.values, y.values
             else:

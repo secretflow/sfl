@@ -48,8 +48,37 @@ workflows:
           mapping: |
             pyproject.toml                base               true
             .circleci/continue-config.yml base               true
-            sfl/.*                        sfl                true
-            tests/.*                      tests              true
+            sfl/component/.*              sfl_component      true
+            sfl/device/.*                 sfl_device         true
+            sfl/distributed/.*            sfl_distributed    true
+            sfl/ml/boost/.*               sfl_ml_boost       true
+            sfl/ml/nn/fl/.*               sfl_ml_nn_fl       true
+            sfl/ml/nn/sl/.*               sfl_ml_nn_sl       true
+            sfl/ml/nn/.*                  sfl_ml_nn          true
+            sfl/ml/.*                     sfl_ml             true
+            sfl/preprocessing/.*          sfl_preprocessing  true
+            sfl/security/aggregation/.*   sfl_security_agg   true
+            sfl/security/privacy/.*       sfl_security_priv  true
+            sfl/security/random/.*        sfl_security_rand  true
+            sfl/security/.*               sfl_security       true
+            sfl/tune/.*                   sfl_tune           true
+            sfl/utils/.*                  sfl_utils          true
+            sfl/.*                        sfl_any            true
+            tests/component/.*            test_component     true
+            tests/device/.*               test_device        true
+            tests/ml/boost/.*             test_ml_boost      true
+            tests/ml/nn/fl/.*             test_ml_nn_fl      true
+            tests/ml/nn/sl/.*             test_ml_nn_sl      true
+            tests/ml/nn/.*                test_ml_nn         true
+            tests/ml/.*                   test_ml            true
+            tests/preprocessing/.*        test_preprocessing true
+            tests/security/aggregation/.* test_security_agg  true
+            tests/security/privacy/.*     test_security_priv true
+            tests/security/random/.*      test_security_rand true
+            tests/security/.*             test_security      true
+            tests/tuner/.*                test_tuner         true
+            tests/utils/.*                test_utils         true
+            tests/.*                      test_any           true
   publish-workflow:
     when:
       equal: ["publish_pypi", << pipeline.parameters.GHA_Meta >>]
