@@ -151,3 +151,6 @@ desktop.ini
 # Local development
 *.local
 *.tmp
+
+# uv venv
+sfl-lite-env
