@@ -17,7 +17,12 @@ import mplang
 import mplang.simp as simp
 import pytest
 
-from sfl_lite.ml.linear.linear_model import LinearModel, RegType, linear_model_predict
+from sfl_lite.ml.linear.linear_model import (
+    linear_model_predict,
+    LinearModel,
+    mse_loss,
+    RegType,
+)
 
 
 class TestLinearModel:
@@ -38,7 +43,7 @@ class TestLinearModel:
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
             intercept_party=0,
-            intercept=intercept
+            intercept=intercept,
         )
 
         # Verify model attributes
@@ -59,7 +64,7 @@ class TestLinearModel:
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
             intercept_party=0,
-            intercept=intercept
+            intercept=intercept,
         )
 
         # Create input data
@@ -105,7 +110,7 @@ class TestLinearModel:
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
             intercept_party=0,
-            intercept=intercept
+            intercept=intercept,
         )
 
         # Create input data
@@ -148,7 +153,7 @@ class TestLinearModel:
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
             intercept_party=0,
-            intercept=intercept
+            intercept=intercept,
         )
 
         # Create input data with 2 samples
@@ -191,7 +196,7 @@ class TestLinearModel:
         model = LinearModel(
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
-            intercept_party=None
+            intercept_party=None,
         )
 
         # Create input data
@@ -215,8 +220,105 @@ class TestLinearModel:
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Logistic,
             intercept_party=0,
-            intercept=intercept
+            intercept=intercept,
         )
 
         # Verify model attributes
         assert model.reg_type == RegType.Logistic
+
+    def test_linear_model_gradient_descent(self):
+        """Test linear model training with gradient descent and check convergence."""
+        import random
+
+        import jax.numpy as jnp
+        import mplang
+        import mplang.simp as simp
+
+        from sfl_lite.ml.linear.linear_model import (
+            grad_compute,
+            linear_model_predict,
+            LinearModel,
+            RegType,
+            sync_and_update_weights,
+        )
+
+        # Simulator with 2 parties
+        sim2 = mplang.Simulator(2)
+        mplang.set_ctx(sim2)
+
+        n_samples, n_features = 5000, 5
+
+        # Generate synthetic data for each party
+        X0 = jnp.array(
+            [
+                [random.uniform(-1, 1) for _ in range(n_features)]
+                for _ in range(n_samples)
+            ]
+        )
+        party0_X = simp.runAt(0, lambda: X0)()
+        X1 = jnp.array(
+            [
+                [random.uniform(-1, 1) for _ in range(n_features)]
+                for _ in range(n_samples)
+            ]
+        )
+        party1_X = simp.runAt(1, lambda: X1)()
+        # True weights and bias
+        true_w0 = jnp.array([random.uniform(-0.5, 0.5) for _ in range(n_features)])
+        true_w1 = jnp.array([random.uniform(-0.5, 0.5) for _ in range(n_features)])
+        true_b = 1.0
+
+        print("True party0_weight (first 5):", true_w0[:5])
+        print("True party1_weight (first 5):", true_w1[:5])
+        print("True bias:", true_b)
+
+        # Generate target values (labels) at party 0
+        y_true = (
+            jnp.dot(X0, true_w0)
+            + jnp.dot(X1, true_w1)
+            + true_b
+            + jnp.array([random.gauss(0, 0.01) for _ in range(n_samples)])
+        )
+        y_true_party = simp.runAt(0, lambda: y_true)()
+
+        # Initialize model weights and intercept
+        party0_weight = simp.runAt(0, lambda: jnp.zeros(n_features))()
+        party1_weight = simp.runAt(1, lambda: jnp.zeros(n_features))()
+        intercept = simp.runAt(0, lambda: jnp.array(0.0))()
+
+        model = LinearModel(
+            weights={0: party0_weight, 1: party1_weight},
+            reg_type=RegType.Linear,
+            intercept_party=0,
+            intercept=intercept,
+        )
+
+        X = {0: party0_X, 1: party1_X}
+        learning_rate = 100
+        n_steps = 100
+
+        for step in range(n_steps):
+            y_pred = linear_model_predict(model, X)
+            gradient = grad_compute(y_pred, y_true_party, label_party=0)
+            updated_weights, updated_intercept = sync_and_update_weights(
+                model, X, gradient, learning_rate
+            )
+            model.weights = updated_weights
+            model.intercept = updated_intercept
+            if step % 20 == 0 or step == n_steps - 1:
+                # Materialize prediction at party 0 for loss calculation
+                loss = simp.runAt(0, mse_loss)(y_pred, y_true)
+                print(f"Step {step}: loss = {mplang.fetch(None, loss)}")
+
+        # Final weights and intercept
+        w0 = mplang.fetch(None, simp.runAt(0, lambda x: x)(model.weights[0]))
+        w1 = mplang.fetch(None, simp.runAt(1, lambda x: x)(model.weights[1]))
+        b = mplang.fetch(None, simp.runAt(0, lambda x: x)(model.intercept))
+        print("Learned party0_weight (first 5):", w0[:5])
+        print("Learned party1_weight (first 5):", w1[:5])
+        print("Learned bias:", b)
+
+        # Assert convergence (weights and bias close to true values)
+        assert jnp.allclose(w0[0], true_w0, atol=0.2)
+        assert jnp.allclose(w1[1], true_w1, atol=0.2)
+        assert abs(b[0] - true_b) < 0.2
