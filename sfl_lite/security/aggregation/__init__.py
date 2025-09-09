@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from .aggregator import Aggregator
 from .mp_aggregator import MPAggregator
 
-__ALL__ = ["MPAggregator"]
+__ALL__ = ["Aggregator", "MPAggregator"]

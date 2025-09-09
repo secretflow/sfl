@@ -35,8 +35,7 @@ class MPAggregator(Aggregator):
         pass
 
     @mplang.function
-    @staticmethod
-    def sum(data: Dict[int, MPObject]) -> MPObject:
+    def sum(self, data: Dict[int, MPObject]) -> MPObject:
         """Sum of array elements over a given axis.
 
         Args:
@@ -45,17 +44,18 @@ class MPAggregator(Aggregator):
         Returns:
             a device object holds the sum.
         """
-        assert data, 'Data to aggregate should not be None or empty!'
+        assert data, "Data to aggregate should not be None or empty!"
         sealed_data = [smpc.sealFrom(data, party) for party, data in data.items()]
 
         def _sum(data):
-            return reduce(jnp.add,data)
+            return reduce(jnp.add, data)
 
-        return smpc.srun(_sum,)(sealed_data)
+        return smpc.srun(
+            _sum,
+        )(sealed_data)
 
     @mplang.function
-    @staticmethod
-    def average(data: Dict[int, MPObject]) -> MPObject:
+    def average(self, data: Dict[int, MPObject]) -> MPObject:
         """Compute the average of array elements over a given axis.
 
         Args:
@@ -64,13 +64,14 @@ class MPAggregator(Aggregator):
         Returns:
             a device object holds the average.
         """
-        assert data, 'Data to aggregate should not be None or empty!'
+        assert data, "Data to aggregate should not be None or empty!"
         sealed_data = [smpc.sealFrom(data, party) for party, data in data.items()]
 
         def _average(data):
             return reduce(jnp.add, data) / len(data)
 
         return smpc.srun(_average)(sealed_data)
+
 
 if __name__ == "__main__":
     # example usage
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     print("y:", y)
     print("fetch(y):", mplang.fetch(None, y))
     print("z:", z)
-    print("fetch(z):",mplang.fetch(None, smpc.reveal(z)))
+    print("fetch(z):", mplang.fetch(None, smpc.reveal(z)))
 
     # Example usage of average
     a = simp.runAt(0, partial(random.randint, 0, 10))()

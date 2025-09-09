@@ -26,7 +26,7 @@ from jax import grad
 from mplang.core.base import MPObject
 from mplang.core.mask import Mask
 
-from sfl_lite.security.aggregation import MPAggregator
+from sfl_lite.security.aggregation import Aggregator, MPAggregator
 
 
 @unique
@@ -55,7 +55,9 @@ class LinearModel:
 
 
 @mplang.function
-def linear_model_predict(model: LinearModel, X: Dict[int, MPObject]) -> MPObject:
+def linear_model_predict(
+    model: LinearModel, X: Dict[int, MPObject], agg: Aggregator = None
+) -> MPObject:
     """
     Predict with linear model.
 
@@ -67,13 +69,13 @@ def linear_model_predict(model: LinearModel, X: Dict[int, MPObject]) -> MPObject
     """
     if model.intercept_party is None:
         raise ValueError("intercept_party is None, it should be int")
+    if agg is None:
+        agg = MPAggregator()
     y_pred_party = {
         party_id: simp.runAt(party_id, lambda x, w: x @ w)(x, model.weights[party_id])
         for party_id, x in X.items()
     }
-    y_pred_no_intercept = smpc.revealTo(
-        MPAggregator.sum(y_pred_party), model.intercept_party
-    )
+    y_pred_no_intercept = smpc.revealTo(agg.sum(y_pred_party), model.intercept_party)
     if model.intercept is not None:
         return simp.runAt(model.intercept_party, lambda x, b: x + b)(
             y_pred_no_intercept, model.intercept
