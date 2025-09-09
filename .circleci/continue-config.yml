@@ -98,6 +98,9 @@ parameters:
   test_any:
     type: boolean
     default: false
+  sfl_lite_test:
+    type: boolean
+    default: false
 
 executors:
   linux_executor: # declares a reusable executor
@@ -453,6 +456,121 @@ commands:
           testmon_prefix: sim_others
           mode: "sim"
           concurrent_num: "2"
+  sfl_lite_pytest_wrapper:
+    parameters:
+      target_folder:
+        type: string
+      concurrent_num:
+        type: string
+        default: "auto"
+      testmon_prefix:
+        type: string
+      mode:
+        type: string
+        default: "sim"
+    steps:
+      - restore_cache:
+          name: Restore pytest testmondata
+          key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_ # prefix match the latest cache
+      - restore_cache:
+          name: restore uv cache
+          keys:
+            - v1-uv-cache-{{ checksum "uv.lock" }}
+            - v1-uv-cache-
+      - run:
+          name: "Fix testmon cache permissions"
+          command: |
+            # 确保整个项目目录有写权限
+            chmod -R +w .
+            # 处理所有可能的testmon数据库文件（包括带前缀的）
+            for testmon_file in .*testmondata*; do
+              if [ -f "$testmon_file" ]; then
+                echo "Verifying testmon database: $testmon_file"
+                # 检查数据库完整性并清理损坏的文件
+                if ! sqlite3 "$testmon_file" "SELECT 1;" 2>/dev/null; then
+                  echo "Removing corrupted testmon database: $testmon_file"
+                  rm -f "$testmon_file"
+                fi
+              fi
+            done
+            
+      - run:
+          name: "Run sfl_lite tests"
+          command: |
+            set +e
+            cd sfl_lite
+            conda init
+            conda install -y -c conda-forge uv
+            uv venv
+            source .venv/bin/activate
+            uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
+
+            # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
+            TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
+            export TESTMON_DATAFILE="$TESTMON_DATAFILE"
+            CACHE_DIR="../.ci-cache/testmon"
+            mkdir -p "$CACHE_DIR"
+            # 恢复缓存到 /tmp
+            if [ -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" ]; then
+              cp -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" "$TESTMON_DATAFILE"
+            fi
+            # 确保父目录与文件可写，并清理残留的 wal/shm/journal
+            chmod -R +w "/tmp"
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              chmod +w "$TESTMON_DATAFILE" || true
+              rm -f "${TESTMON_DATAFILE}-wal" "${TESTMON_DATAFILE}-shm" "${TESTMON_DATAFILE}-journal" 2>/dev/null || true
+              # 验证数据库健康，不健康则移除
+              if ! sqlite3 "$TESTMON_DATAFILE" "SELECT 1;" 2>/dev/null; then
+                echo "Removing corrupted testmon database before running tests: $TESTMON_DATAFILE"
+                rm -f "$TESTMON_DATAFILE"
+              fi
+            fi
+
+            # 首次运行或无缓存时，不启用 --testmon 以避免并发初始化写入导致的只读错误
+            PYTEST_TESTMON_ARGS=""
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              PYTEST_TESTMON_ARGS="--testmon --testmondata $TESTMON_DATAFILE"
+            fi
+
+            # 根据是否启用 testmon 决定并发策略，避免并发写 sqlite
+            if [ -n "$PYTEST_TESTMON_ARGS" ]; then
+              XDIST_ARGS="-n 0 --dist no"
+            else
+              XDIST_ARGS="-n <<parameters.concurrent_num>>"
+            fi
+
+            pytest $PYTEST_TESTMON_ARGS $XDIST_ARGS --env <<parameters.mode>> --junitxml=../results.xml -v -x --capture=no --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
+            ret=$?
+
+            # 将最新的 testmon 数据库持久化到缓存目录
+            if [ -f "$TESTMON_DATAFILE" ]; then
+              cp -f "$TESTMON_DATAFILE" "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite"
+            fi
+
+            set -e
+            if [ $ret -eq 0 ] || [ $ret -eq 5 ]; then
+              exit 0
+            fi
+            exit $ret
+      - store_test_results:
+          path: ./results.xml
+      - save_cache:
+          key: testmondata_<<parameters.testmon_prefix>>_{{ arch }}_{{ .Branch }}_{{ .Revision }}
+          paths:
+            - .ci-cache/testmon
+          when: always
+  run_sfl_lite_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_lite_test >>
+          steps:
+            - sfl_lite_pytest_wrapper:
+                target_folder: tests/
+                testmon_prefix: sfl_lite
 
 jobs:
   linux_build:
@@ -790,6 +908,22 @@ jobs:
       - checkout
       - macos_pre_setup
       - run_sim_others_test
+  linux_sfl_lite_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_sfl_lite_test
+  macos_sfl_lite_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_sfl_lite_test
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -950,6 +1084,15 @@ workflows:
       #     requires:
       #       - macos_build
       # - macos_prod_basic_test:
+      #     requires:
+      #       - macos_build
+      - linux_sfl_lite_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      # - macos_sfl_lite_test:
       #     requires:
       #       - macos_build
       # - macos_sim_others_test:
