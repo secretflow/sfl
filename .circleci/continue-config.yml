@@ -539,7 +539,7 @@ commands:
               XDIST_ARGS="-n <<parameters.concurrent_num>>"
             fi
 
-            pytest $PYTEST_TESTMON_ARGS $XDIST_ARGS --env <<parameters.mode>> --junitxml=../results.xml -v -x --capture=no --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
+            pytest $PYTEST_TESTMON_ARGS $XDIST_ARGS --junitxml=../results.xml -v -x --capture=no --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
             ret=$?
 
             # 将最新的 testmon 数据库持久化到缓存目录
