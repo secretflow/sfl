@@ -184,7 +184,7 @@ commands:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
 
             # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
             TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
@@ -503,7 +503,7 @@ commands:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv pip install . --extra dev --index-strategy unsafe-best-match --prerelease=allow
+            uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
 
             # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
             TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
@@ -594,7 +594,7 @@ jobs:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
@@ -627,7 +627,7 @@ jobs:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
+            uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
