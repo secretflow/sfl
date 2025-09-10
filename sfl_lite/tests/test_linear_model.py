@@ -18,10 +18,10 @@ import mplang.simp as simp
 import pytest
 
 from sfl_lite.ml.linear.linear_model import (
-    linear_model_predict,
     LinearModel,
-    mse_loss,
     RegType,
+    linear_model_predict,
+    mse_loss,
 )
 
 
@@ -235,10 +235,10 @@ class TestLinearModel:
         import mplang.simp as simp
 
         from sfl_lite.ml.linear.linear_model import (
-            grad_compute,
-            linear_model_predict,
             LinearModel,
             RegType,
+            grad_compute,
+            linear_model_predict,
             sync_and_update_weights,
         )
 

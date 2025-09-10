@@ -19,6 +19,7 @@ import pytest
 
 from sfl_lite.security.aggregation.mp_aggregator import MPAggregator
 
+
 class TestMPAggregator:
     @pytest.fixture(autouse=True)
     def setup(self):
@@ -55,7 +56,7 @@ class TestMPAggregator:
         fetched = mplang.fetch(None, revealed_avg)
         assert len(fetched) == 3  # 3 parties
         assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, jnp.array(2.)) for arr in fetched)
+        assert all(jnp.array_equal(arr, jnp.array(2.0)) for arr in fetched)
         assert fetched[0].dtype == jnp.float64
 
     def test_sum_with_array_input(self):
@@ -87,7 +88,7 @@ class TestMPAggregator:
         # Verify results
         revealed_avg = simp.reveal(avg)
         fetched = mplang.fetch(None, revealed_avg)
-        expected = jnp.array([2., 4.])
+        expected = jnp.array([2.0, 4.0])
         assert len(fetched) == 3  # 3 parties
         assert all(arr is not None for arr in fetched)
         assert all(jnp.array_equal(arr, expected) for arr in fetched)

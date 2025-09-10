@@ -109,7 +109,9 @@ def sync_and_update_weights(
         learning_rate: float
     """
     # Broadcast gradient to all parties
-    world_mask = mplang.Mask.all(max(list(model.weights.keys()) + [model.intercept_party]) + 1)
+    world_mask = mplang.Mask.all(
+        max(list(model.weights.keys()) + [model.intercept_party]) + 1
+    )
     broadcasted_gradient = simp.bcast_m(world_mask, model.intercept_party, gradient)
 
     updated_weights = {}

@@ -18,8 +18,8 @@ from typing import Dict
 
 import jax.numpy as jnp
 import mplang
-from mplang.core import MPObject
 from mplang import simp
+from mplang.core import MPObject
 
 from sfl_lite.security.aggregation.aggregator import Aggregator
 
