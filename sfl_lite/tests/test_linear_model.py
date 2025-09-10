@@ -28,7 +28,7 @@ from sfl_lite.ml.linear.linear_model import (
 class TestLinearModel:
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.sim3 = mplang.Simulator(3)
+        self.sim3 = mplang.Simulator.simple(3)
         mplang.set_ctx(self.sim3)
 
     def test_linear_model_creation(self):
@@ -243,7 +243,7 @@ class TestLinearModel:
         )
 
         # Simulator with 2 parties
-        sim2 = mplang.Simulator(2)
+        sim2 = mplang.Simulator.simple(2)
         mplang.set_ctx(sim2)
 
         n_samples, n_features = 5000, 5

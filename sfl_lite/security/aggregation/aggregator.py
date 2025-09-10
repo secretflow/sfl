@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 import numpy as np
-from mplang.core.base import MPObject
+from mplang.core import MPObject
 
 
 class Aggregator(ABC):

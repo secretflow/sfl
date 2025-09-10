@@ -18,8 +18,8 @@ from typing import Dict
 
 import jax.numpy as jnp
 import mplang
-import mplang.smpc as smpc
-from mplang.core.base import MPObject
+from mplang.core import MPObject
+from mplang import simp
 
 from sfl_lite.security.aggregation.aggregator import Aggregator
 
@@ -45,12 +45,12 @@ class MPAggregator(Aggregator):
             a device object holds the sum.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        sealed_data = [smpc.sealFrom(data, party) for party, data in data.items()]
+        sealed_data = [simp.sealFrom(data, party) for party, data in data.items()]
 
         def _sum(data):
             return reduce(jnp.add, data)
 
-        return smpc.srun(
+        return simp.srun(
             _sum,
         )(sealed_data)
 
@@ -65,12 +65,12 @@ class MPAggregator(Aggregator):
             a device object holds the average.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        sealed_data = [smpc.sealFrom(data, party) for party, data in data.items()]
+        sealed_data = [simp.sealFrom(data, party) for party, data in data.items()]
 
         def _average(data):
             return reduce(jnp.add, data) / len(data)
 
-        return smpc.srun(_average)(sealed_data)
+        return simp.srun(_average)(sealed_data)
 
 
 if __name__ == "__main__":
@@ -78,7 +78,6 @@ if __name__ == "__main__":
     import random
     from functools import partial
 
-    import mplang
     import mplang.simp as simp
 
     sim3 = mplang.Simulator(3)
@@ -94,7 +93,7 @@ if __name__ == "__main__":
     print("y:", y)
     print("fetch(y):", mplang.fetch(None, y))
     print("z:", z)
-    print("fetch(z):", mplang.fetch(None, smpc.reveal(z)))
+    print("fetch(z):", mplang.fetch(None, simp.reveal(z)))
 
     # Example usage of average
     a = simp.runAt(0, partial(random.randint, 0, 10))()
@@ -105,4 +104,4 @@ if __name__ == "__main__":
     print("fetch(b):", mplang.fetch(None, b))
     avg = agg.average({0: a, 1: b})
     print("avg:", avg)
-    print("fetch(avg):", mplang.fetch(None, smpc.reveal(avg)))
+    print("fetch(avg):", mplang.fetch(None, simp.reveal(avg)))

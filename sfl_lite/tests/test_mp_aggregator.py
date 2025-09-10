@@ -15,7 +15,6 @@
 import jax.numpy as jnp
 import mplang
 import mplang.simp as simp
-import mplang.smpc as smpc
 import pytest
 
 from sfl_lite.security.aggregation.mp_aggregator import MPAggregator
@@ -24,7 +23,7 @@ from sfl_lite.security.aggregation.mp_aggregator import MPAggregator
 class TestMPAggregator:
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.sim3 = mplang.Simulator(3)
+        self.sim3 = mplang.Simulator.simple(3)
         mplang.set_ctx(self.sim3)
         self.agg = MPAggregator()
 
@@ -37,7 +36,7 @@ class TestMPAggregator:
         z = self.agg.sum({0: x, 1: y})
 
         # Verify results
-        revealed_z = smpc.reveal(z)
+        revealed_z = simp.reveal(z)
         fetched = mplang.fetch(None, revealed_z)
         assert len(fetched) == 3  # 3 parties
         assert all(arr is not None for arr in fetched)
@@ -53,7 +52,7 @@ class TestMPAggregator:
         avg = self.agg.average({0: a, 1: b})
 
         # Verify results
-        revealed_avg = smpc.reveal(avg)
+        revealed_avg = simp.reveal(avg)
         fetched = mplang.fetch(None, revealed_avg)
         assert len(fetched) == 3  # 3 parties
         assert all(arr is not None for arr in fetched)
@@ -69,7 +68,7 @@ class TestMPAggregator:
         z = self.agg.sum({0: x, 1: y})
 
         # Verify results
-        revealed_z = smpc.reveal(z)
+        revealed_z = simp.reveal(z)
         fetched = mplang.fetch(None, revealed_z)
         expected = jnp.array([1, 3])
         print(fetched, expected)
@@ -87,7 +86,7 @@ class TestMPAggregator:
         avg = self.agg.average({0: a, 1: b})
 
         # Verify results
-        revealed_avg = smpc.reveal(avg)
+        revealed_avg = simp.reveal(avg)
         fetched = mplang.fetch(None, revealed_avg)
         expected = jnp.array([2., 4.])
         assert len(fetched) == 3  # 3 parties
