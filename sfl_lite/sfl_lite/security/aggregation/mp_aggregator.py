@@ -45,10 +45,10 @@ class MPAggregator(Aggregator):
             a device object holds the sum.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        sealed_data = [simp.sealFrom(data, party) for party, data in data.items()]
+        sealed_data = [simp.sealFrom(value, party) for party, value in data.items()]
 
-        def _sum(data):
-            return reduce(jnp.add, data)
+        def _sum(value):
+            return reduce(jnp.add, value)
 
         return simp.srun(
             _sum,
@@ -65,10 +65,10 @@ class MPAggregator(Aggregator):
             a device object holds the average.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        sealed_data = [simp.sealFrom(data, party) for party, data in data.items()]
+        sealed_data = [simp.sealFrom(value, party) for party, value in data.items()]
 
-        def _average(data):
-            return reduce(jnp.add, data) / len(data)
+        def _average(value):
+            return reduce(jnp.add, value) / len(value)
 
         return simp.srun(_average)(sealed_data)
 

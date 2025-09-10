@@ -16,4 +16,4 @@
 from .aggregator import Aggregator
 from .mp_aggregator import MPAggregator
 
-__ALL__ = ["Aggregator", "MPAggregator"]
+__all__ = ["Aggregator", "MPAggregator"]

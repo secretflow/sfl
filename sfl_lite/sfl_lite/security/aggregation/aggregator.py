@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Dict
 
 import numpy as np
 from mplang.core import MPObject
@@ -23,11 +23,11 @@ class Aggregator(ABC):
     """The abstract aggregator."""
 
     @abstractmethod
-    def sum(self, data: List[MPObject], axis=None):
+    def sum(self, data: Dict[int, MPObject], axis=None):
         """Sum of array elements over a given axis."""
         pass
 
     @abstractmethod
-    def average(self, data: List[MPObject], axis=None, weights=None):
+    def average(self, data: Dict[int, MPObject], axis=None, weights=None):
         """Compute the weighted average along the specified axis."""
         pass
