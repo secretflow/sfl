@@ -98,6 +98,9 @@ parameters:
   test_any:
     type: boolean
     default: false
+  sfl_lite_test:
+    type: boolean
+    default: false
 
 executors:
   linux_executor: # declares a reusable executor
@@ -181,7 +184,7 @@ commands:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
 
             # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
             TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
@@ -453,6 +456,57 @@ commands:
           testmon_prefix: sim_others
           mode: "sim"
           concurrent_num: "2"
+  sfl_lite_pytest_wrapper:
+    parameters:
+      target_folder:
+        type: string
+      concurrent_num:
+        type: string
+        default: "auto"
+      testmon_prefix:
+        type: string
+      mode:
+        type: string
+        default: "sim"
+    steps:
+      - restore_cache:
+          name: restore uv cache
+          keys:
+            - v1-uv-cache-{{ checksum "uv.lock" }}
+            - v1-uv-cache-
+      - run:
+          name: "Run sfl_lite tests"
+          command: |
+            set +e
+            cd sfl_lite
+            conda init
+            conda install -y -c conda-forge uv
+            uv venv
+            source .venv/bin/activate
+            uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
+
+            pytest --junitxml=../results.xml -v --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
+            ret=$?
+
+            set -e
+            if [ $ret -eq 0 ] || [ $ret -eq 5 ]; then
+              exit 0
+            fi
+            exit $ret
+      - store_test_results:
+          path: ./results.xml
+  run_sfl_lite_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_lite_test >>
+          steps:
+            - sfl_lite_pytest_wrapper:
+                target_folder: tests/
+                testmon_prefix: sfl_lite
 
 jobs:
   linux_build:
@@ -476,7 +530,7 @@ jobs:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
@@ -509,7 +563,7 @@ jobs:
             conda install -y -c conda-forge uv
             uv venv
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
+            uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
           paths:
@@ -790,6 +844,22 @@ jobs:
       - checkout
       - macos_pre_setup
       - run_sim_others_test
+  linux_sfl_lite_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_sfl_lite_test
+  macos_sfl_lite_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_sfl_lite_test
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -950,6 +1020,15 @@ workflows:
       #     requires:
       #       - macos_build
       # - macos_prod_basic_test:
+      #     requires:
+      #       - macos_build
+      - linux_sfl_lite_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      # - macos_sfl_lite_test:
       #     requires:
       #       - macos_build
       # - macos_sim_others_test:
