@@ -17,6 +17,7 @@ import mplang
 import mplang.simp as simp
 import pytest
 
+import sfl_lite
 from sfl_lite.ml.linear.linear_model import (
     linear_model_predict,
     LinearModel,

@@ -19,7 +19,7 @@ import pytest
 
 from sfl_lite.security.aggregation.mp_aggregator import MPAggregator
 
-
+print("hello world")
 class TestMPAggregator:
     @pytest.fixture(autouse=True)
     def setup(self):
