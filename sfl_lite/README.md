@@ -50,7 +50,7 @@ git clone https://github.com/secretflow/sfl.git
 cd sfl/sfl_lite
 
 # Sync dependencies
-uv sync --active
+uv sync --active --extra dev
 ```
 
 ### 3. Verify installation
