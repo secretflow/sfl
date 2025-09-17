@@ -131,6 +131,7 @@ class LinearRegressionVertical:
         state = {
             'epoch': epoch,
             'loss': initial_loss,
+            'X': X
         }
         
         # Add weights for each party
@@ -164,8 +165,12 @@ class LinearRegressionVertical:
             """Body function for while loop - perform one epoch of training."""
             # Extract current parameters from state
             current_weights = {}
+            X = state['X']
             for party_id in X.keys():
                 current_weights[party_id] = state[f'weight_{party_id}']
+                r = simp.runAt(party_id, lambda w,x : x @ w)(state[f'weight_{party_id}'], X[party_id])
+                print(f'body weight_{party_id}:', state[f'weight_{party_id}'])
+                print(f'body r_{party_id}:', r)
             
             current_intercept = state.get('intercept')
             
