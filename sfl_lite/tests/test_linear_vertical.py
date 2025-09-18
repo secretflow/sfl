@@ -41,7 +41,7 @@ class TestLinearRegressionVertical:
             reg_type=reg_type,
             fit_intercept=True,
             learning_rate=0.1,
-            seed=42
+            seed=42,
         )
 
         assert model.parties == parties
@@ -70,8 +70,7 @@ class TestLinearRegressionVertical:
 
         # Generate target variable
         y = simp.runAt(
-            label_party,
-            lambda: random.normal(random.PRNGKey(44), (n_samples,))
+            label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,))
         )()
 
         # Create and fit model
@@ -86,16 +85,15 @@ class TestLinearRegressionVertical:
 
         # Test that fitting runs without error
         state = mplang.evaluate(
-            self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=5)
+            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=5)
         )
 
         assert state is not None
-        assert 'epoch' in state
-        assert 'loss' in state
-        assert 'weight_0' in state
-        assert 'weight_1' in state
-        assert 'intercept' in state
+        assert "epoch" in state
+        assert "loss" in state
+        assert "weight_0" in state
+        assert "weight_1" in state
+        assert "intercept" in state
 
     def test_vertical_linear_regression_no_intercept(self):
         """Test vertical linear regression without intercept."""
@@ -109,8 +107,7 @@ class TestLinearRegressionVertical:
         )()
 
         y = simp.runAt(
-            label_party,
-            lambda: random.normal(random.PRNGKey(46), (n_samples,))
+            label_party, lambda: random.normal(random.PRNGKey(46), (n_samples,))
         )()
 
         trainer = LinearRegressionVertical(
@@ -123,13 +120,14 @@ class TestLinearRegressionVertical:
         X = {0: X0}
 
         state = mplang.evaluate(
-            self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=3)
+            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=3)
         )
 
         assert state is not None
-        assert 'weight_0' in state
-        assert 'intercept' not in state  # Should not have intercept when fit_intercept=False
+        assert "weight_0" in state
+        assert (
+            "intercept" not in state
+        )  # Should not have intercept when fit_intercept=False
 
     def test_vertical_linear_regression_convergence(self):
         """Test that the model converges on simple linear data."""
@@ -137,13 +135,14 @@ class TestLinearRegressionVertical:
         label_party = 0
 
         # Create perfectly linear relationship
-        X0 = simp.runAt(
-            0, lambda: jnp.linspace(-1, 1, n_samples).reshape(-1, 1))()
+        X0 = simp.runAt(0, lambda: jnp.linspace(-1, 1, n_samples).reshape(-1, 1))()
 
         # Simple linear relationship: y = 2*x + 1
         y = simp.runAt(
             label_party,
-            lambda: 2 * jnp.linspace(-1, 1, n_samples) + 1 + random.normal(random.PRNGKey(47), (n_samples,)) * 0.01
+            lambda: 2 * jnp.linspace(-1, 1, n_samples)
+            + 1
+            + random.normal(random.PRNGKey(47), (n_samples,)) * 0.01,
         )()
 
         trainer = LinearRegressionVertical(
@@ -157,14 +156,13 @@ class TestLinearRegressionVertical:
 
         state = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=50, tol=1e-3)
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=50, tol=1e-3),
         )
 
         # Check that training completed
-        final_epoch = mplang.fetch(None, state['epoch'])[0]
+        final_epoch = mplang.fetch(None, state["epoch"])[0]
         assert final_epoch > 0
         assert final_epoch <= 50
-
 
     def test_vertical_linear_regression_state_to_model(self):
         """Test conversion from training state to model."""
@@ -178,8 +176,7 @@ class TestLinearRegressionVertical:
         )()
 
         y = simp.runAt(
-            label_party,
-            lambda: random.normal(random.PRNGKey(53), (n_samples,))
+            label_party, lambda: random.normal(random.PRNGKey(53), (n_samples,))
         )()
 
         trainer = LinearRegressionVertical(
@@ -192,8 +189,7 @@ class TestLinearRegressionVertical:
 
         # Fit model
         state = mplang.evaluate(
-            self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=2)
+            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=2)
         )
 
         # Test state_to_model conversion
@@ -212,8 +208,7 @@ class TestLinearRegressionVertical:
         )()
 
         y = simp.runAt(
-            label_party,
-            lambda: random.normal(random.PRNGKey(55), (n_samples,))
+            label_party, lambda: random.normal(random.PRNGKey(55), (n_samples,))
         )()
 
         learning_rates = [0.001, 0.01, 0.1]
@@ -229,25 +224,19 @@ class TestLinearRegressionVertical:
             X = {0: X0}
 
             state = mplang.evaluate(
-                self.sim3,
-                lambda: trainer.fit(X, y, label_party=label_party, epochs=2)
+                self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=2)
             )
 
             assert state is not None
-            assert 'loss' in state
+            assert "loss" in state
 
     def test_vertical_linear_regression_empty_data_handling(self):
         """Test handling of edge cases with minimal data."""
         label_party = 0
 
-        X0 = simp.runAt(
-            0, lambda: jnp.array([[1.0]])
-        )()
+        X0 = simp.runAt(0, lambda: jnp.array([[1.0]]))()
 
-        y = simp.runAt(
-            label_party,
-            lambda: jnp.array([1.0])
-        )()
+        y = simp.runAt(label_party, lambda: jnp.array([1.0]))()
 
         trainer = LinearRegressionVertical(
             parties=[0],
@@ -260,8 +249,7 @@ class TestLinearRegressionVertical:
 
         # Should handle minimal data without error
         state = mplang.evaluate(
-            self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=1)
+            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=1)
         )
 
         assert state is not None
@@ -278,8 +266,7 @@ class TestLinearRegressionVertical:
         )()
 
         y = simp.runAt(
-            label_party,
-            lambda: random.normal(random.PRNGKey(57), (n_samples,))
+            label_party, lambda: random.normal(random.PRNGKey(57), (n_samples,))
         )()
 
         def run_training(seed):
@@ -292,8 +279,7 @@ class TestLinearRegressionVertical:
 
             X = {0: X0}
             state = mplang.evaluate(
-                self.sim3,
-                lambda: trainer.fit(X, y, label_party=label_party, epochs=2)
+                self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=2)
             )
             return state
 
@@ -302,6 +288,6 @@ class TestLinearRegressionVertical:
         state2 = run_training(42)
 
         # Both should produce similar results (within reasonable tolerance)
-        loss1 = mplang.fetch(None, state1['loss'])
-        loss2 = mplang.fetch(None, state2['loss'])
+        loss1 = mplang.fetch(None, state1["loss"])
+        loss2 = mplang.fetch(None, state2["loss"])
         assert abs(loss1[label_party] - loss2[label_party]) < 1e-6

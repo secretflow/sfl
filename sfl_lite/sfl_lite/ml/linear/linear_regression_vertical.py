@@ -102,7 +102,7 @@ class LinearRegressionVertical:
         epochs: int = 100,
         batch_size: Optional[int] = None,
         tol: float = 1e-4,
-        world_size: int =3, # for now, we use all parties to broadcast gradient, remove this parameter later
+        world_size: int = 3,  # for now, we use all parties to broadcast gradient, remove this parameter later
     ):
         """
         Fit the vertical linear regression model.
@@ -126,48 +126,52 @@ class LinearRegressionVertical:
         epoch = simp.constant(0)
         tol = simp.constant(tol)
         max_epochs = simp.constant(epochs)
-        initial_loss = simp.runAt(label_party, lambda: jnp.array(float('inf')))()
+        initial_loss = simp.runAt(label_party, lambda: jnp.array(float("inf")))()
 
         # Create state structure that preserves party associations
         state = {
-            'epoch': epoch,
-            'loss': initial_loss,
+            "epoch": epoch,
+            "loss": initial_loss,
         }
 
         # Add weights for each party
         for party_id, weight in initial_model.weights.items():
-            state[f'weight_{party_id}'] = weight
+            state[f"weight_{party_id}"] = weight
 
         # Add intercept if present
         if initial_model.intercept is not None:
-            state['intercept'] = initial_model.intercept
+            state["intercept"] = initial_model.intercept
 
         # Broadcast gradient to all parties
-        world_mask = mplang.Mask.all(
-            world_size
-        )
+        world_mask = mplang.Mask.all(world_size)
 
         def cond(state):
             """Condition function for while loop - check convergence criteria."""
-            current_epoch = state['epoch']
-            current_loss = state['loss']
+            current_epoch = state["epoch"]
+            current_loss = state["loss"]
 
             # Check if we've reached max epochs
-            not_max_epochs = simp.run(lambda e, max_e: e < max_e)(current_epoch, max_epochs)
+            not_max_epochs = simp.run(lambda e, max_e: e < max_e)(
+                current_epoch, max_epochs
+            )
 
             # Check if loss is above tolerance
-            above_tol = simp.runAt(label_party, lambda loss, threshold: loss > threshold)(current_loss, tol)
+            above_tol = simp.runAt(
+                label_party, lambda loss, threshold: loss > threshold
+            )(current_loss, tol)
             above_tol = simp.bcast_m(world_mask, label_party, above_tol)
             # Continue if not max epochs AND loss above tolerance
-            return simp.run(lambda a, b: jnp.logical_and(a, b))(not_max_epochs, above_tol)
+            return simp.run(lambda a, b: jnp.logical_and(a, b))(
+                not_max_epochs, above_tol
+            )
 
         def body(state):
             """Body function for while loop - perform one epoch of training."""
             # Extract current parameters from state
             current_weights = {}
             for party_id in X.keys():
-                current_weights[party_id] = state[f'weight_{party_id}']
-            current_intercept = state.get('intercept')
+                current_weights[party_id] = state[f"weight_{party_id}"]
+            current_intercept = state.get("intercept")
 
             # Create model for current iteration
             current_model = LinearModel(
@@ -193,18 +197,17 @@ class LinearRegressionVertical:
 
             # Create new state with updated parameters
             new_state = {
-                'epoch': simp.run(lambda e: e + 1)(state['epoch']),
-                'loss': loss,
+                "epoch": simp.run(lambda e: e + 1)(state["epoch"]),
+                "loss": loss,
             }
 
             # Update weights for each party
             for party_id, weight in updated_weights.items():
-                new_state[f'weight_{party_id}'] = weight
-
+                new_state[f"weight_{party_id}"] = weight
 
             # Update intercept if present
             if updated_intercept is not None:
-                new_state['intercept'] = updated_intercept
+                new_state["intercept"] = updated_intercept
 
             return new_state
 
@@ -217,8 +220,8 @@ class LinearRegressionVertical:
         # Extract final parameters and create model
         final_weights = {}
         for party_id in X.keys():
-            final_weights[party_id] = state[f'weight_{party_id}']
-        final_intercept = state.get('intercept')
+            final_weights[party_id] = state[f"weight_{party_id}"]
+        final_intercept = state.get("intercept")
 
         self.model = LinearModel(
             weights=final_weights,
@@ -238,7 +241,6 @@ if __name__ == "__main__":
     sim = mplang.Simulator.simple(3)
     mplang.set_ctx(sim)
 
-
     # Generate synthetic data
     n_samples = 100
     n_features_party0 = 2
@@ -256,7 +258,9 @@ if __name__ == "__main__":
     )()
 
     # Target variable (held by party 2)
-    y = simp.runAt(label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,)))()
+    y = simp.runAt(
+        label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,))
+    )()
 
     # Create model
     trainer = LinearRegressionVertical(
@@ -267,8 +271,10 @@ if __name__ == "__main__":
     )
 
     # Fit model
-    X = {0: X0,1: X1}
-    state = mplang.evaluate(sim, lambda : trainer.fit(X, y, label_party=label_party, epochs=1))
+    X = {0: X0, 1: X1}
+    state = mplang.evaluate(
+        sim, lambda: trainer.fit(X, y, label_party=label_party, epochs=1)
+    )
     model = trainer.state_to_model(state)
     print(model)
     print(model.weights[0].mptype)
