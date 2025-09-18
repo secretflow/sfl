@@ -626,8 +626,8 @@ wheels = [
 
 [[package]]
 name = "mplang"
-version = "0.1.dev121"
-source = { git = "https://github.com/secretflow/mplang.git#56f93d92556f5cb4d51e8bce0446e32f5cda30be" }
+version = "0.1.dev124"
+source = { git = "https://github.com/secretflow/mplang.git#49016375472642a29242a3287064208a297e20fb" }
 dependencies = [
     { name = "duckdb" },
     { name = "fastapi" },
@@ -1420,11 +1420,11 @@ wheels = [
 
 [[package]]
 name = "sqlglot"
-version = "27.14.0"
+version = "27.15.3"
 source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
-sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/3e/1a/ce57767e3b791c670aa395c92c42c5b5fe11f12c2504a656f8463862ba98/sqlglot-27.14.0.tar.gz", hash = "sha256:456c82ec95dd05927cfe37cb57d4540acbfec6f0743f8c8f246147d56549ba88", size = 5462946 }
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/85/90/ad2d0d63d289b010e482cdf05521a11e12a5c065d39610a9dfe1971d5b7a/sqlglot-27.15.3.tar.gz", hash = "sha256:8235cf2e5f5906c9b776c732ac57d7d97550644278888a508b0d01bfc7bf7a8b", size = 5469854 }
 wheels = [
-    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/c6/be/fbd6905dc14e0cd118a21cd48ff39a60407f7059801cd1afc1913d9e86da/sqlglot-27.14.0-py3-none-any.whl", hash = "sha256:a5adc68abc85ccd249258ae0f3aff3c1869bb5b086e360375e16518858ce8a7a", size = 515883 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/d7/ab/ea0e951c35319f124ab17bee40a5066953f1d2e1e37d7fecfe484b69bccc/sqlglot-27.15.3-py3-none-any.whl", hash = "sha256:579f1f41ee835a42fb4a5236807c36e3650dbaea226f6c39a344c77b9e85bc75", size = 517793 },
 ]
 
 [[package]]

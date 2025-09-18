@@ -21,11 +21,11 @@ import mplang.simp as simp
 from mplang.core import MPObject
 
 from sfl_lite.ml.linear.linear_model import (
+    LinearModel,
+    RegType,
     grad_compute,
     linear_model_predict,
-    LinearModel,
     mse_loss,
-    RegType,
     sync_and_update_weights,
 )
 
@@ -102,6 +102,7 @@ class LinearRegressionVertical:
         epochs: int = 100,
         batch_size: Optional[int] = None,
         tol: float = 1e-4,
+        world_size: int =3, # for now, we use all parties to broadcast gradient, remove this parameter later
     ):
         """
         Fit the vertical linear regression model.
@@ -120,60 +121,54 @@ class LinearRegressionVertical:
 
         # Initialize model parameters for all parties with actual data shape
         initial_model = self._initialize_model(X, label_party)
-        
+
         # Create training state as a dictionary of MPObjects for each party
         epoch = simp.constant(0)
-        tol = simp.run(lambda t: jnp.array(t))(tol)
+        tol = simp.constant(tol)
         max_epochs = simp.constant(epochs)
-        initial_loss = simp.run(lambda: jnp.array(float('inf')))()
-        
+        initial_loss = simp.runAt(label_party, lambda: jnp.array(float('inf')))()
+
         # Create state structure that preserves party associations
         state = {
             'epoch': epoch,
             'loss': initial_loss,
-            'X': X
         }
-        
+
         # Add weights for each party
         for party_id, weight in initial_model.weights.items():
             state[f'weight_{party_id}'] = weight
-            r = simp.runAt(party_id, lambda w,x : x @ w)(weight, X[party_id])
-            print(f'weight_{party_id}:', weight)
-            print(f'r_{party_id}:', r)
-        
-        print(state)
-        print(initial_model)
+
         # Add intercept if present
         if initial_model.intercept is not None:
             state['intercept'] = initial_model.intercept
+
+        # Broadcast gradient to all parties
+        world_mask = mplang.Mask.all(
+            world_size
+        )
 
         def cond(state):
             """Condition function for while loop - check convergence criteria."""
             current_epoch = state['epoch']
             current_loss = state['loss']
-            
+
             # Check if we've reached max epochs
             not_max_epochs = simp.run(lambda e, max_e: e < max_e)(current_epoch, max_epochs)
-            
+
             # Check if loss is above tolerance
-            above_tol = simp.run(lambda l, t: l > t)(current_loss, tol)
-            
+            above_tol = simp.runAt(label_party, lambda loss, threshold: loss > threshold)(current_loss, tol)
+            above_tol = simp.bcast_m(world_mask, label_party, above_tol)
             # Continue if not max epochs AND loss above tolerance
-            return simp.run(lambda a, b: a & b)(not_max_epochs, above_tol)
+            return simp.run(lambda a, b: jnp.logical_and(a, b))(not_max_epochs, above_tol)
 
         def body(state):
             """Body function for while loop - perform one epoch of training."""
             # Extract current parameters from state
             current_weights = {}
-            X = state['X']
             for party_id in X.keys():
                 current_weights[party_id] = state[f'weight_{party_id}']
-                r = simp.runAt(party_id, lambda w,x : x @ w)(state[f'weight_{party_id}'], X[party_id])
-                print(f'body weight_{party_id}:', state[f'weight_{party_id}'])
-                print(f'body r_{party_id}:', r)
-            
             current_intercept = state.get('intercept')
-            
+
             # Create model for current iteration
             current_model = LinearModel(
                 weights=current_weights,
@@ -181,12 +176,8 @@ class LinearRegressionVertical:
                 intercept_party=label_party,
                 intercept=current_intercept,
             )
-            
+
             # Compute predictions from all parties
-            y_pred_party = {
-                party_id: simp.runAt(party_id, lambda x, w: x @ w)(x, state[f'weight_{party_id}'])
-                for party_id, x in X.items()
-            }
             y_pred = linear_model_predict(current_model, X)
 
             # Compute loss
@@ -196,37 +187,39 @@ class LinearRegressionVertical:
             g = grad_compute(y_pred, y, label_party)
 
             # Update weights and intercept
-            # updated_weights, updated_intercept = sync_and_update_weights(
-            #     current_model, X, g, self.learning_rate
-            # )
-            updated_weights, updated_intercept = current_weights,current_intercept 
+            updated_weights, updated_intercept = sync_and_update_weights(
+                current_model, X, g, self.learning_rate
+            )
 
             # Create new state with updated parameters
             new_state = {
                 'epoch': simp.run(lambda e: e + 1)(state['epoch']),
                 'loss': loss,
             }
-            
+
             # Update weights for each party
             for party_id, weight in updated_weights.items():
                 new_state[f'weight_{party_id}'] = weight
-                
+
+
             # Update intercept if present
             if updated_intercept is not None:
                 new_state['intercept'] = updated_intercept
-            
+
             return new_state
 
         # Run training loop with simp.while_loop
         final_state = simp.while_loop(cond, body, state)
-        
+
+        return final_state
+
+    def state_to_model(self, state):
         # Extract final parameters and create model
         final_weights = {}
         for party_id in X.keys():
-            final_weights[party_id] = final_state[f'weight_{party_id}']
-            
-        final_intercept = final_state.get('intercept')
-        
+            final_weights[party_id] = state[f'weight_{party_id}']
+        final_intercept = state.get('intercept')
+
         self.model = LinearModel(
             weights=final_weights,
             reg_type=self.reg_type,
@@ -244,48 +237,46 @@ if __name__ == "__main__":
     # Create a simulator with 3 parties
     sim = mplang.Simulator.simple(3)
     mplang.set_ctx(sim)
-    
-    @mplang.function
-    def train():
-        # Generate synthetic data
-        n_samples = 100
-        n_features_party0 = 2
-        n_features_party1 = 3
-        label_party = 0
 
-        # Features for party 0
-        X0 = simp.runAt(
-            0, lambda: random.normal(random.PRNGKey(42), (n_samples, n_features_party0))
-        )()
 
-        # Features for party 1
-        X1 = simp.runAt(
-            1, lambda: random.normal(random.PRNGKey(43), (n_samples, n_features_party1))
-        )()
+    # Generate synthetic data
+    n_samples = 100
+    n_features_party0 = 2
+    n_features_party1 = 3
+    label_party = 0
 
-        # Target variable (held by party 2)
-        y = simp.runAt(label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,)))()
+    # Features for party 0
+    X0 = simp.runAt(
+        0, lambda: random.normal(random.PRNGKey(42), (n_samples, n_features_party0))
+    )()
 
-        # Create model
-        trainer = LinearRegressionVertical(
-            parties=[0, 1, 2],
-            reg_type=RegType.Linear,
-            learning_rate=0.01,
-            fit_intercept=True,
-        )
+    # Features for party 1
+    X1 = simp.runAt(
+        1, lambda: random.normal(random.PRNGKey(43), (n_samples, n_features_party1))
+    )()
 
-        # Fit model
-        X = {0: X0,1: X1}
-        model =  trainer.fit(X, y, label_party=label_party, epochs=0)
+    # Target variable (held by party 2)
+    y = simp.runAt(label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,)))()
 
-        # Make predictions
-        predictions = linear_model_predict(model, X)
-        print("Predictions:", predictions)
-        return model
+    # Create model
+    trainer = LinearRegressionVertical(
+        parties=[0, 1, 2],
+        reg_type=RegType.Linear,
+        learning_rate=0.01,
+        fit_intercept=True,
+    )
 
-    
-    result = mplang.evaluate(sim, train)
-    print(f"Simulation completed. Final sum: {mplang.fetch(sim, result)}")
-
-    compiled = mplang.compile(sim, train)
-    print("compiled:", compiled.compiler_ir())
+    # Fit model
+    X = {0: X0,1: X1}
+    state = mplang.evaluate(sim, lambda : trainer.fit(X, y, label_party=label_party, epochs=1))
+    model = trainer.state_to_model(state)
+    print(model)
+    print(model.weights[0].mptype)
+    print(model.weights[1].mptype)
+    print(model.intercept.mptype)
+    w0 = mplang.fetch(sim, simp.runAt(0, lambda x: x)(model.weights[0]))
+    w1 = mplang.fetch(sim, simp.runAt(1, lambda x: x)(model.weights[1]))
+    b = mplang.fetch(sim, simp.runAt(0, lambda x: x)(model.intercept))
+    print("Learned party0_weight (first 5):", w0[:5])
+    print("Learned party1_weight (first 5):", w1[:5])
+    print("Learned bias:", b)
