@@ -108,6 +108,8 @@ class LinearRegressionVertical:
         # deadlock bug will occur when broadcast in conditioning
         # So for now, we use all parties to broadcast gradient,
         # remove this parameter later
+        # this paramter is optional for now in order to keep the API consistent
+        # (many cases don't need to specify this)
         world_size: int = 3,
     ):
         """
@@ -120,9 +122,11 @@ class LinearRegressionVertical:
         Args:
             X: Dictionary mapping party identifiers to their feature matrices
             y: Target values (held by one party)
+            label_party: Party ID that holds the labels
             epochs: Number of training epochs
             batch_size: Batch size for training (None for full batch)
             tol: Tolerance for stopping criteria
+            world_size: Total number of parties in the simulation (required for broadcasting)
         """
 
         # Initialize model parameters for all parties with actual data shape
@@ -281,7 +285,7 @@ if __name__ == "__main__":
     # Fit model
     X = {0: X0, 1: X1}
     state = mplang.evaluate(
-        sim, lambda: trainer.fit(X, y, label_party=label_party, epochs=1)
+        sim, lambda: trainer.fit(X, y, label_party=label_party, world_size=3, epochs=1)
     )
     model = trainer.state_to_model(state, label_party=label_party)
     print(model)

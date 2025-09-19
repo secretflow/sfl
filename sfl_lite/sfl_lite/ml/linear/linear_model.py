@@ -108,10 +108,13 @@ def sync_and_update_weights(
         gradient: MPObject (computed gradient)
         learning_rate: float
     """
-    # Broadcast gradient to all parties
-    world_mask = mplang.Mask.all(
-        max(list(model.weights.keys()) + [model.intercept_party]) + 1
-    )
+    # Get all unique party IDs involved in the computation
+    all_parties = set(model.weights.keys())
+    if model.intercept_party is not None:
+        all_parties.add(model.intercept_party)
+    
+    # Create world mask based on actual parties involved
+    world_mask = mplang.Mask.all(max(all_parties))
     broadcasted_gradient = simp.bcast_m(world_mask, model.intercept_party, gradient)
 
     updated_weights = {}
