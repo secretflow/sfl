@@ -67,19 +67,19 @@ class LinearRegressionVertical:
         self, X: Dict[int, MPObject], intercept_party: int, key: random.PRNGKey
     ) -> Tuple[LinearModel, random.PRNGKey]:
         """Initialize model for all parties.
-        
+
         Args:
             X: Dictionary mapping party identifiers to their feature matrices
             intercept_party: Party ID that holds the intercept
             key: PRNG key for random number generation
-            
+
         Returns:
             Tuple of (model, updated_key) where updated_key is the new PRNG key
         """
         weights = {}
         intercept = None
         current_key = key
-        
+
         for party_id, X_party in X.items():
             current_key, subkey = random.split(current_key)
             feature_num = X_party.shape[1]  # Infer feature number from actual data
@@ -125,9 +125,8 @@ class LinearRegressionVertical:
         """
         Fit the vertical linear regression model.
 
-        y device compute the residual r (in y device),
-        r and each worker's x will compute loss (in secure device),
-        and each worker will update their own weight (in each worker's devce).
+        The party holding the label (`y`) computes predictions and gradients.
+        The gradients are then used by each worker to update their model weights on their respective device.
 
         Args:
             X: Dictionary mapping party identifiers to their feature matrices

@@ -15,7 +15,6 @@
 
 from functools import partial, reduce
 from typing import Dict
-import random
 
 import jax.numpy as jnp
 import mplang
@@ -76,6 +75,7 @@ class MPAggregator(Aggregator):
 
 if __name__ == "__main__":
     # example usage
+    import random
 
     sim3 = mplang.Simulator(3)
     mplang.set_ctx(sim3)
