@@ -13,8 +13,9 @@
 # limitations under the License.
 
 
-from functools import reduce
+from functools import partial, reduce
 from typing import Dict
+import random
 
 import jax.numpy as jnp
 import mplang
@@ -75,10 +76,6 @@ class MPAggregator(Aggregator):
 
 if __name__ == "__main__":
     # example usage
-    import random
-    from functools import partial
-
-    import mplang.simp as simp
 
     sim3 = mplang.Simulator(3)
     mplang.set_ctx(sim3)

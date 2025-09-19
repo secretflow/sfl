@@ -15,7 +15,7 @@
 
 import dataclasses
 from enum import Enum, unique
-from typing import Dict
+from typing import Dict, Optional
 
 import jax.numpy as jnp
 import mplang
@@ -47,13 +47,13 @@ class LinearModel:
 
     weights: Dict[int, MPObject]
     reg_type: RegType
-    intercept_party: int = None
-    intercept: MPObject = None
+    intercept_party: Optional[int] = None
+    intercept: Optional[MPObject] = None
 
 
 @mplang.function
 def linear_model_predict(
-    model: LinearModel, X: Dict[int, MPObject], agg: Aggregator = None
+    model: LinearModel, X: Dict[int, MPObject], agg: Optional[Aggregator] = None
 ) -> MPObject:
     """
     Predict with linear model.
