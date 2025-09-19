@@ -22,11 +22,11 @@ class Aggregator(ABC):
     """The abstract aggregator."""
 
     @abstractmethod
-    def sum(self, data: Dict[int, MPObject], axis=None):
-        """Sum of array elements over a given axis."""
+    def sum(self, data: Dict[int, MPObject]):
+        """Sum of array elements."""
         pass
 
     @abstractmethod
-    def average(self, data: Dict[int, MPObject], axis=None, weights=None):
-        """Compute the weighted average along the specified axis."""
+    def average(self, data: Dict[int, MPObject]):
+        """Compute the average of array elements."""
         pass
