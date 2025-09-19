@@ -319,6 +319,7 @@ class TestLinearModel:
         print("Learned bias:", b)
 
         # Assert convergence (weights and bias close to true values)
+        # note that w0 is an MPObject, [party0_weight, party1_weight, party2_weight etc...]
         assert jnp.allclose(w0[0], true_w0, atol=0.2)
         assert jnp.allclose(w1[1], true_w1, atol=0.2)
         assert abs(b[0] - true_b) < 0.2
