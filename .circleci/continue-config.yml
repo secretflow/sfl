@@ -156,7 +156,7 @@ commands:
           name: Install brew dependencies
           command: |
             brew install wget libomp python@3.10
-            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> /Users/distiller/.bash_profile
+            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> $BASH_ENV
   pytest_wrapper:
     parameters:
       target_folder:
@@ -576,8 +576,8 @@ jobs:
           name: "Install homebrew dependencies"
           command: |
             brew install bazelisk cmake ninja libomp wget protobuf@29 python@3.10
-            echo 'export PATH="/opt/homebrew/opt/protobuf@29/bin:$PATH"' >> /Users/distiller/.bash_profile
-            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> /Users/distiller/.bash_profile
+            echo 'export PATH="/opt/homebrew/opt/protobuf@29/bin:$PATH"' >> $BASH_ENV
+            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> $BASH_ENV
       - restore_cache:
           name: restore uv cache
           keys:

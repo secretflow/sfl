@@ -49,8 +49,7 @@ source sfl-lite-env/bin/activate  # On Windows: sfl-lite-env\Scripts\activate
 git clone https://github.com/secretflow/sfl.git
 cd sfl/sfl_lite
 
-# Sync dependencies
-uv sync --active --extra dev --upgrade
+uv pip install .[dev] --upgrade
 ```
 
 ### 3. Verify installation
