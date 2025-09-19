@@ -112,7 +112,6 @@ class LinearRegressionVertical:
         y: MPObject,
         label_party: int,
         epochs: int = 100,
-        batch_size: Optional[int] = None,
         tol: float = 1e-4,
         # previously I did try to infer from current parties,
         # but when the network has n parties and the input data X and y only have <= n - 1 parties,
@@ -135,7 +134,6 @@ class LinearRegressionVertical:
             y: Target values (held by one party)
             label_party: Party ID that holds the labels
             epochs: Number of training epochs
-            batch_size: Batch size for training (None for full batch)
             tol: Tolerance for stopping criteria
             world_size: Total number of parties in the simulation (required for broadcasting)
         """

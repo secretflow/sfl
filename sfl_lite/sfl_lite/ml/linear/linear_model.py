@@ -60,7 +60,7 @@ def linear_model_predict(
 
     Args:
         model : LinearModel
-        x : Dict[int, MPObject] Maps from party id to party sample data
+        X : Dict[int, MPObject] Maps from party id to party sample data
     Returns:
         y_pred : MPObject
     """
