@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import jax.numpy as jnp
 import jax.random as random
@@ -64,13 +64,24 @@ class LinearRegressionVertical:
 
     @mplang.function
     def _initialize_model(
-        self, X: Dict[int, MPObject], intercept_party: int
-    ) -> LinearModel:
-        """Initialize model for all parties."""
+        self, X: Dict[int, MPObject], intercept_party: int, key: random.PRNGKey
+    ) -> Tuple[LinearModel, random.PRNGKey]:
+        """Initialize model for all parties.
+        
+        Args:
+            X: Dictionary mapping party identifiers to their feature matrices
+            intercept_party: Party ID that holds the intercept
+            key: PRNG key for random number generation
+            
+        Returns:
+            Tuple of (model, updated_key) where updated_key is the new PRNG key
+        """
         weights = {}
         intercept = None
+        current_key = key
+        
         for party_id, X_party in X.items():
-            self.key, subkey = random.split(self.key)
+            current_key, subkey = random.split(current_key)
             feature_num = X_party.shape[1]  # Infer feature number from actual data
             weight = simp.runAt(
                 party_id,
@@ -81,7 +92,7 @@ class LinearRegressionVertical:
             weights[party_id] = weight
 
         if self.fit_intercept:
-            self.key, subkey = random.split(self.key)
+            current_key, subkey = random.split(current_key)
             intercept = simp.runAt(
                 intercept_party,
                 lambda: random.uniform(subkey, shape=(), minval=-0.1, maxval=0.1),
@@ -92,7 +103,7 @@ class LinearRegressionVertical:
             intercept_party=intercept_party,
             intercept=intercept if self.fit_intercept else None,
         )
-        return model
+        return model, current_key
 
     @mplang.function
     def fit(
@@ -130,7 +141,10 @@ class LinearRegressionVertical:
         """
 
         # Initialize model parameters for all parties with actual data shape
-        initial_model = self._initialize_model(X, label_party)
+        initial_model, updated_key = self._initialize_model(X, label_party, self.key)
+        # Note: In the functional paradigm, we would return the updated key,
+        # but since fit() is not expected to be pure, we update self.key here
+        self.key = updated_key
 
         # Create training state as a dictionary of MPObjects for each party
         epoch = simp.constant(0)
