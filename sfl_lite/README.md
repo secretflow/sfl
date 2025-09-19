@@ -56,9 +56,6 @@ uv pip install .[dev] --upgrade
 ```bash
 # Test the installation
 python -c "import sfl_lite; print('SFL Lite installed successfully!')"
-
-# Run a simple example
-sfl-lite --help
 ```
 
 ## Development
