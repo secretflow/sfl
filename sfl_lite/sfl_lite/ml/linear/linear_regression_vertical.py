@@ -81,6 +81,7 @@ class LinearRegressionVertical:
             weights[party_id] = weight
 
         if self.fit_intercept:
+            self.key, subkey = random.split(self.key)
             intercept = simp.runAt(
                 intercept_party,
                 lambda: random.uniform(subkey, shape=(), minval=-0.1, maxval=0.1),
