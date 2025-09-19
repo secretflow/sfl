@@ -193,9 +193,15 @@ class TestLinearRegressionVertical:
         )
 
         # Test state_to_model conversion
-        # Note: This is a simplified test as the actual conversion might need more context
         assert state is not None
         assert trainer.get_model() is None  # Initially should be None
+        
+        # Convert state to model
+        model = trainer.state_to_model(state, label_party=label_party)
+        assert model is not None
+        assert trainer.get_model() is not None  # Should now have a model
+        assert 0 in model.weights  # Should have weights for party 0
+        assert model.intercept_party == label_party
 
     def test_vertical_linear_regression_different_learning_rates(self):
         """Test training with different learning rates."""

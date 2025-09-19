@@ -216,11 +216,13 @@ class LinearRegressionVertical:
 
         return final_state
 
-    def state_to_model(self, state):
+    def state_to_model(self, state: Dict, label_party: int):
         # Extract final parameters and create model
         final_weights = {}
-        for party_id in X.keys():
-            final_weights[party_id] = state[f"weight_{party_id}"]
+        for key in state:
+            if key.startswith("weight_"):
+                party_id = int(key.split("_")[1])
+                final_weights[party_id] = state[key]
         final_intercept = state.get("intercept")
 
         self.model = LinearModel(
@@ -275,7 +277,7 @@ if __name__ == "__main__":
     state = mplang.evaluate(
         sim, lambda: trainer.fit(X, y, label_party=label_party, epochs=1)
     )
-    model = trainer.state_to_model(state)
+    model = trainer.state_to_model(state, label_party=label_party)
     print(model)
     print(model.weights[0].mptype)
     print(model.weights[1].mptype)
