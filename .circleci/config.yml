@@ -79,9 +79,11 @@ workflows:
             tests/tuner/.*                test_tuner         true
             tests/utils/.*                test_utils         true
             tests/.*                      test_any           true
+            sfl_lite/.*                   sfl_lite_test      true
   publish-workflow:
     when:
       equal: ["publish_pypi", << pipeline.parameters.GHA_Meta >>]
     jobs:
       - continuation/continue:
           configuration_path: .circleci/release-config.yml
+
