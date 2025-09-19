@@ -103,7 +103,12 @@ class LinearRegressionVertical:
         epochs: int = 100,
         batch_size: Optional[int] = None,
         tol: float = 1e-4,
-        world_size: int = 3,  # for now, we use all parties to broadcast gradient, remove this parameter later
+        # previously I did try to infer from current parties, 
+        # but when the network has n parties and the input data X and y only have <= n - 1 parties, 
+        # deadlock bug will occur when broadcast in conditioning
+        # So for now, we use all parties to broadcast gradient,
+        # remove this parameter later
+        world_size: int = 3,  
     ):
         """
         Fit the vertical linear regression model.
