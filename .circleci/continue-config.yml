@@ -130,14 +130,9 @@ commands:
     steps:
       - run:
           name: Install brew dependencies
-          command: brew install wget libomp
-      - run:
-          name: Install miniconda
           command: |
-            wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.1.2-0-MacOSX-arm64.sh -O ~/miniconda.sh
-            bash ~/miniconda.sh -b -p $HOME/miniconda
-            source $HOME/miniconda/bin/activate
-            conda init zsh bash
+            brew install wget libomp python@3.10
+            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> /Users/distiller/.bash_profile
   pytest_wrapper:
     parameters:
       target_folder:
@@ -177,13 +172,19 @@ commands:
             done
             
       - run:
-          name: "Run tests"
+          name: "Run tests with uv"
           command: |
             set +e
-            conda init
-            conda install -y -c conda-forge uv
-            uv venv
+            
+            # 安装uv（如果尚未安装）
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.cargo/bin:$PATH"
+            
+            # 使用uv创建虚拟环境
+            uv venv --python 3.10
             source .venv/bin/activate
+            
+            # 使用uv安装依赖
             uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
 
             # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
@@ -475,14 +476,20 @@ commands:
             - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
-          name: "Run sfl_lite tests"
+          name: "Run sfl_lite tests with uv"
           command: |
             set +e
             cd sfl_lite
-            conda init
-            conda install -y -c conda-forge uv
-            uv venv
+            
+            # 安装uv（如果尚未安装）
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.cargo/bin:$PATH"
+            
+            # 使用uv创建虚拟环境
+            uv venv --python 3.10
             source .venv/bin/activate
+            
+            # 使用uv安装依赖
             uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
 
             pytest --junitxml=../results.xml -v --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
@@ -524,12 +531,17 @@ jobs:
             - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
-          name: Install python deps
+          name: Install python deps with uv
           command: |
-            conda init
-            conda install -y -c conda-forge uv
-            uv venv
+            # 安装uv
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.cargo/bin:$PATH"
+            
+            # 使用uv创建虚拟环境
+            uv venv --python 3.10
             source .venv/bin/activate
+            
+            # 使用uv安装依赖
             uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
@@ -542,27 +554,26 @@ jobs:
       - run:
           name: "Install homebrew dependencies"
           command: |
-            brew install bazelisk cmake ninja libomp wget protobuf@29
+            brew install bazelisk cmake ninja libomp wget protobuf@29 python@3.10
             echo 'export PATH="/opt/homebrew/opt/protobuf@29/bin:$PATH"' >> /Users/distiller/.bash_profile
-      - run:
-          name: "Install Miniconda"
-          command: |
-            wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.1.2-0-MacOSX-arm64.sh -O ~/miniconda.sh
-            bash ~/miniconda.sh -b -p $HOME/miniconda
-            source $HOME/miniconda/bin/activate
-            conda init zsh bash
+            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> /Users/distiller/.bash_profile
       - restore_cache:
           name: restore uv cache
           keys:
             - v1-uv-cache-{{ checksum "uv.lock" }}
             - v1-uv-cache-
       - run:
-          name: Install python dependencies
+          name: Install python dependencies with uv
           command: |
-            conda init
-            conda install -y -c conda-forge uv
-            uv venv
+            # 安装uv
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.cargo/bin:$PATH"
+            
+            # 使用uv创建虚拟环境
+            uv venv --python 3.10
             source .venv/bin/activate
+            
+            # 使用uv安装依赖
             uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
       - save_cache:
           key: v1-uv-cache-{{ checksum "uv.lock" }}
