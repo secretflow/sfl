@@ -195,7 +195,7 @@ class TestLinearRegressionVertical:
         # Test state_to_model conversion
         assert state is not None
         assert trainer.get_model() is None  # Initially should be None
-        
+
         # Convert state to model
         model = trainer.state_to_model(state, label_party=label_party)
         assert model is not None
