@@ -65,7 +65,7 @@ sfl-lite --help
 
 ```bash
 # Install development dependencies
-pip install -e ".[dev]"
+uv pip install .[dev] --upgrade
 
 # Run tests
 pytest
