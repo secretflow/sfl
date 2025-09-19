@@ -471,10 +471,10 @@ commands:
         default: "sim"
     steps:
       - restore_cache:
-          name: restore uv cache
+          name: restore sfl_lite uv cache
           keys:
-            - v1-uv-cache-{{ checksum "uv.lock" }}
-            - v1-uv-cache-
+            - v1-uv-cache-sfl-lite-{{ checksum "sfl_lite/pyproject.toml" }}
+            - v1-uv-cache-sfl-lite-
       - run:
           name: "Run sfl_lite tests with uv"
           command: |
@@ -500,6 +500,11 @@ commands:
               exit 0
             fi
             exit $ret
+      - save_cache:
+          name: save sfl_lite uv cache
+          key: v1-uv-cache-sfl-lite-{{ checksum "sfl_lite/pyproject.toml" }}
+          paths:
+            - sfl_lite/.venv
       - store_test_results:
           path: ./results.xml
   run_sfl_lite_test:
