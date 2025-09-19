@@ -114,7 +114,7 @@ def sync_and_update_weights(
         all_parties.add(model.intercept_party)
     
     # Create world mask based on actual parties involved
-    world_mask = mplang.Mask.all(max(all_parties))
+    world_mask = mplang.Mask.all(max(all_parties) + 1)
     broadcasted_gradient = simp.bcast_m(world_mask, model.intercept_party, gradient)
 
     updated_weights = {}
