@@ -178,7 +178,7 @@ commands:
             
             # 安装uv（如果尚未安装）
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            export PATH="$HOME/.cargo/bin:$PATH"
+            export PATH="$HOME/.local/bin:$PATH"
             
             # 使用uv创建虚拟环境
             uv venv --python 3.10
@@ -483,7 +483,7 @@ commands:
             
             # 安装uv（如果尚未安装）
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            export PATH="$HOME/.cargo/bin:$PATH"
+            export PATH="$HOME/.local/bin:$PATH"
             
             # 使用uv创建虚拟环境
             uv venv --python 3.10
@@ -535,7 +535,7 @@ jobs:
           command: |
             # 安装uv
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            export PATH="$HOME/.cargo/bin:$PATH"
+            export PATH="$HOME/.local/bin:$PATH"
             
             # 使用uv创建虚拟环境
             uv venv --python 3.10
@@ -567,7 +567,7 @@ jobs:
           command: |
             # 安装uv
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            export PATH="$HOME/.cargo/bin:$PATH"
+            export PATH="$HOME/.local/bin:$PATH"
             
             # 使用uv创建虚拟环境
             uv venv --python 3.10
