@@ -39,7 +39,7 @@ from secretflow.utils.simulation.datasets import (
     unzip,
 )
 
-# 计算本地缓存目录
+# Calculate local cache directory
 import os as _os
 
 _CACHE_DIR = _os.path.join(_os.path.expanduser("~"), ".secretflow", "datasets")
