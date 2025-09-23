@@ -45,7 +45,7 @@ class TestLinearRegressionVertical:
         assert model.reg_type == reg_type
         assert model.fit_intercept is True
         assert model.learning_rate == 0.1
-        assert model.model is None
+        assert model.seed == 42
 
     def test_vertical_linear_regression_basic_fit(self):
         """Test basic fitting functionality with synthetic data."""
@@ -70,7 +70,7 @@ class TestLinearRegressionVertical:
             label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,))
         )()
 
-        # Create and fit model
+        # Create model configuration
         trainer = LinearRegressionVertical(
             reg_type=RegType.Linear,
             learning_rate=0.01,
@@ -78,11 +78,12 @@ class TestLinearRegressionVertical:
         )
 
         X = {0: X0, 1: X1}
+        key = random.PRNGKey(42)
 
         # Test that fitting runs without error
-        state = mplang.evaluate(
+        state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=5, world_size=3),
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=5, world_size=3, key=key),
         )
 
         assert state is not None
@@ -91,6 +92,7 @@ class TestLinearRegressionVertical:
         assert "weight_0" in state
         assert "weight_1" in state
         assert "intercept" in state
+        assert updated_key is not None
 
     def test_vertical_linear_regression_no_intercept(self):
         """Test vertical linear regression without intercept."""
@@ -114,10 +116,11 @@ class TestLinearRegressionVertical:
         )
 
         X = {0: X0}
+        key = random.PRNGKey(42)
 
-        state = mplang.evaluate(
+        state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=3, world_size=3),
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=3, world_size=3, key=key),
         )
 
         assert state is not None
@@ -125,6 +128,7 @@ class TestLinearRegressionVertical:
         assert (
             "intercept" not in state
         )  # Should not have intercept when fit_intercept=False
+        assert updated_key is not None
 
     def test_vertical_linear_regression_convergence(self):
         """Test that the model converges on simple linear data."""
@@ -149,11 +153,12 @@ class TestLinearRegressionVertical:
         )
 
         X = {0: X0}
+        key = random.PRNGKey(42)
 
-        state = mplang.evaluate(
+        state, updated_key = mplang.evaluate(
             self.sim3,
             lambda: trainer.fit(
-                X, y, label_party=label_party, epochs=50, tol=1e-3, world_size=3
+                X, y, label_party=label_party, epochs=50, tol=1e-3, world_size=3, key=key
             ),
         )
 
@@ -161,6 +166,7 @@ class TestLinearRegressionVertical:
         final_epoch = mplang.fetch(None, state["epoch"])[0]
         assert final_epoch > 0
         assert final_epoch <= 50
+        assert updated_key is not None
 
     def test_vertical_linear_regression_state_to_model(self):
         """Test conversion from training state to model."""
@@ -183,21 +189,18 @@ class TestLinearRegressionVertical:
         )
 
         X = {0: X0}
+        key = random.PRNGKey(42)
 
         # Fit model
-        state = mplang.evaluate(
+        state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=2, world_size=3),
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=2, world_size=3, key=key),
         )
 
         # Test state_to_model conversion
         assert state is not None
-        assert trainer.get_model() is None  # Initially should be None
-
-        # Convert state to model
-        model = trainer.state_to_model(state, label_party=label_party)
+        model = LinearRegressionVertical.state_to_model(state, label_party=label_party, reg_type=RegType.Linear)
         assert model is not None
-        assert trainer.get_model() is not None  # Should now have a model
         assert 0 in model.weights  # Should have weights for party 0
         assert model.intercept_party == label_party
 
@@ -225,16 +228,18 @@ class TestLinearRegressionVertical:
             )
 
             X = {0: X0}
+            key = random.PRNGKey(42)
 
-            state = mplang.evaluate(
+            state, updated_key = mplang.evaluate(
                 self.sim3,
                 lambda: trainer.fit(
-                    X, y, label_party=label_party, epochs=2, world_size=3
+                    X, y, label_party=label_party, epochs=2, world_size=3, key=key
                 ),
             )
 
             assert state is not None
             assert "loss" in state
+            assert updated_key is not None
 
     def test_vertical_linear_regression_empty_data_handling(self):
         """Test handling of edge cases with minimal data."""
@@ -251,14 +256,16 @@ class TestLinearRegressionVertical:
         )
 
         X = {0: X0}
+        key = random.PRNGKey(42)
 
         # Should handle minimal data without error
-        state = mplang.evaluate(
+        state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3),
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3, key=key),
         )
 
         assert state is not None
+        assert updated_key is not None
 
     def test_vertical_linear_regression_reproducibility(self):
         """Test that results are reproducible with same seed."""
@@ -279,14 +286,14 @@ class TestLinearRegressionVertical:
             trainer = LinearRegressionVertical(
                 reg_type=RegType.Linear,
                 learning_rate=0.01,
-                seed=seed,
             )
 
             X = {0: X0}
-            state = mplang.evaluate(
+            key = random.PRNGKey(seed)
+            state, updated_key = mplang.evaluate(
                 self.sim3,
                 lambda: trainer.fit(
-                    X, y, label_party=label_party, epochs=2, world_size=3
+                    X, y, label_party=label_party, epochs=2, world_size=3, key=key
                 ),
             )
             return state
@@ -297,5 +304,99 @@ class TestLinearRegressionVertical:
 
         # Both should produce similar results (within reasonable tolerance)
         loss1 = mplang.fetch(None, state1["loss"])
+        loss2 = mplang.fetch(None, state2["loss"])
+        assert abs(loss1[label_party] - loss2[label_party]) < 1e-6
+
+    def test_vertical_linear_regression_multiple_calls(self):
+        """Test that the model can be called multiple times with different keys."""
+        n_samples = 50
+        n_features = 2
+        label_party = 1
+
+        # Generate data
+        X0 = simp.runAt(
+            0, lambda: random.normal(random.PRNGKey(58), (n_samples, n_features))
+        )()
+
+        y = simp.runAt(
+            label_party, lambda: random.normal(random.PRNGKey(59), (n_samples,))
+        )()
+
+        trainer = LinearRegressionVertical(
+            reg_type=RegType.Linear,
+            learning_rate=0.01,
+        )
+
+        X = {0: X0}
+
+        # First call
+        key1 = random.PRNGKey(42)
+        state1, updated_key1 = mplang.evaluate(
+            self.sim3,
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=1, world_size=3, key=key1
+            ),
+        )
+
+        # Second call with different key - should work without issues
+        key2 = random.PRNGKey(123)
+        state2, updated_key2 = mplang.evaluate(
+            self.sim3,
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=1, world_size=3, key=key2
+            ),
+        )
+
+        assert state1 is not None
+        assert state2 is not None
+        assert updated_key1 is not None
+        assert updated_key2 is not None
+        # Keys should be different after use
+        assert not jnp.array_equal(updated_key1, updated_key2)
+
+    def test_vertical_linear_regression_default_key(self):
+        """Test that the model works with default key generation."""
+        n_samples = 50
+        n_features = 2
+        label_party = 1
+
+        # Generate data
+        X0 = simp.runAt(
+            0, lambda: random.normal(random.PRNGKey(60), (n_samples, n_features))
+        )()
+
+        y = simp.runAt(
+            label_party, lambda: random.normal(random.PRNGKey(61), (n_samples,))
+        )()
+
+        trainer = LinearRegressionVertical(
+            reg_type=RegType.Linear,
+            learning_rate=0.01,
+            seed=42,  # Default seed
+        )
+
+        X = {0: X0}
+
+        # Call without providing key - should use default seed
+        state, updated_key = mplang.evaluate(
+            self.sim3,
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=1, world_size=3
+            ),
+        )
+
+        assert state is not None
+        assert updated_key is not None
+
+        # Call again - should be reproducible with same seed
+        state2, updated_key2 = mplang.evaluate(
+            self.sim3,
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=1, world_size=3
+            ),
+        )
+
+        # Should be reproducible
+        loss1 = mplang.fetch(None, state["loss"])
         loss2 = mplang.fetch(None, state2["loss"])
         assert abs(loss1[label_party] - loss2[label_party]) < 1e-6

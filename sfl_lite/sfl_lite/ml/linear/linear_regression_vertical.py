@@ -35,6 +35,9 @@ class LinearRegressionVertical:
     Vertical Linear Regression using MPLang for secure multi-party computation.
     This implementation provides a modern, secure approach to vertical federated
     learning using natural language interfaces and homomorphic encryption.
+    
+    This class is designed to be stateless and functional, following MPLang's
+    functional programming paradigm. All state is managed externally by the caller.
     """
 
     def __init__(
@@ -45,23 +48,31 @@ class LinearRegressionVertical:
         seed: int = 42,
     ):
         """
-        Initialize vertical linear regression.
+        Initialize vertical linear regression configuration.
+        
+        This class maintains configuration parameters but remains stateless
+        during training. The seed parameter provides a default for when
+        no explicit key is provided to fit().
 
         Args:
             reg_type: Type of regression (linear or logistic)
             fit_intercept: Whether to fit an intercept term, default give to label holder
             learning_rate: Learning rate for gradient descent
-            seed: Random seed for reproducibility
+            seed: Default seed for PRNG key generation when none provided
         """
         self.reg_type = reg_type
         self.fit_intercept = fit_intercept
         self.learning_rate = learning_rate
-        self.key = random.PRNGKey(seed)
-        self.model = None
+        self.seed = seed
 
+    @staticmethod
     @mplang.function
     def _initialize_model(
-        self, X: Dict[int, MPObject], intercept_party: int, key: random.PRNGKey
+        X: Dict[int, MPObject],
+        intercept_party: int,
+        key: random.PRNGKey,
+        reg_type: RegType,
+        fit_intercept: bool,
     ) -> Tuple[LinearModel, random.PRNGKey]:
         """Initialize model for all parties.
 
@@ -69,6 +80,8 @@ class LinearRegressionVertical:
             X: Dictionary mapping party identifiers to their feature matrices
             intercept_party: Party ID that holds the intercept
             key: PRNG key for random number generation
+            reg_type: Type of regression (linear or logistic)
+            fit_intercept: Whether to fit an intercept term
 
         Returns:
             Tuple of (model, updated_key) where updated_key is the new PRNG key
@@ -88,7 +101,7 @@ class LinearRegressionVertical:
             )()
             weights[party_id] = weight
 
-        if self.fit_intercept:
+        if fit_intercept:
             current_key, subkey = random.split(current_key)
             intercept = simp.runAt(
                 intercept_party,
@@ -96,9 +109,9 @@ class LinearRegressionVertical:
             )()
         model = LinearModel(
             weights=weights,
-            reg_type=self.reg_type,
+            reg_type=reg_type,
             intercept_party=intercept_party,
-            intercept=intercept if self.fit_intercept else None,
+            intercept=intercept if fit_intercept else None,
         )
         return model, current_key
 
@@ -109,29 +122,42 @@ class LinearRegressionVertical:
         y: MPObject,
         label_party: int,
         world_size: int,
+        key: random.PRNGKey = None,
         epochs: int = 100,
         tol: float = 1e-4,
-    ):
+    ) -> Tuple[Dict, random.PRNGKey]:
         """
         Fit the vertical linear regression model.
 
         The party holding the label (`y`) computes predictions and gradients.
-        The gradients are then used by each worker to update their model weights on their respective device.
+        The gradients are then used by each worker to update their model weights 
+        on their respective device.
+
+        This method is pure and functional - it does not modify any instance state
+        and returns both the final training state and the updated PRNG key.
 
         Args:
             X: Dictionary mapping party identifiers to their feature matrices
             y: Target values (held by one party)
             label_party: Party ID that holds the labels
             world_size: Total number of parties in the simulation (required for broadcasting)
+            key: PRNG key for random number generation. If None, uses self.seed
             epochs: Number of training epochs
             tol: Tolerance for stopping criteria
+
+        Returns:
+            Tuple of (final_state, updated_key) where final_state contains the
+            trained model parameters and updated_key is the new PRNG key
         """
 
+        # Use provided key or generate from default seed
+        if key is None:
+            key = random.PRNGKey(self.seed)
+
         # Initialize model parameters for all parties with actual data shape
-        initial_model, updated_key = self._initialize_model(X, label_party, self.key)
-        # Note: In the functional paradigm, we would return the updated key,
-        # but since fit() is not expected to be pure, we update self.key here
-        self.key = updated_key
+        initial_model, updated_key = self._initialize_model(
+            X, label_party, key, self.reg_type, self.fit_intercept
+        )
 
         # Create training state as a dictionary of MPObjects for each party
         epoch = simp.constant(0)
@@ -225,10 +251,25 @@ class LinearRegressionVertical:
         # Run training loop with simp.while_loop
         final_state = simp.while_loop(cond, body, state)
 
-        return final_state
+        return final_state, updated_key
 
-    def state_to_model(self, state: Dict, label_party: int):
-        # Extract final parameters and create model
+    @staticmethod
+    def state_to_model(state: Dict, label_party: int, reg_type: RegType) -> LinearModel:
+        """
+        Convert training state to LinearModel instance.
+        
+        This is a static method that creates a new LinearModel from the training state,
+        maintaining the functional paradigm.
+        
+        Args:
+            state: Training state containing model parameters
+            label_party: Party ID that holds the labels
+            reg_type: Type of regression (linear or logistic)
+            
+        Returns:
+            LinearModel instance with trained parameters
+        """
+        # Extract final parameters from state
         final_weights = {}
         for key in state:
             if key.startswith("weight_"):
@@ -236,16 +277,12 @@ class LinearRegressionVertical:
                 final_weights[party_id] = state[key]
         final_intercept = state.get("intercept")
 
-        self.model = LinearModel(
+        return LinearModel(
             weights=final_weights,
-            reg_type=self.reg_type,
+            reg_type=reg_type,
             intercept_party=label_party,
             intercept=final_intercept,
         )
-        return self.get_model()
-
-    def get_model(self):
-        return self.model
 
 
 # Example usage
@@ -275,19 +312,26 @@ if __name__ == "__main__":
         label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,))
     )()
 
-    # Create model
+    # Create model configuration
     trainer = LinearRegressionVertical(
         reg_type=RegType.Linear,
         learning_rate=0.01,
         fit_intercept=True,
+        seed=42,
     )
 
-    # Fit model
+    # Option 1: Use default key generation
     X = {0: X0, 1: X1}
-    state = mplang.evaluate(
+    state, updated_key = mplang.evaluate(
         sim, lambda: trainer.fit(X, y, label_party=label_party, world_size=3, epochs=1)
     )
-    model = trainer.state_to_model(state, label_party=label_party)
+    
+    # Option 2: Provide explicit key
+    key = random.PRNGKey(123)
+    state, updated_key = mplang.evaluate(
+        sim, lambda: trainer.fit(X, y, label_party=label_party, world_size=3, key=key, epochs=1)
+    )
+    model = LinearRegressionVertical.state_to_model(state, label_party=label_party, reg_type=RegType.Linear)
     print(model)
     print(model.weights[0].mptype)
     print(model.weights[1].mptype)
