@@ -39,7 +39,6 @@ class LinearRegressionVertical:
 
     def __init__(
         self,
-        parties: List[int],
         reg_type: RegType,
         fit_intercept: bool = True,
         learning_rate: float = 0.1,
@@ -49,13 +48,11 @@ class LinearRegressionVertical:
         Initialize vertical linear regression.
 
         Args:
-            parties: List of party identifiers
             reg_type: Type of regression (linear or logistic)
             fit_intercept: Whether to fit an intercept term, default give to label holder
             learning_rate: Learning rate for gradient descent
             seed: Random seed for reproducibility
         """
-        self.parties = parties
         self.reg_type = reg_type
         self.fit_intercept = fit_intercept
         self.learning_rate = learning_rate
@@ -289,7 +286,6 @@ if __name__ == "__main__":
 
     # Create model
     trainer = LinearRegressionVertical(
-        parties=[0, 1, 2],
         reg_type=RegType.Linear,
         learning_rate=0.01,
         fit_intercept=True,

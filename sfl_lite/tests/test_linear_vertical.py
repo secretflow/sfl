@@ -33,18 +33,15 @@ class TestLinearRegressionVertical:
 
     def test_vertical_linear_regression_initialization(self):
         """Test LinearRegressionVertical initialization."""
-        parties = [0, 1, 2]
         reg_type = RegType.Linear
 
         model = LinearRegressionVertical(
-            parties=parties,
             reg_type=reg_type,
             fit_intercept=True,
             learning_rate=0.1,
             seed=42,
         )
 
-        assert model.parties == parties
         assert model.reg_type == reg_type
         assert model.fit_intercept is True
         assert model.learning_rate == 0.1
@@ -75,7 +72,6 @@ class TestLinearRegressionVertical:
 
         # Create and fit model
         trainer = LinearRegressionVertical(
-            parties=[0, 1, 2],
             reg_type=RegType.Linear,
             learning_rate=0.01,
             fit_intercept=True,
@@ -111,7 +107,6 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
-            parties=[0, 1],
             reg_type=RegType.Linear,
             fit_intercept=False,
             learning_rate=0.01,
@@ -146,7 +141,6 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
-            parties=[0],
             reg_type=RegType.Linear,
             learning_rate=0.1,
             fit_intercept=True,
@@ -180,7 +174,6 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
-            parties=[0, 1],
             reg_type=RegType.Linear,
             learning_rate=0.01,
         )
@@ -221,7 +214,6 @@ class TestLinearRegressionVertical:
 
         for lr in learning_rates:
             trainer = LinearRegressionVertical(
-                parties=[0],
                 reg_type=RegType.Linear,
                 learning_rate=lr,
                 fit_intercept=True,
@@ -245,7 +237,6 @@ class TestLinearRegressionVertical:
         y = simp.runAt(label_party, lambda: jnp.array([1.0]))()
 
         trainer = LinearRegressionVertical(
-            parties=[0],
             reg_type=RegType.Linear,
             learning_rate=0.01,
             fit_intercept=True,
@@ -277,7 +268,6 @@ class TestLinearRegressionVertical:
 
         def run_training(seed):
             trainer = LinearRegressionVertical(
-                parties=[0, 1],
                 reg_type=RegType.Linear,
                 learning_rate=0.01,
                 seed=seed,

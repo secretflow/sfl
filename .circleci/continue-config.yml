@@ -131,7 +131,9 @@ commands:
           name: Install uv and setup virtual environment
           command: |
             # Install uv (if not already installed)
-            curl -LsSf https://astral.sh/uv/install.sh | sh
+            if ! command -v uv &> /dev/null; then
+                curl -LsSf https://astral.sh/uv/install.sh | sh
+            fi
             export PATH="$HOME/.local/bin:$PATH"
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
             
@@ -141,7 +143,7 @@ commands:
             source .venv/bin/activate
             
             # Add activate command to BASH_ENV for subsequent steps
-            echo "source .venv/bin/activate" >> $BASH_ENV
+            echo "source << parameters.working_directory >>/.venv/bin/activate" >> $BASH_ENV
   kill_countdown:
     steps:
       - run:
