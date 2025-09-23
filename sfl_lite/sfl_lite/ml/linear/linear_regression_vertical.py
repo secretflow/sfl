@@ -212,7 +212,7 @@ class LinearRegressionVertical:
 
             # Update weights and intercept
             updated_weights, updated_intercept = sync_and_update_weights(
-                current_model, X, g, self.learning_rate
+                current_model, X, g, self.learning_rate, world_size
             )
 
             # Create new state with updated parameters
