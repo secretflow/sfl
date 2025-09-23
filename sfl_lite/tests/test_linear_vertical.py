@@ -81,7 +81,8 @@ class TestLinearRegressionVertical:
 
         # Test that fitting runs without error
         state = mplang.evaluate(
-            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=5, world_size=3)
+            self.sim3,
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=5, world_size=3),
         )
 
         assert state is not None
@@ -115,7 +116,8 @@ class TestLinearRegressionVertical:
         X = {0: X0}
 
         state = mplang.evaluate(
-            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=3, world_size=3)
+            self.sim3,
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=3, world_size=3),
         )
 
         assert state is not None
@@ -150,7 +152,9 @@ class TestLinearRegressionVertical:
 
         state = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=50, tol=1e-3, world_size=3),
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=50, tol=1e-3, world_size=3
+            ),
         )
 
         # Check that training completed
@@ -182,7 +186,8 @@ class TestLinearRegressionVertical:
 
         # Fit model
         state = mplang.evaluate(
-            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=2, world_size=3)
+            self.sim3,
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=2, world_size=3),
         )
 
         # Test state_to_model conversion
@@ -222,7 +227,10 @@ class TestLinearRegressionVertical:
             X = {0: X0}
 
             state = mplang.evaluate(
-                self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=2, world_size=3)
+                self.sim3,
+                lambda: trainer.fit(
+                    X, y, label_party=label_party, epochs=2, world_size=3
+                ),
             )
 
             assert state is not None
@@ -246,7 +254,8 @@ class TestLinearRegressionVertical:
 
         # Should handle minimal data without error
         state = mplang.evaluate(
-            self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3)
+            self.sim3,
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3),
         )
 
         assert state is not None
@@ -275,7 +284,10 @@ class TestLinearRegressionVertical:
 
             X = {0: X0}
             state = mplang.evaluate(
-                self.sim3, lambda: trainer.fit(X, y, label_party=label_party, epochs=2, world_size=3)
+                self.sim3,
+                lambda: trainer.fit(
+                    X, y, label_party=label_party, epochs=2, world_size=3
+                ),
             )
             return state
 
