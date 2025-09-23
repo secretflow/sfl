@@ -301,7 +301,7 @@ class TestLinearModel:
             y_pred = linear_model_predict(model, X)
             gradient = grad_compute(y_pred, y_true_party, label_party=0)
             updated_weights, updated_intercept = sync_and_update_weights(
-                model, X, gradient, learning_rate
+                model, X, gradient, learning_rate, world_size=2
             )
             model.weights = updated_weights
             model.intercept = updated_intercept

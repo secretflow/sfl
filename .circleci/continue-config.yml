@@ -179,8 +179,8 @@ commands:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "uv.lock" }}
-            - v1-uv-cache-
+            - v2-uv-cache-{{ checksum "uv.lock" }}
+            - v2-uv-cache-
       - run:
           name: "Fix testmon cache permissions"
           command: |
@@ -205,8 +205,8 @@ commands:
           command: |
             set +e
             
-            # Install dependencies using uv
-            uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
 
             # Configure testmon database path to /tmp and restore from cache
             TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
@@ -494,8 +494,8 @@ commands:
       - restore_cache:
           name: restore sfl_lite uv cache
           keys:
-            - v1-uv-cache-sfl-lite-{{ checksum "sfl_lite/pyproject.toml" }}
-            - v1-uv-cache-sfl-lite-
+            - v2-uv-cache-sfl-lite-{{ checksum "sfl_lite/uv.lock" }}
+            - v2-uv-cache-sfl-lite-
       - install_uv_and_setup_venv:
           python_version: "3.10"
           working_directory: "sfl_lite"
@@ -505,8 +505,8 @@ commands:
             set +e
             cd sfl_lite
             
-            # Install dependencies using uv
-            uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen
 
             pytest --junitxml=../results.xml -v --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
             ret=$?
@@ -518,9 +518,10 @@ commands:
             exit $ret
       - save_cache:
           name: save sfl_lite uv cache
-          key: v1-uv-cache-sfl-lite-{{ checksum "sfl_lite/pyproject.toml" }}
+          key: v2-uv-cache-sfl-lite-{{ checksum "sfl_lite/uv.lock" }}
           paths:
             - sfl_lite/.venv
+            - ~/.cache/uv
       - store_test_results:
           path: ./results.xml
   run_sfl_lite_test:
@@ -549,8 +550,8 @@ jobs:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "uv.lock" }}
-            - v1-uv-cache-
+            - v2-uv-cache-{{ checksum "uv.lock" }}
+            - v2-uv-cache-
       - install_uv_and_setup_venv:
           python_version: "3.10"
       - run:
@@ -559,12 +560,13 @@ jobs:
             # Activate virtual environment
             source .venv/bin/activate
             
-            # Install dependencies using uv
-            uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
       - save_cache:
-          key: v1-uv-cache-{{ checksum "uv.lock" }}
+          key: v2-uv-cache-{{ checksum "uv.lock" }}
           paths:
             - "~/.cache/uv"
+            - ".venv"
   macos_build:
     executor: macos_executor
     steps:
@@ -578,8 +580,8 @@ jobs:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "uv.lock" }}
-            - v1-uv-cache-
+            - v2-uv-cache-{{ checksum "uv.lock" }}
+            - v2-uv-cache-
       - install_uv_and_setup_venv:
           python_version: "3.10"
       - run:
@@ -588,12 +590,13 @@ jobs:
             # Activate virtual environment
             source .venv/bin/activate
             
-            # Install dependencies using uv
-            uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen
       - save_cache:
-          key: v1-uv-cache-{{ checksum "uv.lock" }}
+          key: v2-uv-cache-{{ checksum "uv.lock" }}
           paths:
             - "~/.cache/uv" # uv default cache path
+            - ".venv"
   linux_component_test:
     parameters:
       resource_class:
