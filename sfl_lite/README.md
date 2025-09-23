@@ -49,7 +49,7 @@ source sfl-lite-env/bin/activate  # On Windows: sfl-lite-env\Scripts\activate
 git clone https://github.com/secretflow/sfl.git
 cd sfl/sfl_lite
 
-uv pip install .[dev] --upgrade
+uv pip install -e .[dev] --upgrade
 ```
 
 ### 3. Verify installation
