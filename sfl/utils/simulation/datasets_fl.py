@@ -36,9 +36,12 @@ from secretflow.utils.simulation.data.dataframe import create_df
 from secretflow.utils.simulation.datasets import (
     _DATASETS,
     get_dataset,
-    _CACHE_DIR,
     unzip,
 )
+
+# 计算本地缓存目录
+import os as _os
+_CACHE_DIR = _os.path.join(_os.path.expanduser('~'), '.secretflow', 'datasets')
 
 
 def load_cora(
