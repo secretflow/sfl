@@ -134,9 +134,9 @@ commands:
             curl -LsSf https://astral.sh/uv/install.sh | sh
             export PATH="$HOME/.local/bin:$PATH"
             
-            # Create virtual environment using uv
+            # Create virtual environment using uv with --clear flag to avoid interactive prompt
             cd << parameters.working_directory >>
-            uv venv --python << parameters.python_version >>
+            uv venv --python << parameters.python_version >> --clear
             source .venv/bin/activate
             
             # Add activate command to BASH_ENV for subsequent steps
