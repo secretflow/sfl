@@ -279,7 +279,7 @@ if __name__ == "__main__":
         1, lambda: random.normal(random.PRNGKey(43), (n_samples, n_features_party1))
     )()
 
-    # Target variable (held by party 2)
+    # Target variable (held by party 0)
     y = simp.runAt(
         label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,))
     )()
