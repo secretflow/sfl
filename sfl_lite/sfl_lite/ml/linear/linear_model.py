@@ -98,7 +98,11 @@ def grad_compute(y_pred: MPObject, y: MPObject, label_party: int) -> MPObject:
 
 @mplang.function
 def sync_and_update_weights(
-    model: LinearModel, X: Dict[int, MPObject], gradient: MPObject, learning_rate: float
+    model: LinearModel,
+    X: Dict[int, MPObject],
+    gradient: MPObject,
+    learning_rate: float,
+    world_size: int,
 ):
     """
     Broadcast the gradient to all parties and update their weights and intercept.
@@ -107,14 +111,10 @@ def sync_and_update_weights(
         model: LinearModel
         gradient: MPObject (computed gradient)
         learning_rate: float
+        world_size: The total number of parties in the simulation.
     """
-    # Get all unique party IDs involved in the computation
-    all_parties = set(model.weights.keys())
-    if model.intercept_party is not None:
-        all_parties.add(model.intercept_party)
-
-    # Create world mask based on actual parties involved
-    world_mask = mplang.Mask.all(max(all_parties) + 1)
+    # Create world mask based on the provided world_size
+    world_mask = mplang.Mask.all(world_size)
     broadcasted_gradient = simp.bcast_m(world_mask, model.intercept_party, gradient)
 
     updated_weights = {}
