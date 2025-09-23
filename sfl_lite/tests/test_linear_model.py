@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
+
 import jax.numpy as jnp
 import mplang
 import mplang.simp as simp
@@ -20,8 +22,10 @@ import pytest
 from sfl_lite.ml.linear.linear_model import (
     LinearModel,
     RegType,
+    grad_compute,
     linear_model_predict,
     mse_loss,
+    sync_and_update_weights,
 )
 
 
@@ -228,19 +232,6 @@ class TestLinearModel:
 
     def test_linear_model_gradient_descent(self):
         """Test linear model training with gradient descent and check convergence."""
-        import random
-
-        import jax.numpy as jnp
-        import mplang
-        import mplang.simp as simp
-
-        from sfl_lite.ml.linear.linear_model import (
-            LinearModel,
-            RegType,
-            grad_compute,
-            linear_model_predict,
-            sync_and_update_weights,
-        )
 
         # Simulator with 2 parties
         sim2 = mplang.Simulator.simple(2)

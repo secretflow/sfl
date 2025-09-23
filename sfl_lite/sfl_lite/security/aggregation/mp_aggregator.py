@@ -71,34 +71,3 @@ class MPAggregator(Aggregator):
             return reduce(jnp.add, value) / len(value)
 
         return simp.srun(_average)(sealed_data)
-
-
-if __name__ == "__main__":
-    # example usage
-    import random
-
-    sim3 = mplang.Simulator(3)
-    mplang.set_ctx(sim3)
-    x = simp.runAt(0, partial(random.randint, 0, 10))()
-    # make a random number at P1
-    y = simp.runAt(1, partial(random.randint, 0, 10))()
-    agg = MPAggregator()
-    z = agg.sum({0: x, 1: y})
-    # Print the results.
-    print("x:", x)
-    print("fetch(x):", mplang.fetch(None, x))
-    print("y:", y)
-    print("fetch(y):", mplang.fetch(None, y))
-    print("z:", z)
-    print("fetch(z):", mplang.fetch(None, simp.reveal(z)))
-
-    # Example usage of average
-    a = simp.runAt(0, partial(random.randint, 0, 10))()
-    b = simp.runAt(1, partial(random.randint, 0, 10))()
-    print("a:", a)
-    print("fetch(a):", mplang.fetch(None, a))
-    print("b:", b)
-    print("fetch(b):", mplang.fetch(None, b))
-    avg = agg.average({0: a, 1: b})
-    print("avg:", avg)
-    print("fetch(avg):", mplang.fetch(None, simp.reveal(avg)))
