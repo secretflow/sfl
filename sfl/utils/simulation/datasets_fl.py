@@ -41,7 +41,8 @@ from secretflow.utils.simulation.datasets import (
 
 # 计算本地缓存目录
 import os as _os
-_CACHE_DIR = _os.path.join(_os.path.expanduser('~'), '.secretflow', 'datasets')
+
+_CACHE_DIR = _os.path.join(_os.path.expanduser("~"), ".secretflow", "datasets")
 
 
 def load_cora(
