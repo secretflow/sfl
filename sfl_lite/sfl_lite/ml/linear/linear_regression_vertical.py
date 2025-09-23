@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import jax.numpy as jnp
 import jax.random as random
@@ -108,16 +108,9 @@ class LinearRegressionVertical:
         X: Dict[int, MPObject],
         y: MPObject,
         label_party: int,
+        world_size: int,
         epochs: int = 100,
         tol: float = 1e-4,
-        # previously I did try to infer from current parties,
-        # but when the network has n parties and the input data X and y only have <= n - 1 parties,
-        # deadlock bug will occur when broadcast in conditioning
-        # So for now, we use all parties to broadcast gradient,
-        # remove this parameter later
-        # this paramter is optional for now in order to keep the API consistent
-        # (many cases don't need to specify this)
-        world_size: Optional[int] = None,
     ):
         """
         Fit the vertical linear regression model.
@@ -129,9 +122,9 @@ class LinearRegressionVertical:
             X: Dictionary mapping party identifiers to their feature matrices
             y: Target values (held by one party)
             label_party: Party ID that holds the labels
+            world_size: Total number of parties in the simulation (required for broadcasting)
             epochs: Number of training epochs
             tol: Tolerance for stopping criteria
-            world_size: Total number of parties in the simulation (required for broadcasting)
         """
 
         # Initialize model parameters for all parties with actual data shape
@@ -161,8 +154,6 @@ class LinearRegressionVertical:
             state["intercept"] = initial_model.intercept
 
         # Broadcast gradient to all parties
-        if world_size is None:
-            world_size = max(max(X.keys()), label_party) + 1
         world_mask = mplang.Mask.all(world_size)
 
         def cond(state):
