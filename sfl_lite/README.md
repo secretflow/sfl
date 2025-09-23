@@ -62,7 +62,7 @@ python -c "import sfl_lite; print('SFL Lite installed successfully!')"
 
 ```bash
 # Install development dependencies
-uv pip install .[dev] --upgrade
+uv pip install -e .[dev] --upgrade
 
 # Run tests
 pytest
