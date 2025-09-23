@@ -366,8 +366,3 @@ davy_*.json
 temp_package/
 examples/**/*.png
 examples/**/*.json
-
-# uv cache
-# we are ignoring main folder uv.lock, because it is to large
-# we will work on sfl_lite to manage dependencies
-./uv.lock
