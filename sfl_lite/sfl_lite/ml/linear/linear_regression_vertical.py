@@ -120,7 +120,7 @@ class LinearRegressionVertical:
         # remove this parameter later
         # this paramter is optional for now in order to keep the API consistent
         # (many cases don't need to specify this)
-        world_size: int = 3,
+        world_size: Optional[int] = None,
     ):
         """
         Fit the vertical linear regression model.
@@ -164,6 +164,8 @@ class LinearRegressionVertical:
             state["intercept"] = initial_model.intercept
 
         # Broadcast gradient to all parties
+        if world_size is None:
+            world_size = max(max(X.keys()), label_party) + 1
         world_mask = mplang.Mask.all(world_size)
 
         def cond(state):

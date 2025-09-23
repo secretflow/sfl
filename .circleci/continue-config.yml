@@ -133,6 +133,7 @@ commands:
             # Install uv (if not already installed)
             curl -LsSf https://astral.sh/uv/install.sh | sh
             export PATH="$HOME/.local/bin:$PATH"
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
             
             # Create virtual environment using uv with --clear flag to avoid interactive prompt
             cd << parameters.working_directory >>
@@ -201,9 +202,6 @@ commands:
           name: "Install dependencies and run tests"
           command: |
             set +e
-            
-            # Activate virtual environment
-            source .venv/bin/activate
             
             # Install dependencies using uv
             uv pip install ".[dev]" --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
@@ -504,9 +502,6 @@ commands:
           command: |
             set +e
             cd sfl_lite
-            
-            # Activate virtual environment
-            source .venv/bin/activate
             
             # Install dependencies using uv
             uv pip install ".[dev]" --index-strategy unsafe-best-match --prerelease=allow
