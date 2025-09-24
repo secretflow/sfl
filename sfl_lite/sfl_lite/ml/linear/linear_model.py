@@ -120,7 +120,7 @@ def sync_and_update_weights(
     updated_weights = {}
     for party_id, weight in model.weights.items():
         updated_weight = simp.runAt(
-            party_id, lambda w, x, g: w - learning_rate * x.T @ g / x.shape[0]
+            party_id, lambda w, x, g: w - learning_rate * (x.T @ g)
         )(weight, X[party_id], broadcasted_gradient)
         updated_weights[party_id] = updated_weight
 
