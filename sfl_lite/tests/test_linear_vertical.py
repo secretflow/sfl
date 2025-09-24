@@ -83,7 +83,9 @@ class TestLinearRegressionVertical:
         # Test that fitting runs without error
         state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=5, world_size=3, key=key),
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=5, world_size=3, key=key
+            ),
         )
 
         assert state is not None
@@ -120,7 +122,9 @@ class TestLinearRegressionVertical:
 
         state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=3, world_size=3, key=key),
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=3, world_size=3, key=key
+            ),
         )
 
         assert state is not None
@@ -158,7 +162,13 @@ class TestLinearRegressionVertical:
         state, updated_key = mplang.evaluate(
             self.sim3,
             lambda: trainer.fit(
-                X, y, label_party=label_party, epochs=50, tol=1e-3, world_size=3, key=key
+                X,
+                y,
+                label_party=label_party,
+                epochs=50,
+                tol=1e-3,
+                world_size=3,
+                key=key,
             ),
         )
 
@@ -194,12 +204,16 @@ class TestLinearRegressionVertical:
         # Fit model
         state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=2, world_size=3, key=key),
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=2, world_size=3, key=key
+            ),
         )
 
         # Test state_to_model conversion
         assert state is not None
-        model = LinearRegressionVertical.state_to_model(state, label_party=label_party, reg_type=RegType.Linear)
+        model = LinearRegressionVertical.state_to_model(
+            state, label_party=label_party, reg_type=RegType.Linear
+        )
         assert model is not None
         assert 0 in model.weights  # Should have weights for party 0
         assert model.intercept_party == label_party
@@ -261,7 +275,9 @@ class TestLinearRegressionVertical:
         # Should handle minimal data without error
         state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3, key=key),
+            lambda: trainer.fit(
+                X, y, label_party=label_party, epochs=1, world_size=3, key=key
+            ),
         )
 
         assert state is not None
@@ -380,9 +396,7 @@ class TestLinearRegressionVertical:
         # Call without providing key - should use default seed
         state, updated_key = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(
-                X, y, label_party=label_party, epochs=1, world_size=3
-            ),
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3),
         )
 
         assert state is not None
@@ -391,9 +405,7 @@ class TestLinearRegressionVertical:
         # Call again - should be reproducible with same seed
         state2, updated_key2 = mplang.evaluate(
             self.sim3,
-            lambda: trainer.fit(
-                X, y, label_party=label_party, epochs=1, world_size=3
-            ),
+            lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3),
         )
 
         # Should be reproducible

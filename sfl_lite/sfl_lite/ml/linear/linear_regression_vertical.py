@@ -35,7 +35,7 @@ class LinearRegressionVertical:
     Vertical Linear Regression using MPLang for secure multi-party computation.
     This implementation provides a modern, secure approach to vertical federated
     learning using natural language interfaces and homomorphic encryption.
-    
+
     This class is designed to be stateless and functional, following MPLang's
     functional programming paradigm. All state is managed externally by the caller.
     """
@@ -49,7 +49,7 @@ class LinearRegressionVertical:
     ):
         """
         Initialize vertical linear regression configuration.
-        
+
         This class maintains configuration parameters but remains stateless
         during training. The seed parameter provides a default for when
         no explicit key is provided to fit().
@@ -130,7 +130,7 @@ class LinearRegressionVertical:
         Fit the vertical linear regression model.
 
         The party holding the label (`y`) computes predictions and gradients.
-        The gradients are then used by each worker to update their model weights 
+        The gradients are then used by each worker to update their model weights
         on their respective device.
 
         This method is pure and functional - it does not modify any instance state
@@ -257,15 +257,15 @@ class LinearRegressionVertical:
     def state_to_model(state: Dict, label_party: int, reg_type: RegType) -> LinearModel:
         """
         Convert training state to LinearModel instance.
-        
+
         This is a static method that creates a new LinearModel from the training state,
         maintaining the functional paradigm.
-        
+
         Args:
             state: Training state containing model parameters
             label_party: Party ID that holds the labels
             reg_type: Type of regression (linear or logistic)
-            
+
         Returns:
             LinearModel instance with trained parameters
         """
@@ -325,13 +325,18 @@ if __name__ == "__main__":
     state, updated_key = mplang.evaluate(
         sim, lambda: trainer.fit(X, y, label_party=label_party, world_size=3, epochs=1)
     )
-    
+
     # Option 2: Provide explicit key
     key = random.PRNGKey(123)
     state, updated_key = mplang.evaluate(
-        sim, lambda: trainer.fit(X, y, label_party=label_party, world_size=3, key=key, epochs=1)
+        sim,
+        lambda: trainer.fit(
+            X, y, label_party=label_party, world_size=3, key=key, epochs=1
+        ),
     )
-    model = LinearRegressionVertical.state_to_model(state, label_party=label_party, reg_type=RegType.Linear)
+    model = LinearRegressionVertical.state_to_model(
+        state, label_party=label_party, reg_type=RegType.Linear
+    )
     print(model)
     print(model.weights[0].mptype)
     print(model.weights[1].mptype)
