@@ -53,7 +53,7 @@ class SimilarityLiaAttackCase(AttackBase):
         return SimilarityLabelInferenceAttack(
             attack_party=app.device_f,
             label_party=app.device_y,
-            data_type=self.config.get("data_type", "grad"),
+            data_type=self.config.get("data_type", "feature"),
             attack_method=self.config.get("attack_method", "distance"),
             known_num=1,
             distance_metric="cosine",
