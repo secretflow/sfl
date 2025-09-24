@@ -482,14 +482,8 @@ commands:
     parameters:
       target_folder:
         type: string
-      concurrent_num:
-        type: string
-        default: "auto"
       testmon_prefix:
         type: string
-      mode:
-        type: string
-        default: "sim"
     steps:
       - restore_cache:
           name: restore sfl_lite uv cache
