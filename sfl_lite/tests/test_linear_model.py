@@ -285,8 +285,8 @@ class TestLinearModel:
         )
 
         X = {0: party0_X, 1: party1_X}
-        learning_rate = 100
-        n_steps = 100
+        learning_rate = 2
+        n_steps = 2200
 
         for step in range(n_steps):
             y_pred = linear_model_predict(model, X)
@@ -296,7 +296,7 @@ class TestLinearModel:
             )
             model.weights = updated_weights
             model.intercept = updated_intercept
-            if step % 20 == 0 or step == n_steps - 1:
+            if step % 200 == 0 or step == n_steps - 1:
                 # Materialize prediction at party 0 for loss calculation
                 loss = simp.runAt(0, mse_loss)(y_pred, y_true)
                 print(f"Step {step}: loss = {mplang.fetch(None, loss)}")
