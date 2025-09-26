@@ -216,7 +216,7 @@ class TestLinearRegressionVertical:
         )
         assert model is not None
         assert 0 in model.weights  # Should have weights for party 0
-        assert model.intercept_party == label_party
+        assert model.label_party == label_party
 
     def test_vertical_linear_regression_different_learning_rates(self):
         """Test training with different learning rates."""

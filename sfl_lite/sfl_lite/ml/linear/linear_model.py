@@ -41,13 +41,13 @@ class LinearModel:
 
         weights : Dict[int, MPObject] Maps from party id to weight.
         reg_type : RegType
-        intercept_party : int Party id of intercept.
+        label_party : int Party id of intercept.
         intercept : MPObject
     """
 
     weights: Dict[int, MPObject]
     reg_type: RegType
-    intercept_party: Optional[int] = None
+    label_party: Optional[int] = None
     intercept: Optional[MPObject] = None
 
 
@@ -64,17 +64,17 @@ def linear_model_predict(
     Returns:
         y_pred : MPObject
     """
-    if model.intercept_party is None:
-        raise ValueError("intercept_party is None, it should be int")
+    if model.label_party is None:
+        raise ValueError("label_party is None, it should be int")
     if agg is None:
         agg = MPAggregator()
     y_pred_party = {
         party_id: simp.runAt(party_id, lambda x, w: x @ w)(x, model.weights[party_id])
         for party_id, x in X.items()
     }
-    y_pred_no_intercept = simp.revealTo(agg.sum(y_pred_party), model.intercept_party)
+    y_pred_no_intercept = simp.revealTo(agg.sum(y_pred_party), model.label_party)
     if model.intercept is not None:
-        return simp.runAt(model.intercept_party, lambda x, b: x + b)(
+        return simp.runAt(model.label_party, lambda x, b: x + b)(
             y_pred_no_intercept, model.intercept
         )
     return y_pred_no_intercept
@@ -97,7 +97,7 @@ def grad_compute(y_pred: MPObject, y: MPObject, label_party: int) -> MPObject:
 
 
 @mplang.function
-def sync_and_update_weights(
+def direct_sync_and_update_weights(
     model: LinearModel,
     X: Dict[int, MPObject],
     gradient: MPObject,
@@ -106,6 +106,8 @@ def sync_and_update_weights(
 ):
     """
     Broadcast the gradient to all parties and update their weights and intercept.
+    
+    Safety Level: Not secure. DO NOT USE IN PRODUCTION.
 
     Args:
         model: LinearModel
@@ -115,7 +117,7 @@ def sync_and_update_weights(
     """
     # Create world mask based on the provided world_size
     world_mask = mplang.Mask.all(world_size)
-    broadcasted_gradient = simp.bcast_m(world_mask, model.intercept_party, gradient)
+    broadcasted_gradient = simp.bcast_m(world_mask, model.label_party, gradient)
 
     updated_weights = {}
     for party_id, weight in model.weights.items():
@@ -126,8 +128,8 @@ def sync_and_update_weights(
 
     # Update intercept if present
     updated_intercept = None
-    if model.intercept is not None and model.intercept_party is not None:
+    if model.intercept is not None and model.label_party is not None:
         updated_intercept = simp.runAt(
-            model.intercept_party, lambda b, g: b - learning_rate * jnp.mean(g)
+            model.label_party, lambda b, g: b - learning_rate * jnp.mean(g)
         )(model.intercept, broadcasted_gradient)
     return updated_weights, updated_intercept

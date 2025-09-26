@@ -46,13 +46,13 @@ class TestLinearModel:
         model = LinearModel(
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
-            intercept_party=0,
+            label_party=0,
             intercept=intercept,
         )
 
         # Verify model attributes
         assert model.reg_type == RegType.Linear
-        assert model.intercept_party == 0
+        assert model.label_party == 0
         assert 0 in model.weights
         assert 1 in model.weights
 
@@ -67,7 +67,7 @@ class TestLinearModel:
         model = LinearModel(
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
-            intercept_party=0,
+            label_party=0,
             intercept=intercept,
         )
 
@@ -113,7 +113,7 @@ class TestLinearModel:
         model = LinearModel(
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
-            intercept_party=0,
+            label_party=0,
             intercept=intercept,
         )
 
@@ -156,7 +156,7 @@ class TestLinearModel:
         model = LinearModel(
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
-            intercept_party=0,
+            label_party=0,
             intercept=intercept,
         )
 
@@ -190,17 +190,17 @@ class TestLinearModel:
                 print(f"DEBUG: arr = {arr}, expected = {expected}")
                 assert jnp.allclose(arr, expected)
 
-    def test_linear_model_missing_intercept_party(self):
-        """Test error handling when intercept_party is None."""
+    def test_linear_model_missing_label_party(self):
+        """Test error handling when label_party is None."""
         # Create test data
         weight0 = simp.runAt(0, lambda: jnp.array([1.0]))()
         weight1 = simp.runAt(1, lambda: jnp.array([2.0]))()
 
-        # Create model without intercept_party
+        # Create model without label_party
         model = LinearModel(
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Linear,
-            intercept_party=None,
+            label_party=None,
         )
 
         # Create input data
@@ -209,7 +209,7 @@ class TestLinearModel:
 
         # Should raise ValueError
         X = {0: X0, 1: X1}
-        with pytest.raises(ValueError, match="intercept_party is None"):
+        with pytest.raises(ValueError, match="label_party is None"):
             linear_model_predict(model, X)
 
     def test_logistic_model_creation(self):
@@ -223,7 +223,7 @@ class TestLinearModel:
         model = LinearModel(
             weights={0: weight0, 1: weight1},
             reg_type=RegType.Logistic,
-            intercept_party=0,
+            label_party=0,
             intercept=intercept,
         )
 
@@ -280,7 +280,7 @@ class TestLinearModel:
         model = LinearModel(
             weights={0: party0_weight, 1: party1_weight},
             reg_type=RegType.Linear,
-            intercept_party=0,
+            label_party=0,
             intercept=intercept,
         )
 

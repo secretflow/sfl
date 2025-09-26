@@ -33,8 +33,6 @@ from sfl_lite.ml.linear.linear_model import (
 class LinearRegressionVertical:
     """
     Vertical Linear Regression using MPLang for secure multi-party computation.
-    This implementation provides a modern, secure approach to vertical federated
-    learning using natural language interfaces and homomorphic encryption.
 
     This class is designed to be stateless and functional, following MPLang's
     functional programming paradigm. All state is managed externally by the caller.
@@ -49,10 +47,13 @@ class LinearRegressionVertical:
     ):
         """
         Initialize vertical linear regression configuration.
+        Current implementation is for demo only.
 
         This class maintains configuration parameters but remains stateless
         during training. The seed parameter provides a default for when
         no explicit key is provided to fit().
+        
+        Safety Level: Not Safe. DO NOT USE IN PRODUCTION.
 
         Args:
             reg_type: Type of regression (linear or logistic)
@@ -69,7 +70,7 @@ class LinearRegressionVertical:
     @mplang.function
     def _initialize_model(
         X: Dict[int, MPObject],
-        intercept_party: int,
+        label_party: int,
         key: random.PRNGKey,
         reg_type: RegType,
         fit_intercept: bool,
@@ -78,7 +79,7 @@ class LinearRegressionVertical:
 
         Args:
             X: Dictionary mapping party identifiers to their feature matrices
-            intercept_party: Party ID that holds the intercept
+            label_party: Party ID that holds the intercept
             key: PRNG key for random number generation
             reg_type: Type of regression (linear or logistic)
             fit_intercept: Whether to fit an intercept term
@@ -104,13 +105,13 @@ class LinearRegressionVertical:
         if fit_intercept:
             current_key, subkey = random.split(current_key)
             intercept = simp.runAt(
-                intercept_party,
+                label_party,
                 lambda: random.uniform(subkey, shape=(), minval=-0.1, maxval=0.1),
             )()
         model = LinearModel(
             weights=weights,
             reg_type=reg_type,
-            intercept_party=intercept_party,
+            label_party=label_party,
             intercept=intercept if fit_intercept else None,
         )
         return model, current_key
@@ -214,7 +215,7 @@ class LinearRegressionVertical:
             current_model = LinearModel(
                 weights=current_weights,
                 reg_type=self.reg_type,
-                intercept_party=label_party,
+                label_party=label_party,
                 intercept=current_intercept,
             )
 
@@ -280,7 +281,7 @@ class LinearRegressionVertical:
         return LinearModel(
             weights=final_weights,
             reg_type=reg_type,
-            intercept_party=label_party,
+            label_party=label_party,
             intercept=final_intercept,
         )
 
