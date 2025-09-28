@@ -365,3 +365,4 @@ davy_*.json
 # temp package dir for setup.py
 temp_package/
 examples/**/*.png
+examples/**/*.json

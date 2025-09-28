@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sfl-lite"
+description = "Next-generation federated learning framework with natural language interfaces"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+    { name = "SecretFlow Team", email = "secretflow-contact@service.alipay.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+]
+requires-python = ">=3.10,<3.11"
+dynamic = ["version"]
+
+dependencies = [
+    # this is a temporary dependency until mplang is published
+    "mplang @ git+https://github.com/secretflow/mplang.git@0675d3ce7763b500291c3443a40a9ad1aad9135c",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit",
+]
+
+[project.urls]
+Homepage = "https://github.com/secretflow/sfl"
+Repository = "https://github.com/secretflow/sfl"
+Documentation = "https://sfl.readthedocs.io"
+
+[tool.hatch.version]
+source = "regex"
+path = "sfl_lite/__init__.py"  # Adjust path as needed
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["sfl_lite"]
+
+[tool.hatch.build.targets.wheel.sources]
+"sfl_lite" = "sfl_lite"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --import-mode=importlib"
