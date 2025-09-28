@@ -103,7 +103,7 @@ class LinearRegressionVertical:
         y: MPObject,
         label_party: int,
         world_size: int,
-        key: random.PRNGKey = None,
+        key: Optional[random.PRNGKey] = None,
         epochs: int = 100,
         tol: float = 1e-4,
     ) -> Tuple[Dict, random.PRNGKey]:
