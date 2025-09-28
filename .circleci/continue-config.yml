@@ -500,7 +500,7 @@ commands:
             cd sfl_lite
             
             # Install dependencies using uv sync from lock file
-            uv sync --extra dev --frozen
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
 
             pytest --junitxml=../results.xml -v --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
             ret=$?
@@ -585,7 +585,7 @@ jobs:
             source .venv/bin/activate
             
             # Install dependencies using uv sync from lock file
-            uv sync --extra dev --frozen
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
       - save_cache:
           key: v2-uv-cache-{{ checksum "uv.lock" }}
           paths:
