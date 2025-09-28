@@ -22,9 +22,8 @@ from mplang.core import MPObject
 from sfl_lite.ml.linear.linear_model import (
     LinearModel,
     AbstractLinearModel,
-    Aggregator,
-    MPAggregator,
 )
+from sfl_lite.security.aggregation import Aggregator, MPAggregator
 
 
 class PlainFedLinearModel(AbstractLinearModel):
