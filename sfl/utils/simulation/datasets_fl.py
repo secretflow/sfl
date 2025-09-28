@@ -39,10 +39,9 @@ from secretflow.utils.simulation.datasets import (
     unzip,
 )
 
-# Calculate local cache directory
-import os as _os
 
-_CACHE_DIR = _os.path.join(_os.path.expanduser("~"), ".secretflow", "datasets")
+# will remove this line after secretflow fix is synced.
+_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".secretflow", "datasets")
 
 
 def load_cora(
