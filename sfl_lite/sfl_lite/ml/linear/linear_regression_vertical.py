@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple, Type
 
 import jax.numpy as jnp
 import jax.random as random
@@ -22,11 +22,9 @@ from mplang.core import MPObject
 
 from sfl_lite.ml.linear.linear_model import (
     LinearModel,
+    AbstractLinearModel,
     RegType,
-    grad_compute,
-    linear_model_predict,
-    mse_loss,
-    sync_and_update_weights,
+    loss_and_grad,
 )
 
 
@@ -34,37 +32,30 @@ class LinearRegressionVertical:
     """
     Vertical Linear Regression using MPLang for secure multi-party computation.
 
-    This class is designed to be stateless and functional, following MPLang's
-    functional programming paradigm. All state is managed externally by the caller.
+    This class is designed to accept any AbstractLinearModel implementation,
+    making it flexible to use different federated learning strategies.
     """
 
     def __init__(
         self,
+        linear_model_class: Type[AbstractLinearModel],
         reg_type: RegType,
         fit_intercept: bool = True,
         learning_rate: float = 0.1,
-        seed: int = 42,
     ):
         """
         Initialize vertical linear regression configuration.
-        Current implementation is for demo only.
-
-        This class maintains configuration parameters but remains stateless
-        during training. The seed parameter provides a default for when
-        no explicit key is provided to fit().
-        
-        Safety Level: Not Safe. DO NOT USE IN PRODUCTION.
 
         Args:
+            linear_model_class: Class that implements AbstractLinearModel interface
             reg_type: Type of regression (linear or logistic)
             fit_intercept: Whether to fit an intercept term, default give to label holder
             learning_rate: Learning rate for gradient descent
-            seed: Default seed for PRNG key generation when none provided
         """
+        self.linear_model_class = linear_model_class
         self.reg_type = reg_type
         self.fit_intercept = fit_intercept
         self.learning_rate = learning_rate
-        self.seed = seed
 
     @staticmethod
     @mplang.function
@@ -75,18 +66,7 @@ class LinearRegressionVertical:
         reg_type: RegType,
         fit_intercept: bool,
     ) -> Tuple[LinearModel, random.PRNGKey]:
-        """Initialize model for all parties.
-
-        Args:
-            X: Dictionary mapping party identifiers to their feature matrices
-            label_party: Party ID that holds the intercept
-            key: PRNG key for random number generation
-            reg_type: Type of regression (linear or logistic)
-            fit_intercept: Whether to fit an intercept term
-
-        Returns:
-            Tuple of (model, updated_key) where updated_key is the new PRNG key
-        """
+        """Initialize model for all parties."""
         weights = {}
         intercept = None
         current_key = key
@@ -128,45 +108,38 @@ class LinearRegressionVertical:
         tol: float = 1e-4,
     ) -> Tuple[Dict, random.PRNGKey]:
         """
-        Fit the vertical linear regression model.
-
-        The party holding the label (`y`) computes predictions and gradients.
-        The gradients are then used by each worker to update their model weights
-        on their respective device.
-
-        This method is pure and functional - it does not modify any instance state
-        and returns both the final training state and the updated PRNG key.
+        Fit the vertical linear regression model using the provided linear model class.
 
         Args:
             X: Dictionary mapping party identifiers to their feature matrices
             y: Target values (held by one party)
             label_party: Party ID that holds the labels
-            world_size: Total number of parties in the simulation (required for broadcasting)
-            key: PRNG key for random number generation. If None, uses self.seed
+            world_size: Total number of parties in the simulation
+            key: PRNG key for random number generation
             epochs: Number of training epochs
             tol: Tolerance for stopping criteria
 
         Returns:
-            Tuple of (final_state, updated_key) where final_state contains the
-            trained model parameters and updated_key is the new PRNG key
+            Tuple of (final_state, updated_key)
         """
-
-        # Use provided key or generate from default seed
+        # Use provided key or generate from default
         if key is None:
-            key = random.PRNGKey(self.seed)
+            key = random.PRNGKey(42)
 
-        # Initialize model parameters for all parties with actual data shape
+        # Initialize model parameters
         initial_model, updated_key = self._initialize_model(
             X, label_party, key, self.reg_type, self.fit_intercept
         )
 
-        # Create training state as a dictionary of MPObjects for each party
+        # Create linear model instance
+        linear_model = self.linear_model_class()
+
+        # Create training state
         epoch = simp.constant(0)
         tol = simp.constant(tol)
         max_epochs = simp.constant(epochs)
         initial_loss = simp.runAt(label_party, lambda: jnp.array(float("inf")))()
 
-        # Create state structure that preserves party associations
         state = {
             "epoch": epoch,
             "loss": initial_loss,
@@ -184,7 +157,7 @@ class LinearRegressionVertical:
         world_mask = mplang.Mask.all(world_size)
 
         def cond(state):
-            """Condition function for while loop - check convergence criteria."""
+            """Condition function for while loop."""
             current_epoch = state["epoch"]
             current_loss = state["loss"]
 
@@ -198,7 +171,7 @@ class LinearRegressionVertical:
                 label_party, lambda loss, threshold: loss > threshold
             )(current_loss, tol)
             above_tol = simp.bcast_m(world_mask, label_party, above_tol)
-            # Continue if not max epochs AND loss above tolerance
+
             return simp.run(lambda a, b: jnp.logical_and(a, b))(
                 not_max_epochs, above_tol
             )
@@ -219,17 +192,14 @@ class LinearRegressionVertical:
                 intercept=current_intercept,
             )
 
-            # Compute predictions from all parties
-            y_pred = linear_model_predict(current_model, X)
+            # Use the provided linear model for prediction
+            y_pred = linear_model.predict(current_model, X)
 
-            # Compute loss
-            loss = simp.runAt(label_party, mse_loss)(y_pred, y)
+            # Compute loss gradients
+            loss, g = loss_and_grad(y_pred, y, label_party)
 
-            # Compute gradients
-            g = grad_compute(y_pred, y, label_party)
-
-            # Update weights and intercept
-            updated_weights, updated_intercept = sync_and_update_weights(
+            # Use the provided linear model for weight update
+            updated_weights, updated_intercept = linear_model.weight_update(
                 current_model, X, g, self.learning_rate, world_size
             )
 
@@ -249,7 +219,7 @@ class LinearRegressionVertical:
 
             return new_state
 
-        # Run training loop with simp.while_loop
+        # Run training loop
         final_state = simp.while_loop(cond, body, state)
 
         return final_state, updated_key
@@ -258,19 +228,7 @@ class LinearRegressionVertical:
     def state_to_model(state: Dict, label_party: int, reg_type: RegType) -> LinearModel:
         """
         Convert training state to LinearModel instance.
-
-        This is a static method that creates a new LinearModel from the training state,
-        maintaining the functional paradigm.
-
-        Args:
-            state: Training state containing model parameters
-            label_party: Party ID that holds the labels
-            reg_type: Type of regression (linear or logistic)
-
-        Returns:
-            LinearModel instance with trained parameters
         """
-        # Extract final parameters from state
         final_weights = {}
         for key in state:
             if key.startswith("weight_"):
@@ -313,38 +271,22 @@ if __name__ == "__main__":
         label_party, lambda: random.normal(random.PRNGKey(44), (n_samples,))
     )()
 
-    # Create model configuration
+    # 使用新的抽象接口
+    from sfl_lite.ml.linear.plain_fed_linear_model import PlainFedLinearModel
+
     trainer = LinearRegressionVertical(
+        linear_model_class=PlainFedLinearModel,
         reg_type=RegType.Linear,
         learning_rate=0.01,
         fit_intercept=True,
-        seed=42,
     )
 
-    # Option 1: Use default key generation
     X = {0: X0, 1: X1}
     state, updated_key = mplang.evaluate(
         sim, lambda: trainer.fit(X, y, label_party=label_party, world_size=3, epochs=1)
     )
 
-    # Option 2: Provide explicit key
-    key = random.PRNGKey(123)
-    state, updated_key = mplang.evaluate(
-        sim,
-        lambda: trainer.fit(
-            X, y, label_party=label_party, world_size=3, key=key, epochs=1
-        ),
-    )
     model = LinearRegressionVertical.state_to_model(
         state, label_party=label_party, reg_type=RegType.Linear
     )
     print(model)
-    print(model.weights[0].mptype)
-    print(model.weights[1].mptype)
-    print(model.intercept.mptype)
-    w0 = mplang.fetch(sim, simp.runAt(0, lambda x: x)(model.weights[0]))
-    w1 = mplang.fetch(sim, simp.runAt(1, lambda x: x)(model.weights[1]))
-    b = mplang.fetch(sim, simp.runAt(0, lambda x: x)(model.intercept))
-    print("Learned party0_weight (first 5):", w0[:5])
-    print("Learned party1_weight (first 5):", w1[:5])
-    print("Learned bias:", b)

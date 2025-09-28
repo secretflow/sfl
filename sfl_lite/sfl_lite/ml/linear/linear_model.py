@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import abc
 import dataclasses
 from enum import Enum, unique
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
+from jax import grad, value_and_grad
 import jax.numpy as jnp
 import mplang
 import mplang.simp as simp
-from jax import grad
 from mplang.core import MPObject
+from mplang.frontend import phe
 
 from sfl_lite.security.aggregation import Aggregator, MPAggregator
 
@@ -51,33 +52,54 @@ class LinearModel:
     intercept: Optional[MPObject] = None
 
 
-@mplang.function
-def linear_model_predict(
-    model: LinearModel, X: Dict[int, MPObject], agg: Optional[Aggregator] = None
-) -> MPObject:
+class AbstractLinearModel(abc.ABC):
     """
-    Predict with linear model.
+    Abstract base class for linear models with predict and weight update methods.
+    """
 
-    Args:
-        model : LinearModel
-        X : Dict[int, MPObject] Maps from party id to party sample data
-    Returns:
-        y_pred : MPObject
-    """
-    if model.label_party is None:
-        raise ValueError("label_party is None, it should be int")
-    if agg is None:
-        agg = MPAggregator()
-    y_pred_party = {
-        party_id: simp.runAt(party_id, lambda x, w: x @ w)(x, model.weights[party_id])
-        for party_id, x in X.items()
-    }
-    y_pred_no_intercept = simp.revealTo(agg.sum(y_pred_party), model.label_party)
-    if model.intercept is not None:
-        return simp.runAt(model.label_party, lambda x, b: x + b)(
-            y_pred_no_intercept, model.intercept
-        )
-    return y_pred_no_intercept
+    @abc.abstractmethod
+    def predict(
+        self,
+        model: LinearModel,
+        X: Dict[int, MPObject],
+        agg: Optional[Aggregator] = None,
+    ) -> MPObject:
+        """
+        Make predictions using the linear model.
+
+        Args:
+            model: LinearModel instance containing weights and configuration
+            X: Dict mapping party id to party sample data
+            agg: Optional aggregator for combining results
+
+        Returns:
+            y_pred: Predicted values as MPObject
+        """
+        pass
+
+    @abc.abstractmethod
+    def weight_update(
+        self,
+        model: LinearModel,
+        X: Dict[int, MPObject],
+        gradient: MPObject,
+        learning_rate: float,
+        world_size: int,
+    ) -> Tuple[Dict[int, MPObject], Optional[MPObject]]:
+        """
+        Update model weights and intercept based on computed gradient.
+
+        Args:
+            model: LinearModel instance to update
+            X: Dict mapping party id to party sample data
+            gradient: Computed gradient for weight update
+            learning_rate: Learning rate for the update step
+            world_size: Total number of parties in the simulation
+
+        Returns:
+            Tuple of (updated_weights, updated_intercept)
+        """
+        pass
 
 
 def mse_loss(y_pred, y):
@@ -97,39 +119,10 @@ def grad_compute(y_pred: MPObject, y: MPObject, label_party: int) -> MPObject:
 
 
 @mplang.function
-def direct_sync_and_update_weights(
-    model: LinearModel,
-    X: Dict[int, MPObject],
-    gradient: MPObject,
-    learning_rate: float,
-    world_size: int,
-):
-    """
-    Broadcast the gradient to all parties and update their weights and intercept.
-    
-    Safety Level: Not secure. DO NOT USE IN PRODUCTION.
-
-    Args:
-        model: LinearModel
-        gradient: MPObject (computed gradient)
-        learning_rate: float
-        world_size: The total number of parties in the simulation.
-    """
-    # Create world mask based on the provided world_size
-    world_mask = mplang.Mask.all(world_size)
-    broadcasted_gradient = simp.bcast_m(world_mask, model.label_party, gradient)
-
-    updated_weights = {}
-    for party_id, weight in model.weights.items():
-        updated_weight = simp.runAt(
-            party_id, lambda w, x, g: w - learning_rate * (x.T @ g)
-        )(weight, X[party_id], broadcasted_gradient)
-        updated_weights[party_id] = updated_weight
-
-    # Update intercept if present
-    updated_intercept = None
-    if model.intercept is not None and model.label_party is not None:
-        updated_intercept = simp.runAt(
-            model.label_party, lambda b, g: b - learning_rate * jnp.mean(g)
-        )(model.intercept, broadcasted_gradient)
-    return updated_weights, updated_intercept
+def loss_and_grad(
+    y_pred: MPObject, y: MPObject, label_party: int
+) -> Tuple[MPObject, MPObject]:
+    loss, gradient = simp.runAt(
+        label_party, lambda y_pred, y: value_and_grad(mse_loss)(y_pred, y)
+    )(y_pred, y)
+    return loss, gradient

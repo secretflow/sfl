@@ -22,11 +22,9 @@ import pytest
 from sfl_lite.ml.linear.linear_model import (
     LinearModel,
     RegType,
-    grad_compute,
-    linear_model_predict,
     mse_loss,
-    sync_and_update_weights,
 )
+from sfl_lite.ml.linear.plain_fed_linear_model import PlainFedLinearModel
 
 
 class TestLinearModel:
@@ -56,8 +54,8 @@ class TestLinearModel:
         assert 0 in model.weights
         assert 1 in model.weights
 
-    def test_linear_model_predict_basic(self):
-        """Test basic linear model prediction."""
+    def test_plain_fed_linear_model_predict_basic(self):
+        """Test basic linear model prediction using PlainFedLinearModel."""
         # Create test data
         weight0 = simp.runAt(0, lambda: jnp.array([1.0, 2.0]))()
         weight1 = simp.runAt(1, lambda: jnp.array([0.5, 1.5]))()
@@ -75,9 +73,10 @@ class TestLinearModel:
         X0 = simp.runAt(0, lambda: jnp.array([[1.0, 1.0]]))()
         X1 = simp.runAt(1, lambda: jnp.array([[2.0, 1.0]]))()
 
-        # Perform prediction
+        # Perform prediction using PlainFedLinearModel
+        linear_model = PlainFedLinearModel()
         X = {0: X0, 1: X1}
-        y_pred = linear_model_predict(model, X)
+        y_pred = linear_model.predict(model, X)
 
         # Debug: print intermediate values
         print("DEBUG: y_pred =", y_pred)
@@ -102,7 +101,7 @@ class TestLinearModel:
                 print(f"DEBUG: arr = {arr}, expected = {expected}")
                 assert jnp.allclose(arr, expected)
 
-    def test_linear_model_predict_single_feature(self):
+    def test_plain_fed_linear_model_predict_single_feature(self):
         """Test linear model prediction with single feature."""
         # Create test data
         weight0 = simp.runAt(0, lambda: jnp.array([2.0]))()
@@ -122,8 +121,9 @@ class TestLinearModel:
         X1 = simp.runAt(1, lambda: jnp.array([[2.0]]))()
 
         # Perform prediction
+        linear_model = PlainFedLinearModel()
         X = {0: X0, 1: X1}
-        y_pred = linear_model_predict(model, X)
+        y_pred = linear_model.predict(model, X)
 
         # Debug: print intermediate values
         print("DEBUG: Single feature test")
@@ -145,7 +145,7 @@ class TestLinearModel:
                 print(f"DEBUG: arr = {arr}, expected = {expected}")
                 assert jnp.allclose(arr, expected)
 
-    def test_linear_model_predict_multiple_samples(self):
+    def test_plain_fed_linear_model_predict_multiple_samples(self):
         """Test linear model prediction with multiple samples."""
         # Create test data
         weight0 = simp.runAt(0, lambda: jnp.array([1.0, 2.0]))()
@@ -165,8 +165,9 @@ class TestLinearModel:
         X1 = simp.runAt(1, lambda: jnp.array([[0.5, 1.5], [2.5, 3.5]]))()
 
         # Perform prediction
+        linear_model = PlainFedLinearModel()
         X = {0: X0, 1: X1}
-        y_pred = linear_model_predict(model, X)
+        y_pred = linear_model.predict(model, X)
 
         # Debug: print intermediate values
         print("DEBUG: Multiple samples test")
@@ -190,7 +191,7 @@ class TestLinearModel:
                 print(f"DEBUG: arr = {arr}, expected = {expected}")
                 assert jnp.allclose(arr, expected)
 
-    def test_linear_model_missing_label_party(self):
+    def test_plain_fed_linear_model_missing_label_party(self):
         """Test error handling when label_party is None."""
         # Create test data
         weight0 = simp.runAt(0, lambda: jnp.array([1.0]))()
@@ -209,8 +210,9 @@ class TestLinearModel:
 
         # Should raise ValueError
         X = {0: X0, 1: X1}
+        linear_model = PlainFedLinearModel()
         with pytest.raises(ValueError, match="label_party is None"):
-            linear_model_predict(model, X)
+            linear_model.predict(model, X)
 
     def test_logistic_model_creation(self):
         """Test Logistic regression model creation."""
@@ -230,7 +232,7 @@ class TestLinearModel:
         # Verify model attributes
         assert model.reg_type == RegType.Logistic
 
-    def test_linear_model_gradient_descent(self):
+    def test_plain_fed_linear_model_gradient_descent(self):
         """Test linear model training with gradient descent and check convergence."""
 
         # Simulator with 2 parties
@@ -288,10 +290,18 @@ class TestLinearModel:
         learning_rate = 2
         n_steps = 2200
 
+        linear_model = PlainFedLinearModel()
+
         for step in range(n_steps):
-            y_pred = linear_model_predict(model, X)
+            y_pred = linear_model.predict(model, X)
+
+            # Compute gradient using the new grad_compute approach
+            from sfl_lite.ml.linear.linear_model import grad_compute
+
             gradient = grad_compute(y_pred, y_true_party, label_party=0)
-            updated_weights, updated_intercept = sync_and_update_weights(
+
+            # Use PlainFedLinearModel's weight_update method
+            updated_weights, updated_intercept = linear_model.weight_update(
                 model, X, gradient, learning_rate, world_size=2
             )
             model.weights = updated_weights

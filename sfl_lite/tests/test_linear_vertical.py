@@ -20,6 +20,7 @@ import pytest
 
 from sfl_lite.ml.linear.linear_model import RegType
 from sfl_lite.ml.linear.linear_regression_vertical import LinearRegressionVertical
+from sfl_lite.ml.linear.plain_fed_linear_model import PlainFedLinearModel
 
 
 class TestLinearRegressionVertical:
@@ -36,16 +37,16 @@ class TestLinearRegressionVertical:
         reg_type = RegType.Linear
 
         model = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=reg_type,
             fit_intercept=True,
             learning_rate=0.1,
-            seed=42,
         )
 
+        assert model.linear_model_class == PlainFedLinearModel
         assert model.reg_type == reg_type
         assert model.fit_intercept is True
         assert model.learning_rate == 0.1
-        assert model.seed == 42
 
     def test_vertical_linear_regression_basic_fit(self):
         """Test basic fitting functionality with synthetic data."""
@@ -72,6 +73,7 @@ class TestLinearRegressionVertical:
 
         # Create model configuration
         trainer = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=RegType.Linear,
             learning_rate=0.01,
             fit_intercept=True,
@@ -112,6 +114,7 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=RegType.Linear,
             fit_intercept=False,
             learning_rate=0.01,
@@ -151,6 +154,7 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=RegType.Linear,
             learning_rate=0.1,
             fit_intercept=True,
@@ -194,6 +198,7 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=RegType.Linear,
             learning_rate=0.01,
         )
@@ -236,6 +241,7 @@ class TestLinearRegressionVertical:
 
         for lr in learning_rates:
             trainer = LinearRegressionVertical(
+                linear_model_class=PlainFedLinearModel,
                 reg_type=RegType.Linear,
                 learning_rate=lr,
                 fit_intercept=True,
@@ -264,6 +270,7 @@ class TestLinearRegressionVertical:
         y = simp.runAt(label_party, lambda: jnp.array([1.0]))()
 
         trainer = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=RegType.Linear,
             learning_rate=0.01,
             fit_intercept=True,
@@ -284,7 +291,7 @@ class TestLinearRegressionVertical:
         assert updated_key is not None
 
     def test_vertical_linear_regression_reproducibility(self):
-        """Test that results are reproducible with same seed."""
+        """Test that results are reproducible with same key."""
         n_samples = 50
         n_features = 2
         label_party = 1
@@ -300,6 +307,7 @@ class TestLinearRegressionVertical:
 
         def run_training(seed):
             trainer = LinearRegressionVertical(
+                linear_model_class=PlainFedLinearModel,
                 reg_type=RegType.Linear,
                 learning_rate=0.01,
             )
@@ -339,6 +347,7 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=RegType.Linear,
             learning_rate=0.01,
         )
@@ -386,14 +395,14 @@ class TestLinearRegressionVertical:
         )()
 
         trainer = LinearRegressionVertical(
+            linear_model_class=PlainFedLinearModel,
             reg_type=RegType.Linear,
             learning_rate=0.01,
-            seed=42,  # Default seed
         )
 
         X = {0: X0}
 
-        # Call without providing key - should use default seed
+        # Call without providing key - should use default
         state, updated_key = mplang.evaluate(
             self.sim3,
             lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3),
@@ -402,7 +411,7 @@ class TestLinearRegressionVertical:
         assert state is not None
         assert updated_key is not None
 
-        # Call again - should be reproducible with same seed
+        # Call again - should be reproducible
         state2, updated_key2 = mplang.evaluate(
             self.sim3,
             lambda: trainer.fit(X, y, label_party=label_party, epochs=1, world_size=3),
