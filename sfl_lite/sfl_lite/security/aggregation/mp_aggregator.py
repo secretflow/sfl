@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from functools import partial, reduce
+from functools import reduce
 from typing import Dict
 
 import jax.numpy as jnp
