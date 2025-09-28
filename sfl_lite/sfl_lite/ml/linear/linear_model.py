@@ -22,7 +22,6 @@ import jax.numpy as jnp
 import mplang
 import mplang.simp as simp
 from mplang.core import MPObject
-from mplang.frontend import phe
 
 from sfl_lite.security.aggregation import Aggregator, MPAggregator
 
