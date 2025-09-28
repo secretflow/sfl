@@ -132,7 +132,9 @@ commands:
           command: |
             # Install uv (if not already installed)
             if ! command -v uv &> /dev/null; then
-                curl -LsSf https://astral.sh/uv/install.sh | sh
+                curl -LsSf -o install_uv.sh https://astral.sh/uv/install.sh
+                sh install_uv.sh
+                rm -f install_uv.sh
             fi
             export PATH="$HOME/.local/bin:$PATH"
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
@@ -250,8 +252,8 @@ commands:
               cp -f "$TESTMON_DATAFILE" "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite"
             fi
 
-            set -e
-            if [ $ret -eq 0 ] || [ $ret -eq 5 ]; then
+            if [ $ret -eq 5 ]; then
+              # Exit with success if no tests were found, which is a valid outcome.
               exit 0
             fi
             exit $ret
@@ -505,8 +507,8 @@ commands:
             pytest --junitxml=../results.xml -v --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
             ret=$?
 
-            set -e
-            if [ $ret -eq 0 ] || [ $ret -eq 5 ]; then
+            if [ $ret -eq 5 ]; then
+              # Exit with success if no tests were found, which is a valid outcome.
               exit 0
             fi
             exit $ret
