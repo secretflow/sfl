@@ -22,6 +22,7 @@ import pytest
 from sfl_lite.ml.linear.linear_model import (
     LinearModel,
     RegType,
+    grad_compute,
     mse_loss,
 )
 from sfl_lite.ml.linear.plain_fed_linear_model import PlainFedLinearModel
@@ -296,8 +297,6 @@ class TestLinearModel:
             y_pred = linear_model.predict(model, X)
 
             # Compute gradient using the new grad_compute approach
-            from sfl_lite.ml.linear.linear_model import grad_compute
-
             gradient = grad_compute(y_pred, y_true_party, label_party=0)
 
             # Use PlainFedLinearModel's weight_update method
