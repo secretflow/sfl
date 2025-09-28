@@ -36,9 +36,12 @@ from secretflow.utils.simulation.data.dataframe import create_df
 from secretflow.utils.simulation.datasets import (
     _DATASETS,
     get_dataset,
-    _CACHE_DIR,
     unzip,
 )
+
+
+# will remove this line after secretflow fix is synced.
+_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".secretflow", "datasets")
 
 
 def load_cora(
