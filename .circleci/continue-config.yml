@@ -98,6 +98,9 @@ parameters:
   test_any:
     type: boolean
     default: false
+  sfl_lite_test:
+    type: boolean
+    default: false
 
 executors:
   linux_executor: # declares a reusable executor
@@ -114,6 +117,35 @@ executors:
     resource_class: macos.m1.large.gen1
 
 commands:
+  install_uv_and_setup_venv:
+    description: "Install uv and setup Python virtual environment"
+    parameters:
+      python_version:
+        type: string
+        default: "3.10"
+      working_directory:
+        type: string
+        default: "."
+    steps:
+      - run:
+          name: Install uv and setup virtual environment
+          command: |
+            # Install uv (if not already installed)
+            if ! command -v uv &> /dev/null; then
+                curl -LsSf -o install_uv.sh https://astral.sh/uv/install.sh
+                sh install_uv.sh
+                rm -f install_uv.sh
+            fi
+            export PATH="$HOME/.local/bin:$PATH"
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
+            
+            # Create virtual environment using uv with --clear flag to avoid interactive prompt
+            cd << parameters.working_directory >>
+            uv venv --python << parameters.python_version >> --clear
+            source .venv/bin/activate
+            
+            # Add activate command to BASH_ENV for subsequent steps
+            echo "source << parameters.working_directory >>/.venv/bin/activate" >> $BASH_ENV
   kill_countdown:
     steps:
       - run:
@@ -127,14 +159,9 @@ commands:
     steps:
       - run:
           name: Install brew dependencies
-          command: brew install wget libomp
-      - run:
-          name: Install miniconda
           command: |
-            wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.1.2-0-MacOSX-arm64.sh -O ~/miniconda.sh
-            bash ~/miniconda.sh -b -p $HOME/miniconda
-            source $HOME/miniconda/bin/activate
-            conda init zsh bash
+            brew install wget libomp python@3.10
+            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> $BASH_ENV
   pytest_wrapper:
     parameters:
       target_folder:
@@ -154,18 +181,18 @@ commands:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "uv.lock" }}
-            - v1-uv-cache-
+            - v2-uv-cache-{{ checksum "uv.lock" }}
+            - v2-uv-cache-
       - run:
           name: "Fix testmon cache permissions"
           command: |
-            # 确保整个项目目录有写权限
+            # Ensure entire project directory has write permissions
             chmod -R +w .
-            # 处理所有可能的testmon数据库文件（包括带前缀的）
+            # Handle all possible testmon database files (including prefixed ones)
             for testmon_file in .*testmondata*; do
               if [ -f "$testmon_file" ]; then
                 echo "Verifying testmon database: $testmon_file"
-                # 检查数据库完整性并清理损坏的文件
+                # Check database integrity and clean up corrupted files
                 if ! sqlite3 "$testmon_file" "SELECT 1;" 2>/dev/null; then
                   echo "Removing corrupted testmon database: $testmon_file"
                   rm -f "$testmon_file"
@@ -173,44 +200,44 @@ commands:
               fi
             done
             
+      - install_uv_and_setup_venv:
+          python_version: "3.10"
       - run:
-          name: "Run tests"
+          name: "Install dependencies and run tests"
           command: |
             set +e
-            conda init
-            conda install -y -c conda-forge uv
-            uv venv
-            source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
 
-            # 配置 testmon 数据库路径到 /tmp，并从缓存恢复
+            # Configure testmon database path to /tmp and restore from cache
             TESTMON_DATAFILE="/tmp/testmondata_<<parameters.testmon_prefix>>.sqlite"
             export TESTMON_DATAFILE="$TESTMON_DATAFILE"
             CACHE_DIR=".ci-cache/testmon"
             mkdir -p "$CACHE_DIR"
-            # 恢复缓存到 /tmp
+            # Restore cache to /tmp
             if [ -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" ]; then
               cp -f "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite" "$TESTMON_DATAFILE"
             fi
-            # 确保父目录与文件可写，并清理残留的 wal/shm/journal
+            # Ensure parent directory and files are writable, and clean up residual wal/shm/journal files
             chmod -R +w "/tmp"
             if [ -f "$TESTMON_DATAFILE" ]; then
               chmod +w "$TESTMON_DATAFILE" || true
               rm -f "${TESTMON_DATAFILE}-wal" "${TESTMON_DATAFILE}-shm" "${TESTMON_DATAFILE}-journal" 2>/dev/null || true
-              # 验证数据库健康，不健康则移除
+              # Verify database health, remove if unhealthy
               if ! sqlite3 "$TESTMON_DATAFILE" "SELECT 1;" 2>/dev/null; then
                 echo "Removing corrupted testmon database before running tests: $TESTMON_DATAFILE"
                 rm -f "$TESTMON_DATAFILE"
               fi
             fi
 
-            # 首次运行或无缓存时，不启用 --testmon 以避免并发初始化写入导致的只读错误
+            # For first run or no cache, don't enable --testmon to avoid read-only errors from concurrent initialization writes
             PYTEST_TESTMON_ARGS=""
             if [ -f "$TESTMON_DATAFILE" ]; then
               PYTEST_TESTMON_ARGS="--testmon --testmondata $TESTMON_DATAFILE"
             fi
 
-            # 根据是否启用 testmon 决定并发策略，避免并发写 sqlite
+            # Determine concurrency strategy based on testmon usage to avoid concurrent sqlite writes
             if [ -n "$PYTEST_TESTMON_ARGS" ]; then
               XDIST_ARGS="-n 0 --dist no"
             else
@@ -220,13 +247,13 @@ commands:
             pytest $PYTEST_TESTMON_ARGS $XDIST_ARGS --env <<parameters.mode>> --junitxml=results.xml -v -x --capture=no --cov=sfl/ --cov-report=xml:coverage.xml << parameters.target_folder >>
             ret=$?
 
-            # 将最新的 testmon 数据库持久化到缓存目录
+            # Persist the latest testmon database to cache directory
             if [ -f "$TESTMON_DATAFILE" ]; then
               cp -f "$TESTMON_DATAFILE" "$CACHE_DIR/<<parameters.testmon_prefix>>.sqlite"
             fi
 
-            set -e
-            if [ $ret -eq 0 ] || [ $ret -eq 5 ]; then
+            if [ $ret -eq 5 ]; then
+              # Exit with success if no tests were found, which is a valid outcome.
               exit 0
             fi
             exit $ret
@@ -453,6 +480,58 @@ commands:
           testmon_prefix: sim_others
           mode: "sim"
           concurrent_num: "2"
+  sfl_lite_pytest_wrapper:
+    parameters:
+      target_folder:
+        type: string
+      testmon_prefix:
+        type: string
+    steps:
+      - restore_cache:
+          name: restore sfl_lite uv cache
+          keys:
+            - v2-uv-cache-sfl-lite-{{ checksum "sfl_lite/uv.lock" }}
+            - v2-uv-cache-sfl-lite-
+      - install_uv_and_setup_venv:
+          python_version: "3.10"
+          working_directory: "sfl_lite"
+      - run:
+          name: "Install dependencies and run sfl_lite tests"
+          command: |
+            set +e
+            cd sfl_lite
+            
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
+
+            pytest --junitxml=../results.xml -v --cov=sfl_lite/ --cov-report=xml:../coverage.xml << parameters.target_folder >>
+            ret=$?
+
+            if [ $ret -eq 5 ]; then
+              # Exit with success if no tests were found, which is a valid outcome.
+              exit 0
+            fi
+            exit $ret
+      - save_cache:
+          name: save sfl_lite uv cache
+          key: v2-uv-cache-sfl-lite-{{ checksum "sfl_lite/uv.lock" }}
+          paths:
+            - sfl_lite/.venv
+            - ~/.cache/uv
+      - store_test_results:
+          path: ./results.xml
+  run_sfl_lite_test:
+    steps:
+      - kill_countdown
+      - when:
+          condition:
+            or:
+              - << pipeline.parameters.base >>
+              - << pipeline.parameters.sfl_lite_test >>
+          steps:
+            - sfl_lite_pytest_wrapper:
+                target_folder: tests/
+                testmon_prefix: sfl_lite
 
 jobs:
   linux_build:
@@ -467,20 +546,23 @@ jobs:
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "uv.lock" }}
-            - v1-uv-cache-
+            - v2-uv-cache-{{ checksum "uv.lock" }}
+            - v2-uv-cache-
+      - install_uv_and_setup_venv:
+          python_version: "3.10"
       - run:
-          name: Install python deps
+          name: Install python dependencies
           command: |
-            conda init
-            conda install -y -c conda-forge uv
-            uv venv
+            # Activate virtual environment
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match --prerelease=allow
+            
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
       - save_cache:
-          key: v1-uv-cache-{{ checksum "uv.lock" }}
+          key: v2-uv-cache-{{ checksum "uv.lock" }}
           paths:
             - "~/.cache/uv"
+            - ".venv"
   macos_build:
     executor: macos_executor
     steps:
@@ -488,32 +570,29 @@ jobs:
       - run:
           name: "Install homebrew dependencies"
           command: |
-            brew install bazelisk cmake ninja libomp wget protobuf@29
-            echo 'export PATH="/opt/homebrew/opt/protobuf@29/bin:$PATH"' >> /Users/distiller/.bash_profile
-      - run:
-          name: "Install Miniconda"
-          command: |
-            wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.1.2-0-MacOSX-arm64.sh -O ~/miniconda.sh
-            bash ~/miniconda.sh -b -p $HOME/miniconda
-            source $HOME/miniconda/bin/activate
-            conda init zsh bash
+            brew install bazelisk cmake ninja libomp wget protobuf@29 python@3.10
+            echo 'export PATH="/opt/homebrew/opt/protobuf@29/bin:$PATH"' >> $BASH_ENV
+            echo 'export PATH="/opt/homebrew/opt/python@3.10/bin:$PATH"' >> $BASH_ENV
       - restore_cache:
           name: restore uv cache
           keys:
-            - v1-uv-cache-{{ checksum "uv.lock" }}
-            - v1-uv-cache-
+            - v2-uv-cache-{{ checksum "uv.lock" }}
+            - v2-uv-cache-
+      - install_uv_and_setup_venv:
+          python_version: "3.10"
       - run:
           name: Install python dependencies
           command: |
-            conda init
-            conda install -y -c conda-forge uv
-            uv venv
+            # Activate virtual environment
             source .venv/bin/activate
-            uv pip install -r pyproject.toml --extra dev --index-strategy unsafe-best-match --prerelease=allow
+            
+            # Install dependencies using uv sync from lock file
+            uv sync --extra dev --frozen --extra-index-url https://download.pytorch.org/whl/cpu
       - save_cache:
-          key: v1-uv-cache-{{ checksum "uv.lock" }}
+          key: v2-uv-cache-{{ checksum "uv.lock" }}
           paths:
             - "~/.cache/uv" # uv default cache path
+            - ".venv"
   linux_component_test:
     parameters:
       resource_class:
@@ -790,6 +869,22 @@ jobs:
       - checkout
       - macos_pre_setup
       - run_sim_others_test
+  linux_sfl_lite_test:
+    parameters:
+      resource_class:
+        type: string
+    executor:
+      name: linux_executor
+      resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - run_sfl_lite_test
+  macos_sfl_lite_test:
+    executor: macos_executor
+    steps:
+      - checkout
+      - macos_pre_setup
+      - run_sfl_lite_test
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -950,6 +1045,15 @@ workflows:
       #     requires:
       #       - macos_build
       # - macos_prod_basic_test:
+      #     requires:
+      #       - macos_build
+      - linux_sfl_lite_test:
+          matrix:
+            parameters:
+              resource_class: ["2xlarge+"]
+          requires:
+            - linux_build-<<matrix.resource_class>>
+      # - macos_sfl_lite_test:
       #     requires:
       #       - macos_build
       # - macos_sim_others_test:
