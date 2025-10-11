@@ -18,6 +18,7 @@ requires-python = ">=3.11,<3.12"
 dynamic = ["version"]
 
 dependencies = [
+    "flax>=0.10.4",
     # this is a temporary dependency until mplang is published
     "mplang @ git+https://github.com/secretflow/mplang.git@c8f36b3ba4d85bfc6e3ce40d3cc23cd6e6d47617",
 ]
