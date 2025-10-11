@@ -521,8 +521,8 @@ wheels = [
 
 [[package]]
 name = "mplang"
-version = "0.1.dev128"
-source = { git = "https://github.com/secretflow/mplang.git?rev=0675d3ce7763b500291c3443a40a9ad1aad9135c#0675d3ce7763b500291c3443a40a9ad1aad9135c" }
+version = "0.1.dev169"
+source = { git = "https://github.com/secretflow/mplang.git?rev=8ea5695191e2dabb4f388d13bf249cb9f43ec4d2#8ea5695191e2dabb4f388d13bf249cb9f43ec4d2" }
 dependencies = [
     { name = "duckdb" },
     { name = "fastapi" },
@@ -1046,7 +1046,7 @@ dev = [
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
     { name = "flax", specifier = ">=0.10.4" },
-    { name = "mplang", git = "https://github.com/secretflow/mplang.git?rev=0675d3ce7763b500291c3443a40a9ad1aad9135c" },
+    { name = "mplang", git = "https://github.com/secretflow/mplang.git?rev=8ea5695191e2dabb4f388d13bf249cb9f43ec4d2" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
