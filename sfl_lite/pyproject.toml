@@ -20,7 +20,7 @@ dynamic = ["version"]
 dependencies = [
     "flax>=0.10.4",
     # this is a temporary dependency until mplang is published
-    "mplang @ git+https://github.com/secretflow/mplang.git@8ea5695191e2dabb4f388d13bf249cb9f43ec4d2",
+    "mplang @ git+https://github.com/secretflow/mplang.git@e7eeb67450b2c63569e7f873ccd48c9372fa1db8",
 ]
 
 [project.optional-dependencies]
