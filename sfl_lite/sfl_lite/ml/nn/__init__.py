@@ -19,22 +19,32 @@ This module provides split learning capabilities for neural networks,
 converging the split learning features from sfl to sfl_lite's MPLang architecture.
 """
 
-from .split_learning_model import SplitLearningNN
-from .base_model import (
-    BaseNN,
-    FuseNN,
-    CNNBase,
-    RNNBase,
-    create_base_model,
-    create_fuse_model,
+from .models import (
+    DNN,
+    MiniONN,
+    LeNet,
+    Chameleon,
+    AlexNet,
+    VGG16,
+    CustomCNN,
+    LogisticRegression,
+    MLP2Layer,
+    MLP3Layer,
+    ModelFactory,
 )
 
 __all__ = [
-    "SplitLearningNN",
-    "BaseNN",
-    "FuseNN", 
-    "CNNBase",
-    "RNNBase",
-    "create_base_model",
-    "create_fuse_model",
+    "SplitLearningCoordinator",
+    "create_split_learning_model",
+    "SecureML",
+    "MiniONN",
+    "LeNet",
+    "Chameleon",
+    "AlexNet",
+    "VGG16",
+    "CustomCNN",
+    "LogisticRegression",
+    "MLP2Layer",
+    "MLP3Layer",
+    "ModelFactory",
 ]
