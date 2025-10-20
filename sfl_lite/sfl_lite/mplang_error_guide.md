@@ -18,3 +18,9 @@ if model.intercept is not None:
         y_pred_no_intercept, model.intercept
     )
 ```
+
+
+2. xxxx is not a valid JAX type
+problem solution:
+
+create a single large function, and use jax.jit to compile it. if the large function is jax.jittable, then executing it on a device in a single run (not multiple steps) should be fine.
