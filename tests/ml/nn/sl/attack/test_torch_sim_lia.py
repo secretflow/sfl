@@ -68,7 +68,6 @@ def do_test_sl_and_sim_lia(alice, bob, config):
     fed_data = FedNdarray(
         partitions={
             alice: alice(lambda x: x)(train_data),
-            # bob: bob(lambda x: x)(train_data),
         },
         partition_way=PartitionWay.VERTICAL,
     )

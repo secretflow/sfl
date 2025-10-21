@@ -18,5 +18,16 @@ from .fed_pass import FedPass as fed_pass
 from .grad_avg import GradientAverageCase as grad_avg
 from .mid import Mid as mid
 from .mixup import Mixup as mixup
+from .loss_defense import PELossDefense as peloss
+from .loss_defense import DcorLossDefense as dcorloss
 
-__all__ = ["grad_avg", "mixup", "de_identification", "mid", "fed_pass", "cae"]
+__all__ = [
+    'grad_avg',
+    'mixup',
+    'de_identification',
+    'mid',
+    'fed_pass',
+    'cae',
+    "peloss",
+    "dcorloss",
+]
