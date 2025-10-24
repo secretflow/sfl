@@ -429,7 +429,7 @@ class TestModelIntegration:
                 # Other CNN models
                 model = ModelFactory.create_model(model_name, num_classes=3, rngs=rngs)
                 x = jax.random.normal(rngs(), (1, 32, 32, 1))  # Default for others
-            
+
             output = model(x)
             
             assert output.shape[-1] == 3  # Check output classes
