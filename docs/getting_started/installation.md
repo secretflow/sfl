@@ -25,10 +25,9 @@ conda activate sf
 
 After that, please use pip to install SecretFlow.
 
-<!-- OPENSOURCE-CLEANUP REMOVE KEYWORD_ONLY -i|https://artifacts.antgroup-inc.cn/simple/| -->
 
 ```bash
-pip install -U -i https://artifacts.antgroup-inc.cn/simple/ sfl
+pip install -U sfl
 ```
 
 ## Option 2: from source
