@@ -22,12 +22,12 @@ from .mid import Mid as mid
 from .mixup import Mixup as mixup
 
 __all__ = [
-    'grad_avg',
-    'mixup',
-    'de_identification',
-    'mid',
-    'fed_pass',
-    'cae',
+    "grad_avg",
+    "mixup",
+    "de_identification",
+    "mid",
+    "fed_pass",
+    "cae",
     "peloss",
     "dcorloss",
 ]

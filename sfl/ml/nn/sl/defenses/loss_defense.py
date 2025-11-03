@@ -45,7 +45,6 @@ class PELoss(nn.Module):
         self.eps = 1e-8
         self.cce_loss = torch.nn.CrossEntropyLoss()
 
-
     def forward(self, embeddings, preds, labels):
         total_loss = 0.0
         if isinstance(embeddings, list):
@@ -90,7 +89,7 @@ class DcorLoss(nn.Module):
         self.cce_loss = torch.nn.CrossEntropyLoss()
         self.dcor_weighting = dcor_weighting
         logging.info(
-            f'DcorLoss initialized with num_classes={self.num_classes}, dcor_weighting={self.dcor_weighting}'
+            f"DcorLoss initialized with num_classes={self.num_classes}, dcor_weighting={self.dcor_weighting}"
         )
         self.eps = 1e-8
 
@@ -126,9 +125,9 @@ class DcorLoss(nn.Module):
 
 def loss_wrapper(loss_type, **kwargs):
     def wrapper():
-        if loss_type == 'peloss':
+        if loss_type == "peloss":
             loss_func = PELoss(**kwargs)
-        elif loss_type == 'dcorloss':
+        elif loss_type == "dcorloss":
             loss_func = DcorLoss(**kwargs)
         else:
             raise ValueError(f"Unsupported loss type: {loss_type}")

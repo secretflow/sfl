@@ -30,7 +30,7 @@ class BaseLossDefenseFrontend(DefenseBase):
 
     def build_defense_callback(self, app: ApplicationBase) -> Callback | None:
         raise NotImplementedError(
-            'build_defense_callback must be implemented in subclass'
+            "build_defense_callback must be implemented in subclass"
         )
 
     def check_attack_valid(self, attack: AttackBase) -> bool:
@@ -61,10 +61,10 @@ class BaseLossDefenseFrontend(DefenseBase):
         update_gpu = lambda x: x
         update_mem = lambda x: x
         return (
-            cluster_resources_pack.apply_debug_resources('gpu_mem', update_gpu)
-            .apply_debug_resources('memory', update_mem)
-            .apply_sim_resources(app.device_y.party, 'gpu_mem', update_gpu)
-            .apply_sim_resources(app.device_y.party, 'memory', update_mem)
+            cluster_resources_pack.apply_debug_resources("gpu_mem", update_gpu)
+            .apply_debug_resources("memory", update_mem)
+            .apply_sim_resources(app.device_y.party, "gpu_mem", update_gpu)
+            .apply_sim_resources(app.device_y.party, "memory", update_mem)
         )
 
 
@@ -75,7 +75,9 @@ class PELossDefense(BaseLossDefenseFrontend):
 
     def build_defense_callback(self, app: ApplicationBase) -> Callback | None:
         # angular loss may result in loss explosion
-        return BaselossDefense(loss_type='peloss', alpha=self.config.get('alpha', 2), use_angular=False)
+        return BaselossDefense(
+            loss_type="peloss", alpha=self.config.get("alpha", 2), use_angular=False
+        )
 
 
 class DcorLossDefense(BaseLossDefenseFrontend):
@@ -85,5 +87,7 @@ class DcorLossDefense(BaseLossDefenseFrontend):
 
     def build_defense_callback(self, app: ApplicationBase) -> Callback | None:
         return BaselossDefense(
-            loss_type='dcorloss', alpha=self.config.get('alpha', 2), num_classes=app.num_classes
+            loss_type="dcorloss",
+            alpha=self.config.get("alpha", 2),
+            num_classes=app.num_classes,
         )

@@ -24,5 +24,5 @@ html[data-theme="light"] {
 html[data-theme="dark"] {
     --pst-color-primary: rgb(22 119 255);
     --pst-color-secondary: rgb(22 255 201);
-    --pst-color-background: rgb(56, 56, 56);
+    --pst-color-background: rgb(56 56 56);
 }

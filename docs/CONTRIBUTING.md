@@ -281,7 +281,7 @@ secretflow-doctools clean
 
 ## Reporting issues
 
-If commands or previews aren't working as expecting, please file an issue at
+If commands or previews aren't working as expected, please file an issue at
 <https://github.com/secretflow/doctools/issues>.
 
 For project-specific questions, please file an issue in this repository instead.

@@ -49,7 +49,7 @@ def clean_notebook(filename):
         print(f"No forbidden outputs found in {filename}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python clean_forbidden_outputs.py notebook.ipynb")
         sys.exit(1)
