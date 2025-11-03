@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 import numpy as np
-
-
 import torch.nn as nn
 import torch.optim as optim
-from torchmetrics import Accuracy
-import logging
 from secretflow.data.ndarray import FedNdarray, PartitionWay
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from torchmetrics import Accuracy
+
 from sfl.ml.nn import SLModel
 from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
 from sfl.ml.nn.sl.attacks.sim_lia_torch import SimilarityLabelInferenceAttack
 from sfl.ml.nn.sl.defenses.loss_defense import BaselossDefense
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
 def generate_synthetic_data(n_samples=2000, n_features=100, n_classes=10):
     """

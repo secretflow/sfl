@@ -14,18 +14,12 @@
 
 from typing import Dict
 
-from benchmark_examples.autoattack.applications.base import (
-    ApplicationBase,
-    InputMode,
-    ModelType,
-)
-from benchmark_examples.autoattack.attacks.base import AttackBase, AttackType
-from benchmark_examples.autoattack.defenses.base import DefenseBase
-from benchmark_examples.autoattack.utils.resources import ResourcesPack
+from benchmark.autoattack.applications.base import ApplicationBase, InputMode, ModelType
+from benchmark.autoattack.attacks.base import AttackBase, AttackType
+from benchmark.autoattack.defenses.base import DefenseBase
+from benchmark.autoattack.utils.resources import ResourcesPack
 from sfl.ml.nn.callbacks.callback import Callback
-from sfl.ml.nn.sl.defenses.loss_defense import (
-    BaselossDefense,
-)
+from sfl.ml.nn.sl.defenses.loss_defense import BaselossDefense
 
 
 class BaseLossDefenseFrontend(DefenseBase):

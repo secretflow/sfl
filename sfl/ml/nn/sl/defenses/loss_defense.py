@@ -16,17 +16,15 @@
 # https://www.ijcai.org/proceedings/2024/0618.pdf.
 
 
-import types
 import logging
+import types
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from sfl.ml.nn.callbacks.callback import Callback
-from sfl.ml.nn.core.torch import module
-from sfl.ml.nn.callbacks.callback import Callback
-from sfl.ml.nn.core.torch import loss_wrapper, module, TorchModel
+from sfl.ml.nn.core.torch import TorchModel, loss_wrapper, module
 from sfl.ml.nn.sl.backend.torch.sl_base import SLBaseTorchModel
 
 
