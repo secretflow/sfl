@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 import numpy as np
-
-
 import torch.nn as nn
 import torch.optim as optim
-from torchmetrics import Accuracy
-import logging
 from secretflow.data.ndarray import FedNdarray, PartitionWay
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from torchmetrics import Accuracy
+
 from sfl.ml.nn import SLModel
 from sfl.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
 from sfl.ml.nn.sl.attacks.sim_lia_torch import SimilarityLabelInferenceAttack
 from sfl.ml.nn.sl.defenses.loss_defense import BaselossDefense
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
 def generate_synthetic_data(n_samples=2000, n_features=100, n_classes=10):
     """
@@ -41,19 +41,19 @@ def generate_synthetic_data(n_samples=2000, n_features=100, n_classes=10):
         n_samples=n_samples,
         n_features=n_features,
         n_informative=100,
-        n_redundant=0, 
+        n_redundant=0,
         n_repeated=0,
         n_classes=n_classes,
         n_clusters_per_class=1,
         class_sep=1.5,
-        random_state=42
+        random_state=42,
     )
-    
-    # 标准化数据
+
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
-    
+
     return X.astype(np.float32), y.astype(np.int64)
+
 
 def do_test_sl_and_sim_lia(alice, bob, config):
 
@@ -65,15 +65,12 @@ def do_test_sl_and_sim_lia(alice, bob, config):
             self.fc3 = nn.Linear(hidden_dim, output_dim)
             self.gelu = nn.GELU()
 
-            
         def forward(self, x):
             x = self.gelu(self.fc1(x))
-
             x = self.gelu(self.fc2(x))
-
-            x = self.fc3(x) 
+            x = self.fc3(x)
             return x
-        
+
         def output_num(self):
             return 1
 
@@ -83,10 +80,10 @@ def do_test_sl_and_sim_lia(alice, bob, config):
             self.fc1 = nn.Linear(input_dim, hidden_dim)
             self.fc2 = nn.Linear(hidden_dim, n_classes)
             self.relu = nn.GELU()
-            
+
         def forward(self, x):
             x = self.relu(self.fc1(x))
-            x = self.fc2(x) 
+            x = self.fc2(x)
             return x
 
     data, label = generate_synthetic_data(n_samples=2500, n_features=100, n_classes=10)
@@ -155,15 +152,15 @@ def do_test_sl_and_sim_lia(alice, bob, config):
 
     if loss_type == "peloss":
         loss_defense = BaselossDefense(
-            loss_type='peloss', alpha=int(alpha), use_angular=False
+            loss_type="peloss", alpha=int(alpha), use_angular=False
         )
     elif loss_type == "dcorloss":
         loss_defense = BaselossDefense(
-            loss_type='dcorloss', alpha=int(alpha), num_classes=10
+            loss_type="dcorloss", alpha=int(alpha), num_classes=10
         )
     else:
         raise ValueError(f"Unsupported loss type: {config}")
-    
+
     sim_lia_callback = SimilarityLabelInferenceAttack(
         attack_party=alice,
         label_party=bob,
