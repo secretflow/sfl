@@ -39,8 +39,8 @@ Build the next-generation federated learning framework that democratizes distrib
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Create and activate a new environment with Python 3.10
-uv venv sfl-lite-env --python 3.10
-source sfl-lite-env/bin/activate  # On Windows: sfl-lite-env\Scripts\activate
+uv venv --python 3.10
+source .venv/bin/activate  # On Windows: sfl-lite-venv\Scripts\activate
 ```
 
 ### 2. Sync all required packages
