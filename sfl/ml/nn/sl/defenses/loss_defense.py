@@ -16,17 +16,15 @@
 # https://www.ijcai.org/proceedings/2024/0618.pdf.
 
 
-import types
 import logging
+import types
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from sfl.ml.nn.callbacks.callback import Callback
-from sfl.ml.nn.core.torch import module
-from sfl.ml.nn.callbacks.callback import Callback
-from sfl.ml.nn.core.torch import loss_wrapper, module, TorchModel
+from sfl.ml.nn.core.torch import TorchModel, loss_wrapper, module
 from sfl.ml.nn.sl.backend.torch.sl_base import SLBaseTorchModel
 
 
@@ -46,7 +44,6 @@ class PELoss(nn.Module):
         self.use_angular = use_angular
         self.eps = 1e-8
         self.cce_loss = torch.nn.CrossEntropyLoss()
-
 
     def forward(self, embeddings, preds, labels):
         total_loss = 0.0
@@ -92,7 +89,7 @@ class DcorLoss(nn.Module):
         self.cce_loss = torch.nn.CrossEntropyLoss()
         self.dcor_weighting = dcor_weighting
         logging.info(
-            f'DcorLoss initialized with num_classes={self.num_classes}, dcor_weighting={self.dcor_weighting}'
+            f"DcorLoss initialized with num_classes={self.num_classes}, dcor_weighting={self.dcor_weighting}"
         )
         self.eps = 1e-8
 
@@ -128,9 +125,9 @@ class DcorLoss(nn.Module):
 
 def loss_wrapper(loss_type, **kwargs):
     def wrapper():
-        if loss_type == 'peloss':
+        if loss_type == "peloss":
             loss_func = PELoss(**kwargs)
-        elif loss_type == 'dcorloss':
+        elif loss_type == "dcorloss":
             loss_func = DcorLoss(**kwargs)
         else:
             raise ValueError(f"Unsupported loss type: {loss_type}")
