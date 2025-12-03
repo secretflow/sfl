@@ -27,7 +27,7 @@ dependencies = [
     "jaxlib>=0.4.16,<=0.4.26",
     "networkx==2.8.8",
     "onnx==1.17.0",
-    "ray==2.42.0",
+    "ray==2.52.0",
     "secretflow-rayfed==0.2.1a2",
     # For security reason.
     "certifi>=2024.7.4",
@@ -39,7 +39,7 @@ dependencies = [
     "validator.py==1.3.0",
     "xgboost==1.7.5",
     "wheel>=0.38.1",
-    "torch==2.7.0",
+    "torch==2.8.0",
     "torchmetrics==1.6.1",
     "torchvision==0.22.0",
     "torchaudio==2.7.0",
