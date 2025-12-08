@@ -265,8 +265,12 @@ class PlainFederatedLinearRegression(LinearRegressionTemplate):
         # Initialize model
         feature_shapes = {}
         for device_name, features in X.items():
-            # Assume features have shape attribute or extract from actual data
-            n_features = features.shape[1] if hasattr(features, "shape") else 1
+            # Use robust feature shape extraction (same logic as _validate_input)
+            n_features = (
+                features.shape[1]
+                if hasattr(features, "shape") and len(features.shape) > 1
+                else 1
+            )
             feature_shapes[device_name] = n_features
 
         # Initialize weights using pure function with interpreter
