@@ -12,14 +12,14 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.11,<3.12"
 dynamic = ["version"]
 
 dependencies = [
     # this is a temporary dependency until mplang is published
-    "mplang @ git+https://github.com/secretflow/mplang.git@0675d3ce7763b500291c3443a40a9ad1aad9135c",
+    "mplang @ git+https://github.com/secretflow/mplang.git@ff71d67dc09f1d370280c9198e75258c79b60c2c",
 ]
 
 [project.optional-dependencies]
@@ -73,7 +73,7 @@ ignore = [
 "__init__.py" = ["F401"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
