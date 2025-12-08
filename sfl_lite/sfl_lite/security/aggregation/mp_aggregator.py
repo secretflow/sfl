@@ -14,12 +14,11 @@
 
 
 from functools import reduce
-from typing import Dict
+from typing import List
 
 import jax.numpy as jnp
-import mplang
-from mplang import simp
-from mplang.core import MPObject
+import mplang.v1 as mp
+from mplang.v1.core import MPObject
 
 from sfl_lite.security.aggregation.aggregator import Aggregator
 
@@ -31,43 +30,49 @@ class MPAggregator(Aggregator):
 
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, secure_device: str = "SP0"):
+        self.secure_device = secure_device
 
-    @mplang.function
-    def sum(self, data: Dict[int, MPObject]) -> MPObject:
+    @mp.function
+    def sum(self, data: List[MPObject]) -> MPObject:
         """Sum of array elements over a given axis.
 
         Args:
-            data: dict of party: MPObjects.
+            data: list of MPObjects.
 
         Returns:
             a device object holds the sum.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        sealed_data = [simp.sealFrom(value, party) for party, value in data.items()]
 
-        def _sum(value):
-            return reduce(jnp.add, value)
+        # Put all data items to secure device
+        secure_data = [mp.put(self.secure_device, item) for item in data]
 
-        return simp.srun(
-            _sum,
-        )(sealed_data)
+        # Secure computation on the designated device
+        def _sum(*values):
+            return reduce(jnp.add, values)
 
-    @mplang.function
-    def average(self, data: Dict[int, MPObject]) -> MPObject:
+        result = mp.device(self.secure_device)(_sum)(*secure_data)
+        return result
+
+    @mp.function
+    def average(self, data: List[MPObject]) -> MPObject:
         """Compute the average of array elements over a given axis.
 
         Args:
-            data: dict of party: MPObjects.
+            data: list of MPObjects.
 
         Returns:
             a device object holds the average.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        sealed_data = [simp.sealFrom(value, party) for party, value in data.items()]
 
-        def _average(value):
-            return reduce(jnp.add, value) / len(value)
+        # Put all data items to secure device
+        secure_data = [mp.put(self.secure_device, item) for item in data]
 
-        return simp.srun(_average)(sealed_data)
+        # Secure computation on the designated device
+        def _average(*values):
+            return reduce(jnp.add, values) / len(values)
+
+        result = mp.device(self.secure_device)(_average)(*secure_data)
+        return result

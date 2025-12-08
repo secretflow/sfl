@@ -99,17 +99,18 @@ def compute_predictions(
             )
             local_predictions[device_name] = local_pred
 
-    # Aggregate predictions on label device
+    # Aggregate predictions on label device - parallel transfer and sum
     prediction_sum = None
-    for device_name, local_pred in local_predictions.items():
-        # Transfer to label device and sum
-        transferred_pred = mp.device(label_device)(lambda x: x)(local_pred)
-        if prediction_sum is None:
-            prediction_sum = transferred_pred
-        else:
-            prediction_sum = mp.device(label_device)(lambda a, b: a + b)(
-                prediction_sum, transferred_pred
-            )
+    if local_predictions:
+        # Transfer all predictions to label device in parallel
+        preds_on_label_device = [
+            mp.device(label_device)(lambda x: x)(pred)
+            for pred in local_predictions.values()
+        ]
+        # Sum all predictions in a single operation
+        prediction_sum = mp.device(label_device)(
+            lambda p: jnp.sum(jnp.stack(p), axis=0)
+        )(preds_on_label_device)
 
     # Add intercept if present
     if fit_intercept and "intercept" in weights:
