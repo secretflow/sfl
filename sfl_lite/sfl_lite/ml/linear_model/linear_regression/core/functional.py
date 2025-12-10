@@ -17,7 +17,7 @@ from typing import Tuple
 
 import jax.numpy as jnp
 import mplang.v1 as mp
-from jax import grad, value_and_grad
+from jax import grad
 from mplang.v1.core import MPObject
 
 
