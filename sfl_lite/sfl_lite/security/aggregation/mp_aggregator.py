@@ -69,4 +69,4 @@ class MPAggregator(Aggregator):
             return reduce(jnp.add, values) / len(values)
 
         result = mp.device(self.secure_device)(_average)(*data)
-        return mp.put("P0", result)
+        return result
