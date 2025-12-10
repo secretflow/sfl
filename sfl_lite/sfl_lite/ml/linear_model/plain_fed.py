@@ -99,17 +99,15 @@ def compute_predictions(
             local_predictions[device_name] = local_pred
 
     # Aggregate predictions on label device - parallel transfer and sum
-    prediction_sum = None
-    if local_predictions:
-        # Transfer all predictions to label device in parallel
-        preds_on_label_device = [
-            mp.device(label_device)(lambda x: x)(pred)
-            for pred in local_predictions.values()
-        ]
-        # Sum all predictions in a single operation
-        prediction_sum = mp.device(label_device)(
-            lambda p: jnp.sum(jnp.stack(p), axis=0)
-        )(preds_on_label_device)
+    # Transfer all predictions to label device in parallel
+    preds_on_label_device = [
+        mp.device(label_device)(lambda x: x)(pred)
+        for pred in local_predictions.values()
+    ]
+    # Sum all predictions in a single operation
+    prediction_sum = mp.device(label_device)(lambda p: jnp.sum(jnp.stack(p), axis=0))(
+        preds_on_label_device
+    )
 
     # Add intercept if present
     if fit_intercept and "intercept" in weights:
@@ -268,6 +266,12 @@ class PlainFederatedLinearRegression(LinearRegressionTemplate):
                 else 1
             )
             feature_shapes[device_name] = n_features
+
+        # Validate that at least one party contributes features
+        if not feature_shapes or all(n == 0 for n in feature_shapes.values()):
+            raise ValueError(
+                "At least one party must contribute features (n_features >= 1) for training"
+            )
 
         # Initialize weights using pure function with interpreter
         weights = mp.evaluate(

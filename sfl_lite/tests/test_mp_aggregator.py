@@ -56,7 +56,9 @@ class TestMPAggregator:
         @mp.function
         def test_average_func():
             data = create_test_data()
-            return self.agg.average(data)
+            result = self.agg.average(data)
+            result = mp.put("P0", result)
+            return result
 
         # Perform average and get results
         result = mp.evaluate(self.sim3, test_average_func)
@@ -77,7 +79,9 @@ class TestMPAggregator:
         @mp.function
         def test_sum_func():
             data = create_test_data()
-            return self.agg.sum(data)
+            result = self.agg.sum(data)
+            result = mp.put("P0", result)
+            return result
 
         # Perform sum and get results
         result = mp.evaluate(self.sim3, test_sum_func)
@@ -99,7 +103,9 @@ class TestMPAggregator:
         @mp.function
         def test_average_func():
             data = create_test_data()
-            return self.agg.average(data)
+            result = self.agg.average(data)
+            result = mp.put("P0", result)
+            return result
 
         # Perform average and get results
         result = mp.evaluate(self.sim3, test_average_func)
