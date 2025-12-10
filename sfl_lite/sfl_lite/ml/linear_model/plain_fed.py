@@ -19,12 +19,12 @@ import jax.random as random
 import mplang.v1 as mp
 from mplang.v1.core import MPObject
 
-from sfl_lite.ml.linear_model.linear_regression.lib.functional import (
+from sfl_lite.ml.linear_model.linear_regression.core.functional import (
     loss_and_grad,
     r2_score,
 )
-from sfl_lite.ml.linear_model.linear_regression.lib.model import LinearRegressionModel
-from sfl_lite.ml.linear_model.linear_regression.lib.template import (
+from sfl_lite.ml.linear_model.linear_regression.core.model import LinearRegressionModel
+from sfl_lite.ml.linear_model.linear_regression.core.template import (
     LinearRegressionTemplate,
 )
 
