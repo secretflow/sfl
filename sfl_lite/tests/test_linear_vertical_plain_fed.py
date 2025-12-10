@@ -75,12 +75,9 @@ class TestPlainFederatedLinearRegression:
 
         # Generate synthetic data
         np.random.seed(42)
-        MockMPObject(
-            np.random.normal(0, 1, (n_samples, n_features_alice))
-        )
+        MockMPObject(np.random.normal(0, 1, (n_samples, n_features_alice)))
         MockMPObject(np.random.normal(0, 1, (n_samples, n_features_bob)))
         MockMPObject(np.random.normal(0, 1, (n_samples,)))
-
 
         # Create model with mock interpreter
         mock_interpreter = "mock_simulator"
@@ -116,7 +113,6 @@ class TestPlainFederatedLinearRegression:
         np.random.seed(45)
         MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
         MockMPObject(np.random.normal(0, 1, (n_samples,)))
-
 
         # Create model without intercept
         mock_interpreter = "mock_simulator"
@@ -218,7 +214,6 @@ class TestPlainFederatedLinearRegression:
         MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
         MockMPObject(np.random.normal(0, 1, (n_samples,)))
 
-
         learning_rates = [0.001, 0.01, 0.1]
 
         mock_interpreter = "mock_simulator"
@@ -267,7 +262,6 @@ class TestPlainFederatedLinearRegression:
         np.random.seed(42)
         MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
         MockMPObject(np.random.normal(0, 1, (n_samples,)))
-
 
         mock_interpreter = "mock_simulator"
 
@@ -332,7 +326,6 @@ class TestPlainFederatedLinearRegression:
         for device_name in device_names:
             MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
             MockMPObject(np.random.normal(0, 1, (n_samples,)))
-
 
             model = PlainFederatedLinearRegression(
                 interpreter=mock_interpreter,

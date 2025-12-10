@@ -1103,6 +1103,7 @@ wheels = [
 name = "sfl-lite"
 source = { editable = "." }
 dependencies = [
+    { name = "black" },
     { name = "mplang" },
     { name = "ruff" },
 ]
@@ -1119,6 +1120,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "black", specifier = ">=25.9.0" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
     { name = "mplang", git = "https://github.com/secretflow/mplang.git?rev=c8f36b3ba4d85bfc6e3ce40d3cc23cd6e6d47617" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
