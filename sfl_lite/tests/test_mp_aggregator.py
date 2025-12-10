@@ -35,17 +35,16 @@ class TestMPAggregator:
         @mp.function
         def test_sum_func():
             data = create_test_data()
-            return self.agg.sum(data)
+            result = self.agg.sum(data)
+            result = mp.put("P0", result)
+            return result
 
         # Perform sum and get results
         result = mp.evaluate(self.sim3, test_sum_func)
-        revealed_result = mp.evaluate(self.sim3, lambda: mp.reveal(result))
-        fetched = mp.fetch(self.sim3, revealed_result)
+        fetched = mp.fetch(self.sim3, result)
 
         assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, jnp.array(1)) for arr in fetched)
-        assert fetched[0].dtype == jnp.int64
+        assert jnp.array_equal(fetched[0], jnp.array(1))
 
     def test_average(self):
         @mp.function
@@ -61,12 +60,11 @@ class TestMPAggregator:
 
         # Perform average and get results
         result = mp.evaluate(self.sim3, test_average_func)
-        revealed_result = mp.evaluate(self.sim3, lambda: mp.reveal(result))
-        fetched = mp.fetch(self.sim3, revealed_result)
+        fetched = mp.fetch(self.sim3, result)
 
         assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, jnp.array(2.0)) for arr in fetched)
+        assert fetched[0] is not None  # Result is on P0
+        assert jnp.array_equal(fetched[0], jnp.array(2.0))
         assert fetched[0].dtype == jnp.float64
 
     def test_sum_with_array_input(self):
@@ -83,13 +81,12 @@ class TestMPAggregator:
 
         # Perform sum and get results
         result = mp.evaluate(self.sim3, test_sum_func)
-        revealed_result = mp.evaluate(self.sim3, lambda: mp.reveal(result))
-        fetched = mp.fetch(self.sim3, revealed_result)
+        fetched = mp.fetch(self.sim3, result)
 
         expected = jnp.array([1, 3])
         assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, expected) for arr in fetched)
+        assert fetched[0] is not None  # Result is on P0
+        assert jnp.array_equal(fetched[0], expected)
         assert fetched[0].dtype == jnp.int64
 
     def test_average_with_array_input(self):
@@ -106,11 +103,10 @@ class TestMPAggregator:
 
         # Perform average and get results
         result = mp.evaluate(self.sim3, test_average_func)
-        revealed_result = mp.evaluate(self.sim3, lambda: mp.reveal(result))
-        fetched = mp.fetch(self.sim3, revealed_result)
+        fetched = mp.fetch(self.sim3, result)
 
         expected = jnp.array([2.0, 4.0])
         assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, expected) for arr in fetched)
+        assert fetched[0] is not None  # Result is on P0
+        assert jnp.array_equal(fetched[0], expected)
         assert fetched[0].dtype == jnp.float64

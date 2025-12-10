@@ -568,8 +568,8 @@ wheels = [
 
 [[package]]
 name = "mplang"
-version = "0.1.dev223"
-source = { git = "https://github.com/secretflow/mplang.git?rev=ff71d67dc09f1d370280c9198e75258c79b60c2c#ff71d67dc09f1d370280c9198e75258c79b60c2c" }
+version = "0.1.dev235"
+source = { git = "https://github.com/secretflow/mplang.git?rev=c8f36b3ba4d85bfc6e3ce40d3cc23cd6e6d47617#c8f36b3ba4d85bfc6e3ce40d3cc23cd6e6d47617" }
 dependencies = [
     { name = "coincurve" },
     { name = "cryptography" },
@@ -583,6 +583,7 @@ dependencies = [
     { name = "pandas" },
     { name = "protobuf" },
     { name = "pyarrow" },
+    { name = "pyyaml" },
     { name = "spu" },
     { name = "sqlglot" },
     { name = "tenseal" },
@@ -1118,7 +1119,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
-    { name = "mplang", git = "https://github.com/secretflow/mplang.git?rev=ff71d67dc09f1d370280c9198e75258c79b60c2c" },
+    { name = "mplang", git = "https://github.com/secretflow/mplang.git?rev=c8f36b3ba4d85bfc6e3ce40d3cc23cd6e6d47617" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
@@ -1169,8 +1170,8 @@ wheels = [
 
 [[package]]
 name = "spu"
-version = "0.10.0.dev0"
-source = { git = "https://github.com/secretflow/spu.git?rev=72bdfc0cf62da673278608929e7386ee2223cb7b#72bdfc0cf62da673278608929e7386ee2223cb7b" }
+version = "0.10.0.dev20251208"
+source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
 dependencies = [
     { name = "cachetools" },
     { name = "cloudpickle" },
@@ -1178,6 +1179,12 @@ dependencies = [
     { name = "multiprocess" },
     { name = "numpy" },
     { name = "termcolor" },
+]
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/ca/85/fc0142b26fd79f83e290e396d58033bd76a6822c47698de67bfde79ec140/spu-0.10.0.dev20251208.tar.gz", hash = "sha256:2039995c20168f6273651697cb3f4336b760f6909d69358eb8c5e2b8d54d41d3", size = 82170104, upload-time = "2025-12-08T08:55:29.494Z" }
+wheels = [
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/26/3f/8d0a524cf82a0cc16f07262ff5af19f11a1e65d44078b7ce5dc2ed6b10b8/spu-0.10.0.dev20251208-cp311-none-macosx_14_0_arm64.whl", hash = "sha256:a625b3238afbcde71925b350b0ade344dd98f72ea0fbf16ee89306ccaf8307a1", size = 82934429, upload-time = "2025-12-08T08:55:23.972Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/28/82/7bc19d22b0c38d72aabf996a2349b6d1d51038c9451b15870cc6db95264c/spu-0.10.0.dev20251208-cp311-none-manylinux_2_28_aarch64.whl", hash = "sha256:01390c5e0cf1e82ffc7b0620aee90cfcf20787c78dab0793fe922ac843cfc2dc", size = 39893468, upload-time = "2025-12-08T10:20:56.139Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/bb/1f/8a7bc3be9ad8f8265f23e2dcbfa65b7ad65d214914a671aa4f509104ec57/spu-0.10.0.dev20251208-cp311-none-manylinux_2_28_x86_64.whl", hash = "sha256:1ce2a897d2f244f4a1f1ffb5dfa0cfd80fbaeb2f30551448de14fd324a9ef60b", size = 40062371, upload-time = "2025-12-08T12:32:47.225Z" },
 ]
 
 [[package]]
