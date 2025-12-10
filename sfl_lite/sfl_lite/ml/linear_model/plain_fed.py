@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import jax.numpy as jnp
 import jax.random as random
@@ -225,7 +225,7 @@ class PlainFederatedLinearRegression(LinearRegressionTemplate):
         self.learning_rate = learning_rate
         self.max_iter = max_iter
         self.tol = tol
-        self.random_state = random_state or 42
+        self.random_state = random_state if random_state is not None else 42
         self.label_device = label_device
         self.interpreter = interpreter
 
@@ -255,10 +255,6 @@ class PlainFederatedLinearRegression(LinearRegressionTemplate):
         """
         if sample_weight is not None:
             raise NotImplementedError("sample_weight is not yet supported")
-
-        # Validate and extract label device from kwargs if provided
-        if "label_device" in kwargs:
-            self.label_device = kwargs["label_device"]
 
         # Validate input data
         self._validate_input(X)
@@ -464,7 +460,7 @@ class PlainFederatedLinearRegression(LinearRegressionTemplate):
         # but we maintain security by returning MPObject
         return r2
 
-    def get_params(self, deep: bool = True) -> Dict[str, any]:
+    def get_params(self, deep: bool = True) -> Dict[str, Any]:
         """Get parameters for this estimator."""
         return {
             "fit_intercept": self.fit_intercept,
