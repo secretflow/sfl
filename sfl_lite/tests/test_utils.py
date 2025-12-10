@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Common utilities for testing federated learning implementations."""
+"""Utility functions for sfl_lite tests."""
 
 import jax.numpy as jnp
 import jax.random as random

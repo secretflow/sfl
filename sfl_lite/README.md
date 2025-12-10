@@ -33,40 +33,51 @@ Build the next-generation federated learning framework that democratizes distrib
 
 ## Quick Start
 
-### 1. Create a new uv environment
+### 1. Install uv (if not already installed)
 ```bash
-# Install uv if you haven't already
 curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Create and activate a new environment with Python 3.10
-uv venv sfl-lite-env --python 3.10
-source sfl-lite-env/bin/activate  # On Windows: sfl-lite-env\Scripts\activate
 ```
 
-### 2. Sync all required packages
+### 2. Clone and setup the project
 ```bash
 # Clone the repository
 git clone https://github.com/secretflow/sfl.git
 cd sfl/sfl_lite
 
-uv pip install -e .[dev] --upgrade
+# Sync dependencies (creates virtual environment automatically)
+uv sync --extra dev
 ```
+
+This will:
+- Create a virtual environment at `.venv/` (Python 3.11)
+- Install all dependencies including dev dependencies
+- Install the package in editable mode
 
 ### 3. Verify installation
 ```bash
 # Test the installation
-python -c "import sfl_lite; print('SFL Lite installed successfully!')"
+uv run python -c "import sfl_lite; print('SFL Lite installed successfully!')"
 ```
 
 ## Development
 
+### Quick Commands
+
 ```bash
-# Install development dependencies
-uv pip install -e .[dev] --upgrade
+# Format and lint code (run before committing)
+./format.sh
 
-# Run tests
-pytest
+# Auto-fix linting issues
+./format.sh --fix
 
-# Format code
-ruff check sfl_lite/
+# Check formatting without modifying files
+./format.sh --check
+
+# Run all tests
+uv run pytest tests/
+
+# Run specific test file
+uv run pytest tests/test_linear_vertical_plain_fed.py -v
 ```
+
+For detailed development guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).

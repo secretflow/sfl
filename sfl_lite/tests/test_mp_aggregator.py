@@ -18,14 +18,18 @@ import pytest
 
 from sfl_lite.security.aggregation.mp_aggregator import MPAggregator
 
+from .test_utils import fetch_from_label_party
+
 
 class TestMPAggregator:
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        self.sim3 = mp.Simulator.simple(3)
-        self.agg = MPAggregator()
+    @pytest.fixture(scope="function")
+    def aggregator(self):
+        """Fixture providing an MPAggregator instance."""
+        return MPAggregator()
 
-    def test_sum(self):
+    def test_sum(self, simulator, aggregator):
+        """Test sum aggregation with scalar values."""
+
         @mp.function
         def create_test_data():
             x = mp.device("P0")(lambda: 0)()
@@ -33,20 +37,21 @@ class TestMPAggregator:
             return [x, y]
 
         @mp.function
-        def test_sum_func():
+        def test_sum_func(agg):
             data = create_test_data()
-            result = self.agg.sum(data)
+            result = agg.sum(data)
             result = mp.put("P0", result)
             return result
 
         # Perform sum and get results
-        result = mp.evaluate(self.sim3, test_sum_func)
-        fetched = mp.fetch(self.sim3, result)
+        result = mp.evaluate(simulator, test_sum_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
 
-        assert len(fetched) == 3  # 3 parties
-        assert jnp.array_equal(fetched[0], jnp.array(1))
+        assert jnp.array_equal(fetched_result, jnp.array(1))
 
-    def test_average(self):
+    def test_average(self, simulator, aggregator):
+        """Test average aggregation with scalar values."""
+
         @mp.function
         def create_test_data():
             a = mp.device("P0")(lambda: 2)()
@@ -54,22 +59,23 @@ class TestMPAggregator:
             return [a, b]
 
         @mp.function
-        def test_average_func():
+        def test_average_func(agg):
             data = create_test_data()
-            result = self.agg.average(data)
+            result = agg.average(data)
             result = mp.put("P0", result)
             return result
 
         # Perform average and get results
-        result = mp.evaluate(self.sim3, test_average_func)
-        fetched = mp.fetch(self.sim3, result)
+        result = mp.evaluate(simulator, test_average_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
 
-        assert len(fetched) == 3  # 3 parties
-        assert fetched[0] is not None  # Result is on P0
-        assert jnp.array_equal(fetched[0], jnp.array(2.0))
-        assert fetched[0].dtype == jnp.float64
+        assert fetched_result is not None
+        assert jnp.array_equal(fetched_result, jnp.array(2.0))
+        assert fetched_result.dtype == jnp.float64
 
-    def test_sum_with_array_input(self):
+    def test_sum_with_array_input(self, simulator, aggregator):
+        """Test sum aggregation with array values."""
+
         @mp.function
         def create_test_data():
             x = mp.device("P0")(lambda: jnp.array([0, 1]))()
@@ -77,23 +83,24 @@ class TestMPAggregator:
             return [x, y]
 
         @mp.function
-        def test_sum_func():
+        def test_sum_func(agg):
             data = create_test_data()
-            result = self.agg.sum(data)
+            result = agg.sum(data)
             result = mp.put("P0", result)
             return result
 
         # Perform sum and get results
-        result = mp.evaluate(self.sim3, test_sum_func)
-        fetched = mp.fetch(self.sim3, result)
+        result = mp.evaluate(simulator, test_sum_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
 
         expected = jnp.array([1, 3])
-        assert len(fetched) == 3  # 3 parties
-        assert fetched[0] is not None  # Result is on P0
-        assert jnp.array_equal(fetched[0], expected)
-        assert fetched[0].dtype == jnp.int64
+        assert fetched_result is not None
+        assert jnp.array_equal(fetched_result, expected)
+        assert fetched_result.dtype == jnp.int64
 
-    def test_average_with_array_input(self):
+    def test_average_with_array_input(self, simulator, aggregator):
+        """Test average aggregation with array values."""
+
         @mp.function
         def create_test_data():
             a = mp.device("P0")(lambda: jnp.array([2, 4]))()
@@ -101,18 +108,17 @@ class TestMPAggregator:
             return [a, b]
 
         @mp.function
-        def test_average_func():
+        def test_average_func(agg):
             data = create_test_data()
-            result = self.agg.average(data)
+            result = agg.average(data)
             result = mp.put("P0", result)
             return result
 
         # Perform average and get results
-        result = mp.evaluate(self.sim3, test_average_func)
-        fetched = mp.fetch(self.sim3, result)
+        result = mp.evaluate(simulator, test_average_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
 
         expected = jnp.array([2.0, 4.0])
-        assert len(fetched) == 3  # 3 parties
-        assert fetched[0] is not None  # Result is on P0
-        assert jnp.array_equal(fetched[0], expected)
-        assert fetched[0].dtype == jnp.float64
+        assert fetched_result is not None
+        assert jnp.array_equal(fetched_result, expected)
+        assert fetched_result.dtype == jnp.float64

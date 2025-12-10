@@ -20,11 +20,11 @@ from sfl_lite.ml.linear_model.plain_fed import (
     PlainFederatedLinearRegression,
     create_plain_federated_lr,
 )
-from tests.utils import (
+
+from .test_utils import (
     create_linear_federated_data,
     create_random_federated_data,
     create_single_party_data,
-    create_test_cluster_spec,
     fetch_from_label_party,
 )
 
@@ -206,18 +206,16 @@ class TestPlainFederatedLinearRegression:
             assert model.label_device == device_name
             assert model.get_params()["label_device"] == device_name
 
-    def test_plain_federated_train_and_fit_with_mplang(self):
+    def test_plain_federated_train_and_fit_with_mplang(self, simulator):
         """Test training and fitting a linear model with actual MPLang execution."""
-        # Create cluster and simulator
-        cluster_spec = create_test_cluster_spec()
-        sim = mp.Simulator(cluster_spec)
-
         # Generate federated training data
-        X_alice, X_bob, y_alice = mp.evaluate(sim, create_random_federated_data, 42)
+        X_alice, X_bob, y_alice = mp.evaluate(
+            simulator, create_random_federated_data, 42
+        )
 
-        # Step 4: Create our federated linear regression model
+        # Create our federated linear regression model
         model = PlainFederatedLinearRegression(
-            interpreter=sim,
+            interpreter=simulator,
             learning_rate=0.01,
             max_iter=20,
             fit_intercept=True,
@@ -282,18 +280,14 @@ class TestPlainFederatedLinearRegression:
         print("  - Model fitting and prediction")
         print("  - sklearn-compatible interface")
 
-    def test_plain_federated_r2_score_verification(self):
+    def test_plain_federated_r2_score_verification(self, simulator):
         """Test R² score implementation against cleartext counterpart."""
-        # Create cluster and simulator
-        cluster_spec = create_test_cluster_spec()
-        sim = mp.Simulator(cluster_spec)
-
         # Generate test data with known linear relationship (no noise)
-        X1, X2, y = mp.evaluate(sim, create_linear_federated_data, 42, 50, False)
+        X1, X2, y = mp.evaluate(simulator, create_linear_federated_data, 42, 50, False)
 
-        # Step 4: Train federated model
+        # Train federated model
         model = PlainFederatedLinearRegression(
-            interpreter=sim,
+            interpreter=simulator,
             learning_rate=0.1,
             max_iter=200,  # More iterations for better convergence
             fit_intercept=True,
@@ -312,9 +306,9 @@ class TestPlainFederatedLinearRegression:
         # Step 7: Get secure predictions for cleartext comparison
         y_pred_secure = model.predict(X_federated)
 
-        # Step 8: Fetch cleartext values for comparison (only for testing)
-        y_pred_clear = fetch_from_label_party(sim, y_pred_secure)
-        y_true_clear = fetch_from_label_party(sim, y)
+        # Fetch cleartext values for comparison (only for testing)
+        y_pred_clear = fetch_from_label_party(simulator, y_pred_secure)
+        y_true_clear = fetch_from_label_party(simulator, y)
 
         print(
             f"Debug: y_pred_clear type: {type(y_pred_clear)}, shape: {np.array(y_pred_clear).shape if hasattr(y_pred_clear, '__len__') else 'scalar'}"
@@ -335,8 +329,8 @@ class TestPlainFederatedLinearRegression:
 
         r2_cleartext = compute_r2_cleartext(y_true_clear, y_pred_clear)
 
-        # Step 10: Fetch secure R² for comparison (only for testing)
-        r2_secure_value = float(fetch_from_label_party(sim, r2_secure))
+        # Fetch secure R² for comparison (only for testing)
+        r2_secure_value = float(fetch_from_label_party(simulator, r2_secure))
 
         print(f"Debug: r2_secure_value extracted: {r2_secure_value}")
 
@@ -347,28 +341,28 @@ class TestPlainFederatedLinearRegression:
 
         # Step 11: Verify that the scores are very close
         # Allow small numerical differences due to floating point precision
-        assert (
-            abs(r2_secure_value - r2_cleartext) < 1e-4
-        ), f"R² scores don't match: secure={r2_secure_value}, cleartext={r2_cleartext}"
+        assert abs(r2_secure_value - r2_cleartext) < 1e-4, (
+            f"R² scores don't match: secure={r2_secure_value}, cleartext={r2_cleartext}"
+        )
 
         # Step 12: Since we have a perfect linear relationship and good convergence,
         # R² should be very close to 1.0
-        assert (
-            r2_cleartext > 0.95
-        ), f"R² should be high for perfect linear relationship: {r2_cleartext}"
+        assert r2_cleartext > 0.95, (
+            f"R² should be high for perfect linear relationship: {r2_cleartext}"
+        )
 
         print("✓ R² implementation verified against cleartext counterpart!")
         print("  - Secure and cleartext R² scores match within tolerance")
         print("  - High R² score confirms correct linear relationship detection")
 
-        # Step 13: Test with noisy data for more realistic R²
+        # Test with noisy data for more realistic R²
         X1_noisy, X2_noisy, y_noisy = mp.evaluate(
-            sim, create_linear_federated_data, 123, 50, True, 2.0
+            simulator, create_linear_federated_data, 123, 50, True, 2.0
         )
 
         # Train on noisy data
         model_noisy = PlainFederatedLinearRegression(
-            interpreter=sim,
+            interpreter=simulator,
             learning_rate=0.05,
             max_iter=100,
             fit_intercept=True,
@@ -380,33 +374,29 @@ class TestPlainFederatedLinearRegression:
         model_noisy.fit(X_noisy, y_noisy)
 
         r2_noisy_secure = model_noisy.score(X_noisy, y_noisy)
-        r2_noisy_value = float(fetch_from_label_party(sim, r2_noisy_secure))
+        r2_noisy_value = float(fetch_from_label_party(simulator, r2_noisy_secure))
 
         print("✓ Noisy Data R² Test:")
         print(f"  - R² with noise: {r2_noisy_value:.6f}")
 
         # With noise, R² should be lower but still positive for good model
-        assert (
-            0.0 <= r2_noisy_value <= 1.0
-        ), f"R² should be between 0 and 1: {r2_noisy_value}"
+        assert 0.0 <= r2_noisy_value <= 1.0, (
+            f"R² should be between 0 and 1: {r2_noisy_value}"
+        )
 
         print("✓ Complete R² verification successful!")
         print("  - Perfect linear data: High R² (near 1.0)")
         print("  - Noisy linear data: Moderate R² (0.0-1.0)")
         print("  - Secure implementation matches cleartext computation")
 
-    def test_plain_federated_single_party_with_features(self):
+    def test_plain_federated_single_party_with_features(self, simulator):
         """Test that training succeeds when only one party has features."""
-        # Create cluster and simulator
-        cluster_spec = create_test_cluster_spec()
-        sim = mp.Simulator(cluster_spec)
-
         # Generate data where only one party has features
-        X_alice, y_alice = mp.evaluate(sim, create_single_party_data, 42)
+        X_alice, y_alice = mp.evaluate(simulator, create_single_party_data, 42)
 
         # Create model
         model = PlainFederatedLinearRegression(
-            interpreter=sim,
+            interpreter=simulator,
             learning_rate=0.01,
             max_iter=10,
             fit_intercept=True,
