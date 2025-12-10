@@ -50,7 +50,7 @@ class MPAggregator(Aggregator):
             return reduce(jnp.add, values)
 
         result = mp.device(self.secure_device)(_sum)(*data)
-        return mp.put("P0", result)
+        return result
 
     @mp.function
     def average(self, data: List[MPObject]) -> MPObject:
