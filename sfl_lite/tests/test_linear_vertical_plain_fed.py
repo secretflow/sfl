@@ -19,8 +19,8 @@ import numpy as np
 import pytest
 
 from sfl_lite.ml.linear_model.plain_fed import (
-    create_plain_federated_lr,
     PlainFederatedLinearRegression,
+    create_plain_federated_lr,
 )
 
 
@@ -75,14 +75,12 @@ class TestPlainFederatedLinearRegression:
 
         # Generate synthetic data
         np.random.seed(42)
-        alice_features = MockMPObject(
+        MockMPObject(
             np.random.normal(0, 1, (n_samples, n_features_alice))
         )
-        bob_features = MockMPObject(np.random.normal(0, 1, (n_samples, n_features_bob)))
-        target_data = MockMPObject(np.random.normal(0, 1, (n_samples,)))
+        MockMPObject(np.random.normal(0, 1, (n_samples, n_features_bob)))
+        MockMPObject(np.random.normal(0, 1, (n_samples,)))
 
-        X = {"alice": alice_features, "bob": bob_features}
-        y = target_data
 
         # Create model with mock interpreter
         mock_interpreter = "mock_simulator"
@@ -116,11 +114,9 @@ class TestPlainFederatedLinearRegression:
 
         # Generate mock data
         np.random.seed(45)
-        alice_features = MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
-        target_data = MockMPObject(np.random.normal(0, 1, (n_samples,)))
+        MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
+        MockMPObject(np.random.normal(0, 1, (n_samples,)))
 
-        X = {"alice": alice_features}
-        y = target_data
 
         # Create model without intercept
         mock_interpreter = "mock_simulator"
@@ -157,10 +153,9 @@ class TestPlainFederatedLinearRegression:
             np.random.normal(0, 1, (n_samples, n_features_alice))
         )
         bob_features = MockMPObject(np.random.normal(0, 1, (n_samples, n_features_bob)))
-        target_data = MockMPObject(np.random.normal(0, 1, (n_samples,)))
+        MockMPObject(np.random.normal(0, 1, (n_samples,)))
 
         X = {"alice": alice_features, "bob": bob_features}
-        y = target_data
 
         # Test sklearn interface
         mock_interpreter = "mock_simulator"
@@ -220,11 +215,9 @@ class TestPlainFederatedLinearRegression:
 
         # Generate data
         np.random.seed(42)
-        alice_features = MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
-        target_data = MockMPObject(np.random.normal(0, 1, (n_samples,)))
+        MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
+        MockMPObject(np.random.normal(0, 1, (n_samples,)))
 
-        X = {"alice": alice_features}
-        y = target_data
 
         learning_rates = [0.001, 0.01, 0.1]
 
@@ -272,11 +265,9 @@ class TestPlainFederatedLinearRegression:
 
         # Generate data
         np.random.seed(42)
-        alice_features = MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
-        target_data = MockMPObject(np.random.normal(0, 1, (n_samples,)))
+        MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
+        MockMPObject(np.random.normal(0, 1, (n_samples,)))
 
-        X = {"alice": alice_features}
-        y = target_data
 
         mock_interpreter = "mock_simulator"
 
@@ -315,8 +306,7 @@ class TestPlainFederatedLinearRegression:
                 self.shape = self.data.shape
 
         np.random.seed(42)
-        single_feature = MockMPObject(np.random.normal(0, 1, (3, 1)))
-        X_single = {"alice": single_feature}
+        MockMPObject(np.random.normal(0, 1, (3, 1)))
 
         model = PlainFederatedLinearRegression(
             interpreter=mock_interpreter, random_state=42
@@ -340,11 +330,9 @@ class TestPlainFederatedLinearRegression:
         mock_interpreter = "mock_simulator"
 
         for device_name in device_names:
-            features = MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
-            target = MockMPObject(np.random.normal(0, 1, (n_samples,)))
+            MockMPObject(np.random.normal(0, 1, (n_samples, n_features)))
+            MockMPObject(np.random.normal(0, 1, (n_samples,)))
 
-            X = {device_name: features}
-            y = target
 
             model = PlainFederatedLinearRegression(
                 interpreter=mock_interpreter,
@@ -443,7 +431,7 @@ class TestPlainFederatedLinearRegression:
         fitted_model = model.fit(X_federated, y_federated)
 
         # Step 7: Verify the model was fitted successfully
-        assert fitted_model._is_fitted == True
+        assert fitted_model._is_fitted
         assert fitted_model is model  # Returns self
 
         # Step 8: Access model parameters (should work after fitting)
@@ -457,7 +445,7 @@ class TestPlainFederatedLinearRegression:
         assert "P1" in coefficients
         assert n_features == 4  # 2 features from P0 + 2 from P1
 
-        print(f"✓ Model fitted successfully")
+        print("✓ Model fitted successfully")
         print(f"  - Coefficients: {len(coefficients)} parties")
         print(f"  - Total features: {n_features}")
         print(f"  - Has intercept: {intercept is not None}")
@@ -465,13 +453,13 @@ class TestPlainFederatedLinearRegression:
         # Step 9: Make predictions on the training data
         predictions = model.predict(X_federated)
         assert predictions is not None
-        print(f"✓ Predictions generated successfully")
+        print("✓ Predictions generated successfully")
 
         # Step 10: Compute score (R²)
         score = model.score(X_federated, y_federated)
         # Note: score is now an MPObject (secure), not a float
         assert score is not None
-        print(f"✓ Secure score computed successfully (MPObject)")
+        print("✓ Secure score computed successfully (MPObject)")
 
         # Step 11: Test parameter management
         params = model.get_params()
@@ -659,7 +647,7 @@ class TestPlainFederatedLinearRegression:
 
         print(f"Debug: r2_secure_value extracted: {r2_secure_value}")
 
-        print(f"✓ R² Score Verification Results:")
+        print("✓ R² Score Verification Results:")
         print(f"  - Secure R²: {r2_secure_value:.6f}")
         print(f"  - Cleartext R²: {r2_cleartext:.6f}")
         print(f"  - Difference: {abs(r2_secure_value - r2_cleartext):.6f}")
@@ -740,7 +728,7 @@ class TestPlainFederatedLinearRegression:
         r2_noisy_secure = model_noisy.score(X_noisy, y_noisy)
         r2_noisy_value = float(fetch_from_label_party(sim, r2_noisy_secure))
 
-        print(f"✓ Noisy Data R² Test:")
+        print("✓ Noisy Data R² Test:")
         print(f"  - R² with noise: {r2_noisy_value:.6f}")
 
         # With noise, R² should be lower but still positive for good model

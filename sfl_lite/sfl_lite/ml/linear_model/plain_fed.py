@@ -17,7 +17,6 @@ from typing import Any, Dict, Optional
 import jax.numpy as jnp
 import jax.random as random
 import mplang.v1 as mp
-import numpy as np
 from mplang.v1.core import MPObject
 
 from sfl_lite.ml.linear_model.linear_regression.lib.functional import (

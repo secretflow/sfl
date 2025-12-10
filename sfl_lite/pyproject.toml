@@ -20,6 +20,7 @@ dynamic = ["version"]
 dependencies = [
     # this is a temporary dependency until mplang is published
     "mplang @ git+https://github.com/secretflow/mplang.git@c8f36b3ba4d85bfc6e3ce40d3cc23cd6e6d47617",
+    "ruff>=0.13.1",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +32,10 @@ dev = [
     "mypy>=1.0.0",
     "pre-commit",
 ]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
 
 [project.urls]
 Homepage = "https://github.com/secretflow/sfl"

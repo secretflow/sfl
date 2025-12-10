@@ -44,11 +44,11 @@ class MPAggregator(Aggregator):
             a device object holds the sum.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        
+
         # Secure computation on the designated device
         def _sum(*values):
             return reduce(jnp.add, values)
-        
+
         result = mp.device(self.secure_device)(_sum)(*data)
         return mp.put("P0", result)
 
@@ -63,10 +63,10 @@ class MPAggregator(Aggregator):
             a device object holds the average.
         """
         assert data, "Data to aggregate should not be None or empty!"
-        
+
         # Secure computation on the designated device
         def _average(*values):
             return reduce(jnp.add, values) / len(values)
-        
+
         result = mp.device(self.secure_device)(_average)(*data)
         return mp.put("P0", result)
