@@ -33,12 +33,6 @@ def mse_loss(y_pred: MPObject, y: MPObject) -> MPObject:
 
 
 @mp.function
-def grad_compute(y_pred: MPObject, y: MPObject, device: str) -> MPObject:
-    gradient = mp.device(device)(grad(mse_loss))(y_pred, y)
-    return gradient
-
-
-@mp.function
 def loss_and_grad(
     y_pred: MPObject, y: MPObject, device: str
 ) -> Tuple[MPObject, MPObject]:

@@ -294,8 +294,6 @@ class PlainFederatedLinearRegression(LinearRegressionTemplate):
         @mp.function
         def secure_training_loop():
             # Initialize training state as MPObjects
-            import jax.numpy as jnp
-
             # Create control variables as MPObjects on label device
             epoch = mp.device(self.label_device)(lambda: jnp.array(0))()
             tol_val = mp.device(self.label_device)(lambda: jnp.array(self.tol))()

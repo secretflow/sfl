@@ -17,8 +17,8 @@ import numpy as np
 import pytest
 
 from sfl_lite.ml.linear_model.plain_fed import (
-    PlainFederatedLinearRegression,
     create_plain_federated_lr,
+    PlainFederatedLinearRegression,
 )
 
 from .test_utils import (
@@ -193,7 +193,7 @@ class TestPlainFederatedLinearRegression:
 
         # Test empty X dictionary validation
         model = PlainFederatedLinearRegression(interpreter=mock_interpreter)
-        with pytest.raises((ValueError, KeyError)):
+        with pytest.raises(ValueError, match="X cannot be empty"):
             model._validate_input({})
 
         # Test various string device names
@@ -341,15 +341,15 @@ class TestPlainFederatedLinearRegression:
 
         # Step 11: Verify that the scores are very close
         # Allow small numerical differences due to floating point precision
-        assert abs(r2_secure_value - r2_cleartext) < 1e-4, (
-            f"R² scores don't match: secure={r2_secure_value}, cleartext={r2_cleartext}"
-        )
+        assert (
+            abs(r2_secure_value - r2_cleartext) < 1e-4
+        ), f"R² scores don't match: secure={r2_secure_value}, cleartext={r2_cleartext}"
 
         # Step 12: Since we have a perfect linear relationship and good convergence,
         # R² should be very close to 1.0
-        assert r2_cleartext > 0.95, (
-            f"R² should be high for perfect linear relationship: {r2_cleartext}"
-        )
+        assert (
+            r2_cleartext > 0.95
+        ), f"R² should be high for perfect linear relationship: {r2_cleartext}"
 
         print("✓ R² implementation verified against cleartext counterpart!")
         print("  - Secure and cleartext R² scores match within tolerance")
@@ -380,9 +380,9 @@ class TestPlainFederatedLinearRegression:
         print(f"  - R² with noise: {r2_noisy_value:.6f}")
 
         # With noise, R² should be lower but still positive for good model
-        assert 0.0 <= r2_noisy_value <= 1.0, (
-            f"R² should be between 0 and 1: {r2_noisy_value}"
-        )
+        assert (
+            0.0 <= r2_noisy_value <= 1.0
+        ), f"R² should be between 0 and 1: {r2_noisy_value}"
 
         print("✓ Complete R² verification successful!")
         print("  - Perfect linear data: High R² (near 1.0)")

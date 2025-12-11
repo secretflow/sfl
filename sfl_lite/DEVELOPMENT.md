@@ -271,7 +271,7 @@ def test_example(simulator):
 
 ## Continuous Integration
 
-The CI pipeline (`.github/workflows/ci.yml`) runs on every push and pull request:
+The CI pipeline (`.github/workflows/sfl-lite-ci.yml`) runs on every push and pull request:
 
 ### Format and Lint Job
 1. **Ruff Formatting Check**: Ensures all code is properly formatted

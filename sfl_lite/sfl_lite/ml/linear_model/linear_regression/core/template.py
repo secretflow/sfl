@@ -70,7 +70,7 @@ class LinearRegressionTemplate(abc.ABC):
         y: MPObject,
         sample_weight: Optional[MPObject] = None,
         **kwargs,
-    ) -> float:
+    ) -> MPObject:
         """
         Return the coefficient of determination R^2 of the prediction.
 
@@ -81,7 +81,7 @@ class LinearRegressionTemplate(abc.ABC):
             **kwargs: Additional keyword arguments
 
         Returns:
-            score: R^2 score
+            score: R^2 score as MPObject
         """
         pass
 
