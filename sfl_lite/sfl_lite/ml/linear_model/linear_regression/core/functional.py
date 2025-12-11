@@ -15,6 +15,7 @@
 
 from typing import Tuple
 
+import jax
 import jax.numpy as jnp
 import mplang.v1 as mp
 from mplang.v1.core import MPObject
@@ -35,16 +36,24 @@ def mse_loss(y_pred: MPObject, y: MPObject) -> MPObject:
 def loss_and_grad(
     y_pred: MPObject, y: MPObject, device: str
 ) -> Tuple[MPObject, MPObject]:
-    # Define pure JAX functions for loss and gradient computation
+    """
+    Compute MSE loss and its gradient using JAX automatic differentiation.
+
+    Args:
+        y_pred: Predicted values
+        y: True target values
+        device: Device to perform computation on
+
+    Returns:
+        Tuple of (loss, gradient)
+    """
+
+    # Define a pure JAX function for loss computation
     def mse_loss_jax(pred, true):
         return jnp.mean((pred - true) ** 2)
 
-    def mse_grad_jax(pred, true):
-        return 2 * (pred - true) / len(pred)
-
-    # Compute loss and gradient on the specified device
-    loss = mp.device(device)(mse_loss_jax)(y_pred, y)
-    gradient = mp.device(device)(mse_grad_jax)(y_pred, y)
+    # Use value_and_grad to compute both loss and gradient automatically
+    loss, gradient = mp.device(device)(jax.value_and_grad(mse_loss_jax))(y_pred, y)
 
     return loss, gradient
 

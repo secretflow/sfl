@@ -198,7 +198,7 @@ Since the main SFL repository uses Black for formatting, but sfl_lite uses Ruff,
 ```toml
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
