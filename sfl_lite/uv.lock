@@ -1074,7 +1074,6 @@ name = "sfl-lite"
 source = { editable = "." }
 dependencies = [
     { name = "mplang" },
-    { name = "ruff" },
 ]
 
 [package.optional-dependencies]
@@ -1083,6 +1082,7 @@ dev = [
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -1092,7 +1092,7 @@ requires-dist = [
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
-    { name = "ruff", specifier = ">=0.13.1" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.13.1" },
 ]
 provides-extras = ["dev"]
 
