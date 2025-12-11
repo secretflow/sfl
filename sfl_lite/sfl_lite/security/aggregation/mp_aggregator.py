@@ -33,7 +33,6 @@ class MPAggregator(Aggregator):
     def __init__(self, secure_device: str = "SP0"):
         self.secure_device = secure_device
 
-    @mp.function
     def sum(self, data: List[MPObject]) -> MPObject:
         """Sum of array elements over a given axis.
 
@@ -52,7 +51,6 @@ class MPAggregator(Aggregator):
         result = mp.device(self.secure_device)(_sum)(*data)
         return result
 
-    @mp.function
     def average(self, data: List[MPObject]) -> MPObject:
         """Compute the average of array elements over a given axis.
 
