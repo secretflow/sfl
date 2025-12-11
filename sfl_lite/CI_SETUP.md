@@ -193,7 +193,7 @@ Since the main SFL repository uses Black for formatting, but sfl_lite uses Ruff,
 
 ### Configuration Location
 
-**File**: `/pyproject.toml` (at repository root)
+**File**: `pyproject.toml` (at repository root)
 
 ```toml
 [tool.black]

@@ -21,13 +21,12 @@ from mplang.v1.core import MPObject
 @dataclasses.dataclass
 class LinearRegressionModel:
     """
-    linear regression model.
+    Linear regression model.
 
     Attributes:
-
-        weights : Dict[str, MPObject]. Maps from party id to weight.
-        label_party : str. Party of intercept.
-        intercept : MPObject.
+        weights: Dictionary mapping device names to their corresponding weight MPObject
+        label_party: Device name of the party holding the labels and intercept
+        intercept: Intercept (bias) term of the model as MPObject, or None if not fitted
     """
 
     weights: Dict[str, MPObject]

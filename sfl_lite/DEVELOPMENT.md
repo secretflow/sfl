@@ -130,7 +130,7 @@ sfl_lite/
 │   │   └── linear_model/        # Linear models
 │   │       ├── plain_fed.py     # Plain federated linear regression
 │   │       └── linear_regression/
-│   │           └── lib/         # Core implementations
+│   │           └── core/         # Core implementations
 │   │               ├── functional.py
 │   │               ├── model.py
 │   │               └── template.py

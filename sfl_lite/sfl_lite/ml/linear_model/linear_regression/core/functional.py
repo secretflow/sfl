@@ -24,10 +24,14 @@ from mplang.v1.core import MPObject
 @mp.function
 def mse_loss(y_pred: MPObject, y: MPObject) -> MPObject:
     """
-    Vectorized Mean Squared Error loss
-    y_pred: predicted values
-    y: true target values
-    Returns average squared error
+    Compute Mean Squared Error loss.
+
+    Args:
+        y_pred: Predicted values
+        y: True target values
+
+    Returns:
+        Average squared error as MPObject
     """
     return mp.run_jax(lambda pred, true: jnp.mean((pred - true) ** 2), y_pred, y)
 
