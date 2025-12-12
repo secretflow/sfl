@@ -493,7 +493,7 @@ commands:
             - v2-uv-cache-sfl-lite-{{ checksum "sfl_lite/uv.lock" }}
             - v2-uv-cache-sfl-lite-
       - install_uv_and_setup_venv:
-          python_version: "3.10"
+          python_version: "3.11"
           working_directory: "sfl_lite"
       - run:
           name: "Install dependencies and run sfl_lite tests"
@@ -1051,8 +1051,6 @@ workflows:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
       # - macos_sfl_lite_test:
       #     requires:
       #       - macos_build
