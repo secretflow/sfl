@@ -13,83 +13,112 @@
 # limitations under the License.
 
 import jax.numpy as jnp
-import mplang
-import mplang.simp as simp
+import mplang.v1 as mp
 import pytest
 
 from sfl_lite.security.aggregation.mp_aggregator import MPAggregator
 
+from .test_utils import fetch_from_label_party
+
 
 class TestMPAggregator:
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        self.sim3 = mplang.Simulator.simple(3)
-        mplang.set_ctx(self.sim3)
-        self.agg = MPAggregator()
+    @pytest.fixture(scope="function")
+    def aggregator(self):
+        """Fixture providing an MPAggregator instance."""
+        return MPAggregator()
 
-    def test_sum(self):
-        # Create test data
-        x = simp.runAt(0, lambda: 0)()
-        y = simp.runAt(1, lambda: 1)()
+    def test_sum(self, simulator, aggregator):
+        """Test sum aggregation with scalar values."""
 
-        # Perform sum
-        z = self.agg.sum({0: x, 1: y})
+        @mp.function
+        def create_test_data():
+            x = mp.device("P0")(lambda: 0)()
+            y = mp.device("P1")(lambda: 1)()
+            return [x, y]
 
-        # Verify results
-        revealed_z = simp.reveal(z)
-        fetched = mplang.fetch(None, revealed_z)
-        assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, jnp.array(1)) for arr in fetched)
-        assert fetched[0].dtype == jnp.int64
+        @mp.function
+        def test_sum_func(agg):
+            data = create_test_data()
+            result = agg.sum(data)
+            result = mp.put("P0", result)
+            return result
 
-    def test_average(self):
-        # Create test data
-        a = simp.runAt(0, lambda: 2)()
-        b = simp.runAt(1, lambda: 2)()
+        # Perform sum and get results
+        result = mp.evaluate(simulator, test_sum_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
 
-        # Perform average
-        avg = self.agg.average({0: a, 1: b})
+        assert jnp.array_equal(fetched_result, jnp.array(1))
 
-        # Verify results
-        revealed_avg = simp.reveal(avg)
-        fetched = mplang.fetch(None, revealed_avg)
-        assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, jnp.array(2.0)) for arr in fetched)
-        assert fetched[0].dtype == jnp.float64
+    def test_average(self, simulator, aggregator):
+        """Test average aggregation with scalar values."""
 
-    def test_sum_with_array_input(self):
-        # Create test data as jnp arrays
-        x = simp.runAt(0, lambda: jnp.array([0, 1]))()
-        y = simp.runAt(1, lambda: jnp.array([1, 2]))()
+        @mp.function
+        def create_test_data():
+            a = mp.device("P0")(lambda: 2)()
+            b = mp.device("P1")(lambda: 2)()
+            return [a, b]
 
-        # Perform sum
-        z = self.agg.sum({0: x, 1: y})
+        @mp.function
+        def test_average_func(agg):
+            data = create_test_data()
+            result = agg.average(data)
+            result = mp.put("P0", result)
+            return result
 
-        # Verify results
-        revealed_z = simp.reveal(z)
-        fetched = mplang.fetch(None, revealed_z)
+        # Perform average and get results
+        result = mp.evaluate(simulator, test_average_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
+
+        assert fetched_result is not None
+        assert jnp.array_equal(fetched_result, jnp.array(2.0))
+        assert fetched_result.dtype == jnp.float64
+
+    def test_sum_with_array_input(self, simulator, aggregator):
+        """Test sum aggregation with array values."""
+
+        @mp.function
+        def create_test_data():
+            x = mp.device("P0")(lambda: jnp.array([0, 1]))()
+            y = mp.device("P1")(lambda: jnp.array([1, 2]))()
+            return [x, y]
+
+        @mp.function
+        def test_sum_func(agg):
+            data = create_test_data()
+            result = agg.sum(data)
+            result = mp.put("P0", result)
+            return result
+
+        # Perform sum and get results
+        result = mp.evaluate(simulator, test_sum_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
+
         expected = jnp.array([1, 3])
-        print(fetched, expected)
-        assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, expected) for arr in fetched)
-        assert fetched[0].dtype == jnp.int64
+        assert fetched_result is not None
+        assert jnp.array_equal(fetched_result, expected)
+        assert fetched_result.dtype == jnp.int64
 
-    def test_average_with_array_input(self):
-        # Create test data as jnp arrays
-        a = simp.runAt(0, lambda: jnp.array([2, 4]))()
-        b = simp.runAt(1, lambda: jnp.array([2, 4]))()
+    def test_average_with_array_input(self, simulator, aggregator):
+        """Test average aggregation with array values."""
 
-        # Perform average
-        avg = self.agg.average({0: a, 1: b})
+        @mp.function
+        def create_test_data():
+            a = mp.device("P0")(lambda: jnp.array([2, 4]))()
+            b = mp.device("P1")(lambda: jnp.array([2, 4]))()
+            return [a, b]
 
-        # Verify results
-        revealed_avg = simp.reveal(avg)
-        fetched = mplang.fetch(None, revealed_avg)
+        @mp.function
+        def test_average_func(agg):
+            data = create_test_data()
+            result = agg.average(data)
+            result = mp.put("P0", result)
+            return result
+
+        # Perform average and get results
+        result = mp.evaluate(simulator, test_average_func, aggregator)
+        fetched_result = fetch_from_label_party(simulator, result)
+
         expected = jnp.array([2.0, 4.0])
-        assert len(fetched) == 3  # 3 parties
-        assert all(arr is not None for arr in fetched)
-        assert all(jnp.array_equal(arr, expected) for arr in fetched)
-        assert fetched[0].dtype == jnp.float64
+        assert fetched_result is not None
+        assert jnp.array_equal(fetched_result, expected)
+        assert fetched_result.dtype == jnp.float64

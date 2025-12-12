@@ -12,25 +12,30 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.11,<3.12"
 dynamic = ["version"]
 
 dependencies = [
     # this is a temporary dependency until mplang is published
-    "mplang @ git+https://github.com/secretflow/mplang.git@0675d3ce7763b500291c3443a40a9ad1aad9135c",
+    "mplang @ git+https://github.com/secretflow/mplang.git@c8f36b3ba4d85bfc6e3ce40d3cc23cd6e6d47617",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
     "mypy>=1.0.0",
     "pre-commit",
+    "ruff>=0.14.8",
 ]
+
+
+[[tool.uv.index]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+default = true
 
 [project.urls]
 Homepage = "https://github.com/secretflow/sfl"
@@ -50,13 +55,11 @@ packages = ["sfl_lite"]
 [tool.hatch.build.targets.wheel.sources]
 "sfl_lite" = "sfl_lite"
 
-[tool.black]
-line-length = 88
-target-version = ['py310']
-
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py311"
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -64,16 +67,16 @@ select = [
     "I",  # isort
 ]
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501",  # line too long, handled by formatter
     "B008",  # do not perform function calls in argument defaults
     "C901",  # too complex
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -84,4 +87,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short --import-mode=importlib"
+addopts = "-v --tb=short --import-mode=prepend"
