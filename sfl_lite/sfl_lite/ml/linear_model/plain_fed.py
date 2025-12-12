@@ -287,8 +287,9 @@ class PlainFederatedLinearRegression(LinearRegressionTemplate):
 
         self._model = LinearRegressionModel(
             weights=model_weights, label_party=self.label_device, intercept=intercept
-        )  # Create secure training function that uses mp.while_loop
+        )
 
+        # Create secure training function that uses mp.while_loop
         @mp.function
         def secure_training_loop():
             # Initialize training state as MPObjects
