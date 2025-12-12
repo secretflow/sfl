@@ -366,3 +366,4 @@ davy_*.json
 temp_package/
 examples/**/*.png
 examples/**/*.json
+tmp*/datasets/**/*

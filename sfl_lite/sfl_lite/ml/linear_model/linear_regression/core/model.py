@@ -12,21 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-from typing import List
+import dataclasses
+from typing import Dict, Optional
 
 from mplang.v1.core import MPObject
 
 
-class Aggregator(ABC):
-    """The abstract aggregator."""
+@dataclasses.dataclass
+class LinearRegressionModel:
+    """
+    Linear regression model.
 
-    @abstractmethod
-    def sum(self, data: List[MPObject]):
-        """Sum of array elements."""
-        pass
+    Attributes:
+        weights: Dictionary mapping device names to their corresponding weight MPObject
+        label_party: Device name of the party holding the labels and intercept
+        intercept: Intercept (bias) term of the model as MPObject, or None if not fitted
+    """
 
-    @abstractmethod
-    def average(self, data: List[MPObject]):
-        """Compute the average of array elements."""
-        pass
+    weights: Dict[str, MPObject]
+    label_party: str
+    intercept: Optional[MPObject] = None

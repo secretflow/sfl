@@ -102,7 +102,12 @@ build = ["--no-isolation", "--no-sdist"]
 line-length = 88
 target-version = ['py310']
 include = '\.pyi?$'
-extend-exclude = '''.*_pb2.py'''
+extend-exclude = '''
+/(
+    .*_pb2\.py
+  | sfl_lite
+)/
+'''
 
 [tool.isort]
 profile = "black"
