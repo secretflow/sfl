@@ -35,8 +35,6 @@ class TestPlainFederatedLinearRegression:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Set up test environment with simulator."""
-        # Note: Using mock data for testing since mplang.v1 might not be available
-        # In actual implementation, you would initialize the MP context here
         pass
 
     def test_plain_federated_linear_regression_initialization(self):
