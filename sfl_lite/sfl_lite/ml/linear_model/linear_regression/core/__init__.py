@@ -12,21 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-from typing import List
 
-from mplang.v1.core import MPObject
-
-
-class Aggregator(ABC):
-    """The abstract aggregator."""
-
-    @abstractmethod
-    def sum(self, data: List[MPObject]):
-        """Sum of array elements."""
-        pass
-
-    @abstractmethod
-    def average(self, data: List[MPObject]):
-        """Compute the average of array elements."""
-        pass
+# utils lib for linear models
