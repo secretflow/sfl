@@ -896,176 +896,96 @@ workflows:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_any >>
-              - << pipeline.parameters.test_any >>
       - linux_component_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_component >>
-              - << pipeline.parameters.test_component >>
       - linux_device_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_device >>
-              - << pipeline.parameters.test_device >>
       - linux_distributed_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_distributed >>
-              - << pipeline.parameters.test_device >>
       - linux_ml_boost_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_ml_boost >>
-              - << pipeline.parameters.test_ml_boost >>
       - linux_ml_nn_fl_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_ml_nn_fl >>
-              - << pipeline.parameters.test_ml_nn_fl >>
       - linux_ml_nn_sl_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_ml_nn_sl >>
-              - << pipeline.parameters.test_ml_nn_sl >>
       - linux_ml_nn_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_ml_nn >>
-              - << pipeline.parameters.test_ml_nn >>
       - linux_ml_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_ml >>
-              - << pipeline.parameters.test_ml >>
       - linux_preprocessing_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_preprocessing >>
-              - << pipeline.parameters.test_preprocessing >>
       - linux_security_agg_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_security_agg >>
-              - << pipeline.parameters.test_security_agg >>
       - linux_security_priv_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_security_priv >>
-              - << pipeline.parameters.test_security_priv >>
       - linux_security_rand_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_security_rand >>
-              - << pipeline.parameters.test_security_rand >>
       - linux_security_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_security >>
-              - << pipeline.parameters.test_security >>
       - linux_tuner_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_tune >>
-              - << pipeline.parameters.test_tuner >>
       - linux_utils_test:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
           requires:
             - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_utils >>
-              - << pipeline.parameters.test_utils >>
       - linux_prod_basic_test:
           matrix:
             parameters:
@@ -1131,12 +1051,6 @@ workflows:
           matrix:
             parameters:
               resource_class: ["2xlarge+"]
-          requires:
-            - linux_build-<<matrix.resource_class>>
-          when:
-            or:
-              - << pipeline.parameters.base >>
-              - << pipeline.parameters.sfl_lite_test >>
       # - macos_sfl_lite_test:
       #     requires:
       #       - macos_build
