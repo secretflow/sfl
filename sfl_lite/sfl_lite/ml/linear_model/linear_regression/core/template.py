@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import abc
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from mplang.v1.core import MPObject
 
@@ -86,7 +86,7 @@ class LinearRegressionTemplate(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_params(self, deep: bool = True) -> Dict[str, any]:
+    def get_params(self, deep: bool = True) -> Dict[str, Any]:
         """
         Get parameters for this estimator.
 

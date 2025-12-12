@@ -28,7 +28,7 @@ dev = [
     "pytest-cov",
     "mypy>=1.0.0",
     "pre-commit",
-    "ruff>=0.13.1",
+    "ruff>=0.14.8",
 ]
 
 

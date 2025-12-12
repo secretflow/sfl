@@ -150,10 +150,10 @@ def create_linear_federated_data(
     bob_weights = jnp.array([1.0, 0.5], dtype=jnp.float32)
 
     # Compute alice contribution
-    alice_contrib = mp.device("P0")(lambda x, w: jnp.dot(x, w))(X1, alice_weights)
+    alice_contrib = mp.device("P0")(jnp.dot)(X1, alice_weights)
 
     # Compute bob contribution
-    bob_contrib = mp.device("P1")(lambda x, w: jnp.dot(x, w))(X2, bob_weights)
+    bob_contrib = mp.device("P1")(jnp.dot)(X2, bob_weights)
 
     # Combine on P0 for final labels
     if with_noise:

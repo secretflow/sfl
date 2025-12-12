@@ -33,7 +33,7 @@ def mse_loss(y_pred: MPObject, y: MPObject) -> MPObject:
     Returns:
         Average squared error as MPObject
     """
-    return mp.run_jax(lambda pred, true: jnp.mean((pred - true) ** 2), y_pred, y)
+    return mp.run_jax(lambda pred, y_true: jnp.mean((pred - y_true) ** 2), y_pred, y)
 
 
 @mp.function
@@ -53,8 +53,8 @@ def loss_and_grad(
     """
 
     # Define a pure JAX function for loss computation
-    def mse_loss_jax(pred, true):
-        return jnp.mean((pred - true) ** 2)
+    def mse_loss_jax(pred, y_true):
+        return jnp.mean((pred - y_true) ** 2)
 
     # Use value_and_grad to compute both loss and gradient automatically
     loss, gradient = mp.device(device)(jax.value_and_grad(mse_loss_jax))(y_pred, y)
@@ -80,13 +80,13 @@ def r2_score(y_pred: MPObject, y: MPObject) -> MPObject:
         R² score (1.0 is perfect prediction, 0.0 means no predictive power)
     """
 
-    def compute_r2(pred, true):
+    def compute_r2(pred, y_true):
         # Residual sum of squares
-        ss_res = jnp.sum((true - pred) ** 2)
+        ss_res = jnp.sum((y_true - pred) ** 2)
 
         # Total sum of squares
-        y_mean = jnp.mean(true)
-        ss_tot = jnp.sum((true - y_mean) ** 2)
+        y_mean = jnp.mean(y_true)
+        ss_tot = jnp.sum((y_true - y_mean) ** 2)
 
         # R² = 1 - (SS_res / SS_tot)
         # Handle edge case where SS_tot is 0 (all y values are the same)

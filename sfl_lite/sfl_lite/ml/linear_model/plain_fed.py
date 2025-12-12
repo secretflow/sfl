@@ -93,9 +93,7 @@ def compute_predictions(
     local_predictions = {}
     for device_name, features in X.items():
         if device_name in weights:
-            local_pred = mp.device(device_name)(lambda x, w: jnp.dot(x, w))(
-                features, weights[device_name]
-            )
+            local_pred = mp.device(device_name)(jnp.dot)(features, weights[device_name])
             local_predictions[device_name] = local_pred
 
     # Aggregate predictions on label device - parallel transfer and sum
@@ -161,7 +159,7 @@ def update_weights_step(
 
     # Update intercept if present
     if fit_intercept and "intercept" in weights:
-        intercept_gradient = mp.device(label_device)(lambda g: jnp.mean(g))(gradient)
+        intercept_gradient = mp.device(label_device)(jnp.mean)(gradient)
 
         updated_weights["intercept"] = mp.device(label_device)(
             lambda b, g, lr: b - lr * g
