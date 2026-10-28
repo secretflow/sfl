@@ -44,7 +44,7 @@ workflows:
       - path-filtering/filter:
           base-revision: main
           config-path: .circleci/continue-config.yml
-          tag: "3.9"
+          tag: "3.11"
           mapping: |
             pyproject.toml                base               true
             .circleci/continue-config.yml base               true

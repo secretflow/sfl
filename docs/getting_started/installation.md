@@ -36,9 +36,9 @@ pip install -U sfl
 
 ```sh
 git clone https://github.com/secretflow/sfl.git
-cd secretflow
+cd sfl
 
-conda create -n secretflow python=3.10
+conda create -n sfl python=3.10
 conda activate sfl
 ```
 
